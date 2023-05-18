@@ -5,6 +5,8 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
+use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
 
 /*
 |--------------------------------------------------------------------------
@@ -26,16 +28,16 @@ Route::get('/', function () {
     ]);
 });
 
-Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('dashboard', [HomeController::class, 'dashboard'])
-        ->name('dashboard');
-
-    Route::get('products', [HomeController::class, 'products'])
-        ->name('products');
-
-    Route::get('categories', [HomeController::class, 'categories'])
-        ->name('categories');
-});
+//Route::middleware(['auth', 'verified'])->group(function () {
+//    Route::get('dashboard', [HomeController::class, 'dashboard'])
+//        ->name('dashboard');
+//
+//    Route::get('products', [HomeController::class, 'products'])
+//        ->name('products');
+//
+//    Route::get('categories', [HomeController::class, 'categories'])
+//        ->name('categories');
+//});
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

@@ -5,7 +5,7 @@ import Toolbar from 'primevue/toolbar';
 import Button from 'primevue/button';
 import Tag from 'primevue/tag';
 import AppLayout from '@/Layouts/AppLayout.vue';
-import Modal from '@/Components/Modal/Modal.vue';
+import Modal from './Modal.vue';
 import Form from './Form.vue';
 import InputText from 'primevue/inputtext';
 
@@ -152,8 +152,10 @@ const onSubmit = async () => {
         if (item.value.availability) {
             item.value.availability = item.value.availability.value;
         }
-        if (item.value.published) {
-            item.value.published = item.value.published.value;
+        if (item.value.categories.length) {
+            item.value.categories = item.value.categories.map((item) => {
+                return item.code;
+            });
         }
 
         item.value.id
@@ -179,6 +181,12 @@ const onEdit = async (id) => {
     try {
         const data = await ProductsRepository.edit(id);
         item.value = data.result;
+        item.value.categories = data.result.categories.map((item) => {
+            return {
+                label: item.title,
+                code: item.id
+            }
+        });
         item.value.availability = {value: data.result.availability};
         toggleModal();
     } catch (e) {
@@ -298,6 +306,13 @@ const onSearch = async () => {
                         {{ data.discount_price ? $filters.formatMoney(data.discount_price) : null }}
                     </template>
                 </Column>
+                <Column field="categories" header="Категорії">
+                    <template #body="{data}">
+                        <div class="flex gap-2" v-if="data.categories.length">
+                            <Tag v-for="item in data.categories" :value="item.title"/>
+                        </div>
+                    </template>
+                </Column>
                 <Column field="sku" header="Артикул"></Column>
                 <Column>
                     <template #body="{data}">
@@ -311,23 +326,11 @@ const onSearch = async () => {
                 </Column>
             </DataTable>
         </div>
-        <Modal :show="state.isShowModal" @close="toggleModal(false)">
-            <template #body>
-                <Form :item="item"/>
-            </template>
-            <template #footer>
-                <Button label="Скасувати"
-                        icon="pi pi-times"
-                        @click="toggleModal(false)"
-                        text
-                />
-                <Button label="Зберегти"
-                        icon="pi pi-check"
-                        @click="onSubmit"
-                        autofocus
-                        :loading="state.isLoadingModal"
-                />
-            </template>
-        </Modal>
+        <Modal :show="state.isShowModal"
+               @close="toggleModal(false)"
+               :isLoadingModal="state.isLoadingModal"
+               :item="item"
+               @submit="onSubmit"
+        />
     </AppLayout>
 </template>

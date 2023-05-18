@@ -4,23 +4,29 @@ import InputLabel from '@/Components/InputLabel.vue';
 import Dropdown from 'primevue/dropdown';
 import Textarea from 'primevue/textarea';
 import FileUpload from 'primevue/fileupload';
-import {onMounted, ref} from "vue";
+import MultiSelect from 'primevue/multiselect';
+
+import {onMounted, reactive} from "vue";
 import CategoriesRepository from "@/Repositories/CategoriesRepository.js";
 import {toast} from "vue3-toastify";
 
 defineProps(['item']);
 
-const categories = ref([]);
+const state = reactive({
+    categories: [],
+    isLoadingCategories: false
+});
 
 onMounted(async () => await getCategories());
 
 const getCategories = async () => {
+    switchIsLoadingCategories();
     try {
-        const data = CategoriesRepository.list();
-        categories.value = data.result.map((item) => {
+        const data = await CategoriesRepository.list();
+        state.categories = data.result.map((item) => {
             return {
                 label: item.title,
-                key: item.id
+                code: item.id
             }
         })
     } catch (e) {
@@ -29,7 +35,10 @@ const getCategories = async () => {
             autoClose: 3000,
         });
     }
+    switchIsLoadingCategories();
 }
+
+const switchIsLoadingCategories = () => state.isLoadingCategories = !state.isLoadingCategories;
 
 const availabilityOptions = [
     {
@@ -65,13 +74,14 @@ const onUpload = (e) => {
                 />
             </div>
             <div class="block">
-                <InputLabel :required="true">Категорія</InputLabel>
-                <Dropdown v-model="item.categories"
-                          :options="categories"
-                          optionLabel="label"
-                          dataKey="value"
-                          placeholder="Оберіть категорію"
-                          class="w-full"
+                <InputLabel :required="true">Категорії</InputLabel>
+                <MultiSelect v-model="item.categories"
+                             :options="state.categories"
+                             optionLabel="label"
+                             placeholder="Оберіть одну або більше"
+                             class="w-full"
+                             filter
+                             :loading="state.isLoadingCategories"
                 />
             </div>
         </div>
@@ -91,7 +101,6 @@ const onUpload = (e) => {
                 />
             </div>
         </div>
-
 
         <div class="block">
             <InputLabel>Опис</InputLabel>

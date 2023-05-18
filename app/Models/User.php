@@ -7,9 +7,12 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Stancl\Tenancy\Database\Concerns\CentralConnection;
 
 class User extends Authenticatable
 {
+//    protected $connection = 'central';
+
     use HasApiTokens, HasFactory, Notifiable;
 
     /**
@@ -19,6 +22,8 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'name',
+        'tenant_id',
+        'phone',
         'email',
         'password',
     ];

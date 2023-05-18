@@ -3,6 +3,7 @@
 namespace App\Repositories;
 
 use App\Models\Category as Model;
+use Illuminate\Database\Eloquent\Collection;
 
 class CategoriesRepository extends CoreRepository
 {
@@ -48,5 +49,10 @@ class CategoriesRepository extends CoreRepository
     final public function destroy(int $id): int
     {
         return $this->coreDestroy($this->model, $id);
+    }
+
+    final public function list(): Collection
+    {
+        return $this->model::select(['id', 'title'])->orderBy('id', 'desc')->get();
     }
 }

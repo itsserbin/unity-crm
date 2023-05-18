@@ -7,12 +7,13 @@ const isOpen = ref(false);
 <template>
     <div class="flex">
         <button @click="isOpen = !isOpen"
-                class="absolute top-4 left-4 z-50 bg-gray-200 dark:bg-gray-700 p-2 rounded w-9 h-9">
+                class="absolute top-4 left-4 z-50 bg-gray-200 dark:bg-gray-700 p-2 rounded w-10 h-10">
             <i :class="{'pi pi-times open' : isOpen,'pi pi-bars' : !isOpen}" class="open-button"></i>
         </button>
         <transition name="slide-aside">
             <template v-if="isOpen">
-                <div class="z-40 absolute flex flex-col h-screen p-3 w-80 duration-300 bg-gray-300 dark:bg-gray-800 shadow">
+                <div class="z-40 absolute flex flex-col h-screen p-4 w-80 duration-300 bg-gray-300 dark:bg-gray-800 shadow">
+                    <div class="font-medium text-gray-700 dark:text-gray-300 text-4xl text-end">UnityCRM</div>
                     <div class="space-y-3">
                         <div class="flex-1 mt-10">
                             <ul class="pt-2 pb-4 space-y-1 text-lg">
@@ -35,6 +36,14 @@ const isOpen = ref(false);
                                           class="flex items-center p-2 space-x-3 rounded-md">
                                         <i class="pi pi-folder" style="font-size:1.3rem"></i>
                                         <span class="text-gray-700 dark:text-gray-300">Категорії</span>
+                                    </Link>
+                                </li>
+
+                                <li class="rounded-sm">
+                                    <Link :href="route('logout')" method="post"
+                                          class="flex items-center p-2 space-x-3 rounded-md">
+                                        <i class="pi pi-folder" style="font-size:1.3rem"></i>
+                                        <span class="text-gray-700 dark:text-gray-300">Вийти</span>
                                     </Link>
                                 </li>
                             </ul>

@@ -2,13 +2,16 @@
 import GuestLayout from '@/Layouts/GuestLayout.vue';
 import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
-import PrimaryButton from '@/Components/PrimaryButton.vue';
-import TextInput from '@/Components/TextInput.vue';
-import { Head, Link, useForm } from '@inertiajs/vue3';
+import {Head, Link, useForm} from '@inertiajs/vue3';
+import Button from 'primevue/button';
+import InputText from 'primevue/inputtext';
+import InputMask from 'primevue/inputmask';
 
 const form = useForm({
     name: '',
+    phone: '',
     email: '',
+    domain: '',
     password: '',
     password_confirmation: '',
 });
@@ -22,13 +25,13 @@ const submit = () => {
 
 <template>
     <GuestLayout>
-        <Head title="Register" />
+        <Head title="Register"/>
 
-        <form @submit.prevent="submit">
+        <form @submit.prevent="submit" class="grid grid-cols-1 gap-3">
             <div>
-                <InputLabel for="name" value="Name" />
+                <InputLabel for="name" value="Імʼя"/>
 
-                <TextInput
+                <InputText
                     id="name"
                     type="text"
                     class="mt-1 block w-full"
@@ -38,13 +41,31 @@ const submit = () => {
                     autocomplete="name"
                 />
 
-                <InputError class="mt-2" :message="form.errors.name" />
+                <InputError class="mt-2" :message="form.errors.name"/>
             </div>
 
-            <div class="mt-4">
-                <InputLabel for="email" value="Email" />
+            <div>
+                <InputLabel for="name" value="Телефон"/>
 
-                <TextInput
+                <InputMask
+                    id="phone"
+                    type="tel"
+                    class="mt-1 block w-full"
+                    v-model="form.phone"
+                    required
+                    autofocus
+                    autocomplete="phone"
+                    placeholder="+38 ("
+                    mask="+38 (999) 999-99-99"
+                />
+
+                <InputError class="mt-2" :message="form.errors.phone"/>
+            </div>
+
+            <div>
+                <InputLabel for="email" value="Email"/>
+
+                <InputText
                     id="email"
                     type="email"
                     class="mt-1 block w-full"
@@ -53,13 +74,28 @@ const submit = () => {
                     autocomplete="username"
                 />
 
-                <InputError class="mt-2" :message="form.errors.email" />
+                <InputError class="mt-2" :message="form.errors.email"/>
             </div>
 
-            <div class="mt-4">
-                <InputLabel for="password" value="Password" />
+            <div>
+                <InputLabel for="domain" value="Адрес ЦРМ"/>
 
-                <TextInput
+                <InputText
+                    id="domain"
+                    type="text"
+                    class="mt-1 block w-full"
+                    v-model="form.domain"
+                    required
+                    autocomplete="domain"
+                />
+
+                <InputError class="mt-2" :message="form.errors.domain"/>
+            </div>
+
+            <div>
+                <InputLabel for="password" value="Пароль"/>
+
+                <InputText
                     id="password"
                     type="password"
                     class="mt-1 block w-full"
@@ -68,13 +104,13 @@ const submit = () => {
                     autocomplete="new-password"
                 />
 
-                <InputError class="mt-2" :message="form.errors.password" />
+                <InputError class="mt-2" :message="form.errors.password"/>
             </div>
 
-            <div class="mt-4">
-                <InputLabel for="password_confirmation" value="Confirm Password" />
+            <div>
+                <InputLabel for="password_confirmation" value="Підтвердження паролю"/>
 
-                <TextInput
+                <InputText
                     id="password_confirmation"
                     type="password"
                     class="mt-1 block w-full"
@@ -83,7 +119,7 @@ const submit = () => {
                     autocomplete="new-password"
                 />
 
-                <InputError class="mt-2" :message="form.errors.password_confirmation" />
+                <InputError class="mt-2" :message="form.errors.password_confirmation"/>
             </div>
 
             <div class="flex items-center justify-end mt-4">
@@ -91,12 +127,12 @@ const submit = () => {
                     :href="route('login')"
                     class="underline text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800"
                 >
-                    Already registered?
+                    Вже зареєстровані?
                 </Link>
 
-                <PrimaryButton class="ml-4" :class="{ 'opacity-25': form.processing }" :disabled="form.processing">
-                    Register
-                </PrimaryButton>
+                <Button type="submit" class="ml-4" :class="{ 'opacity-25': form.processing }" :disabled="form.processing">
+                    Зареєструватись
+                </Button>
             </div>
         </form>
     </GuestLayout>

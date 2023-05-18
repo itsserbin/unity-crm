@@ -4,7 +4,7 @@ import Column from 'primevue/column';
 import Toolbar from 'primevue/toolbar';
 import Button from 'primevue/button';
 import AppLayout from '@/Layouts/AppLayout.vue';
-import Modal from '@/Components/Modal/Modal.vue';
+import Modal from './Modal.vue';
 import Form from './Form.vue';
 import InputText from 'primevue/inputtext';
 
@@ -187,7 +187,7 @@ const onSearch = async () => {
         <div class="card">
             <Toolbar class="mb-4">
                 <template #start>
-                    <Button label="Додати" icon="pi pi-plus" severity="success" class="mr-2" @click="onCreate"/>
+                    <Button label="Додати" icon="pi pi-plus" class="mr-2" @click="onCreate"/>
                 </template>
 
             </Toolbar>
@@ -237,23 +237,11 @@ const onSearch = async () => {
                 </Column>
             </DataTable>
         </div>
-        <Modal :show="state.isShowModal" @close="toggleModal(false)">
-            <template #body>
-                <Form :item="item"/>
-            </template>
-            <template #footer>
-                <Button label="Скасувати"
-                        icon="pi pi-times"
-                        @click="toggleModal(false)"
-                        text
-                />
-                <Button label="Зберегти"
-                        icon="pi pi-check"
-                        @click="onSubmit"
-                        autofocus
-                        :loading="state.isLoadingModal"
-                />
-            </template>
-        </Modal>
+        <Modal :show="state.isShowModal"
+               :item="item"
+               @close="toggleModal(false)"
+               @submit="onSubmit"
+               :isLoadingModal="state.isLoadingModal"
+        />
     </AppLayout>
 </template>

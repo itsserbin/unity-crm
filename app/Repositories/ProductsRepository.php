@@ -13,7 +13,7 @@ class ProductsRepository extends CoreRepository
 
     final public function getModelById($id)
     {
-        return $this->model::where('id',$id)->with('categories:id,title')->first();
+        return $this->model::where('id', $id)->with('categories:id,title')->first();
     }
 
     final public function getAllWithPaginate(array $data)
@@ -21,7 +21,6 @@ class ProductsRepository extends CoreRepository
         $columns = [
             'id',
             'availability',
-            'published',
             'title',
             'trade_price',
             'price',
@@ -51,7 +50,9 @@ class ProductsRepository extends CoreRepository
 
     final public function create(array $data): \Illuminate\Database\Eloquent\Model
     {
-        return $this->coreCreate($this->model, $data);
+        $model = $this->coreCreate($this->model, $data);
+        $model->categories()->sync($data['categories']);
+        return $model;
     }
 
     final public function update(int $id, array $data): \Illuminate\Database\Eloquent\Model
