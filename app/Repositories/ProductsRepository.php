@@ -3,6 +3,7 @@
 namespace App\Repositories;
 
 use App\Models\Product as Model;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class ProductsRepository extends CoreRepository
 {
@@ -11,12 +12,12 @@ class ProductsRepository extends CoreRepository
         return Model::class;
     }
 
-    final public function getModelById($id)
+    final public function getModelById(int $id): ?\Illuminate\Database\Eloquent\Model
     {
         return $this->model::where('id', $id)->with('categories:id,title')->first();
     }
 
-    final public function getAllWithPaginate(array $data)
+    final public function getAllWithPaginate(array $data): LengthAwarePaginator
     {
         $columns = [
             'id',
@@ -65,7 +66,7 @@ class ProductsRepository extends CoreRepository
         return $this->coreDestroy($this->model, $id);
     }
 
-    final public function search(string $query, array $data)
+    final public function search(string $query, array $data): LengthAwarePaginator
     {
         $columns = [
             'id',
@@ -80,7 +81,8 @@ class ProductsRepository extends CoreRepository
         ];
 
         return $this
-            ->model::where('id', 'LIKE', "%$query%")
+            ->model::select($columns)
+            ->where('id', 'LIKE', "%$query%")
             ->orWhere('title', 'LIKE', "%$query%")
             ->orWhere('trade_price', 'LIKE', "%$query%")
             ->orWhere('price', 'LIKE', "%$query%")

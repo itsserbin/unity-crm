@@ -23,7 +23,7 @@ class ProductsController extends BaseController
      * @param Request $request
      * @return JsonResponse
      */
-    public function index(Request $request): JsonResponse
+    final public function index(Request $request): JsonResponse
     {
         $result = $this->productsRepository->getAllWithPaginate($request->all());
 
@@ -40,7 +40,7 @@ class ProductsController extends BaseController
      * @param Request $request
      * @return JsonResponse
      */
-    public function create(Request $request): JsonResponse
+    final public function create(Request $request): JsonResponse
     {
         $result = $this->productsRepository->create($request->all());
 
@@ -58,7 +58,7 @@ class ProductsController extends BaseController
      * @param Request $request
      * @return JsonResponse
      */
-    public function update(int $id, Request $request): JsonResponse
+    final public function update(int $id, Request $request): JsonResponse
     {
         $result = $this->productsRepository->update($id, $request->all());
 
@@ -75,7 +75,7 @@ class ProductsController extends BaseController
      * @param int $id
      * @return JsonResponse
      */
-    public function destroy(int $id): JsonResponse
+    final public function destroy(int $id): JsonResponse
     {
         $result = $this->productsRepository->destroy($id);
 
@@ -92,7 +92,7 @@ class ProductsController extends BaseController
      * @param int $id
      * @return JsonResponse
      */
-    public function edit(int $id): JsonResponse
+    final public function edit(int $id): JsonResponse
     {
         $result = $this->productsRepository->getModelById($id);
 
@@ -107,7 +107,7 @@ class ProductsController extends BaseController
      *
      * @return JsonResponse
      */
-    public function list(): JsonResponse
+    final public function list(): JsonResponse
     {
         $result = $this->productsRepository->list();
 
@@ -122,9 +122,10 @@ class ProductsController extends BaseController
      * using the provided search keyword.
      *
      * @param string $search
+     * @param Request $request
      * @return JsonResponse
      */
-    public function search(string $search, Request $request): JsonResponse
+    final public function search(string $search, Request $request): JsonResponse
     {
         $result = $this->productsRepository->search($search, $request->all());
 

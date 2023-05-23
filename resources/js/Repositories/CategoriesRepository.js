@@ -4,7 +4,7 @@ export default {
             const response = await axios.get(route('api.categories.index', params));
             return response.data;
         } catch (error) {
-            throw new Error(error.response.data);
+            throw new Error(error);
         }
     },
     async destroy(id) {
@@ -12,7 +12,7 @@ export default {
             const response = await axios.delete(route('api.categories.destroy', id));
             return response.data;
         } catch (error) {
-            throw new Error(error.response.data);
+            throw new Error(error);
         }
     },
     async edit(id) {
@@ -20,7 +20,7 @@ export default {
             const response = await axios.get(route('api.categories.edit', id));
             return response.data;
         } catch (error) {
-            throw new Error(error.response.data);
+            throw new Error(error);
         }
     },
     async update(item) {
@@ -28,7 +28,7 @@ export default {
             const response = await axios.put(route('api.categories.update', item.id), item);
             return response.data;
         } catch (error) {
-            throw new Error(error.response.data);
+            throw new Error(error);
         }
     },
     async create(item) {
@@ -36,7 +36,7 @@ export default {
             const response = await axios.post(route('api.categories.create'), item);
             return response.data;
         } catch (error) {
-            throw new Error(error.response.data);
+            throw new Error(error);
         }
     },
     async search(query) {
@@ -44,7 +44,7 @@ export default {
             const response = await axios.get(route('api.categories.search', query));
             return response.data;
         } catch (error) {
-            throw new Error(error.response.data);
+            throw new Error(error);
         }
     },
     async list() {
@@ -52,7 +52,7 @@ export default {
             const response = await axios.get(route('api.categories.list'));
             return response.data;
         } catch (error) {
-            throw new Error(error.response.data);
+            throw new Error(error);
         }
-    },
+    }
 }

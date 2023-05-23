@@ -20,7 +20,7 @@ class CategoriesController extends BaseController
      * @param Request $request
      * @return JsonResponse
      */
-    public function index(Request $request): JsonResponse
+    final public function index(Request $request): JsonResponse
     {
         $result = $this->categoriesRepository->getAllWithPaginate($request->all());
 
@@ -33,7 +33,7 @@ class CategoriesController extends BaseController
     /**
      * @return JsonResponse
      */
-    public function list(): JsonResponse
+    final public function list(): JsonResponse
     {
         $result = $this->categoriesRepository->list();
 
@@ -47,7 +47,7 @@ class CategoriesController extends BaseController
      * @param Request $request
      * @return JsonResponse
      */
-    public function create(Request $request): JsonResponse
+    final public function create(Request $request): JsonResponse
     {
         $result = $this->categoriesRepository->create($request->all());
 
@@ -58,10 +58,10 @@ class CategoriesController extends BaseController
     }
 
     /**
-     * @param $id
+     * @param int $id
      * @return JsonResponse
      */
-    public function edit($id): JsonResponse
+    final public function edit(int $id): JsonResponse
     {
         $result = $this->categoriesRepository->getModelById($id);
 
@@ -72,11 +72,11 @@ class CategoriesController extends BaseController
     }
 
     /**
-     * @param $id
+     * @param int $id
      * @param Request $request
      * @return JsonResponse
      */
-    public function update($id, Request $request): JsonResponse
+    final public function update(int $id, Request $request): JsonResponse
     {
         $result = $this->categoriesRepository->update($id, $request->all());
 
@@ -87,10 +87,10 @@ class CategoriesController extends BaseController
     }
 
     /**
-     * @param $id
+     * @param int $id
      * @return JsonResponse
      */
-    public function destroy($id): JsonResponse
+    final public function destroy(int $id): JsonResponse
     {
         $result = $this->categoriesRepository->destroy($id);
 
@@ -101,10 +101,10 @@ class CategoriesController extends BaseController
     }
 
     /**
-     * @param $search
+     * @param string $search
      * @return JsonResponse
      */
-    public function search($search): JsonResponse
+    final public function search(string $search): JsonResponse
     {
         $result = $this->categoriesRepository->search($search);
 

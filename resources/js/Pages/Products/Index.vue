@@ -14,11 +14,15 @@ import {toast} from 'vue3-toastify';
 import {ref, onMounted, reactive} from 'vue';
 import {useConfirm} from "@/Components/ConfirmationModal/useConfirm.js";
 import isDark from "@/Includes/isDark.js";
+import Heading from "@/Components/Heading.vue";
+
+const props = defineProps(['products']);
 
 const state = reactive({
     isLoading: false,
     isShowModal: false,
     isLoadingModal: false,
+    isLoadingRefreshButton: false,
     data: {},
     search: null
 });
@@ -34,7 +38,7 @@ const lazyParams = ref({
 
 const item = ref();
 
-onMounted(async () => await fetch());
+onMounted(async () => state.data = props.products);
 
 const queryParams = () => {
     let data = {};
@@ -68,6 +72,7 @@ const fetch = async () => {
 
 const toggleModal = (val) => val ? state.isShowModal = val : state.isShowModal = !state.isShowModal;
 const switchLoader = (val) => val ? state.isLoading = val : state.isLoading = !state.isLoading;
+const switchLoaderRefreshButton = (val) => val ? state.isLoadingRefreshButton = val : state.isLoadingRefreshButton = !state.isLoadingRefreshButton;
 
 const availabilityStatus = (val) => {
     switch (val) {
@@ -237,6 +242,20 @@ const onSearch = async () => {
         switchLoader();
     }
 }
+
+const refreshData = async () => {
+    switchLoaderRefreshButton();
+    lazyParams.value = ({
+        date: null,
+        page: 0,
+        first: 0,
+        rows: 15,
+        sortField: null,
+        sortOrder: null,
+    });
+    await fetch();
+    switchLoaderRefreshButton();
+}
 </script>
 
 <template>
@@ -244,9 +263,19 @@ const onSearch = async () => {
         <div class="card">
             <Toolbar class="mb-4">
                 <template #start>
+                    <div class="flex gap-2 items-center">
+                        <Button icon="pi pi-refresh"
+                                type="button"
+                                size="small"
+                                @click="refreshData"
+                                :loading="state.isLoadingRefreshButton"
+                        />
+                        <Heading>Товари</Heading>
+                    </div>
+                </template>
+                <template #end>
                     <Button label="Додати" icon="pi pi-plus" class="mr-2" @click="onCreate"/>
                 </template>
-
             </Toolbar>
 
             <DataTable resizableColumns

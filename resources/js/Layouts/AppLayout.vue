@@ -7,12 +7,13 @@ const isOpen = ref(false);
 <template>
     <div class="flex">
         <button @click="isOpen = !isOpen"
-                class="absolute top-4 left-4 z-50 bg-gray-200 dark:bg-gray-700 p-2 rounded w-10 h-10">
+                class="absolute top-8 left-2 z-50 bg-gray-200 dark:bg-gray-700 p-2 rounded w-10 h-10">
             <i :class="{'pi pi-times open' : isOpen,'pi pi-bars' : !isOpen}" class="open-button"></i>
         </button>
         <transition name="slide-aside">
             <template v-if="isOpen">
-                <div class="z-40 absolute flex flex-col h-screen p-4 w-80 duration-300 bg-gray-300 dark:bg-gray-800 shadow">
+                <div
+                    class="z-40 absolute flex flex-col h-screen p-4 w-80 duration-300 bg-gray-300 dark:bg-gray-800 shadow">
                     <div class="font-medium text-gray-700 dark:text-gray-300 text-4xl text-end">UnityCRM</div>
                     <div class="space-y-3">
                         <div class="flex-1 mt-10">
@@ -25,14 +26,15 @@ const isOpen = ref(false);
                                 </li>
 
                                 <li class="rounded-sm">
-                                    <Link :href="route('products')" class="flex items-center p-2 space-x-3 rounded-md">
+                                    <Link :href="route('catalog.products')"
+                                          class="flex items-center p-2 space-x-3 rounded-md">
                                         <i class="pi pi-th-large" style="font-size:1.3rem"></i>
                                         <span class="text-gray-700 dark:text-gray-300">Товари</span>
                                     </Link>
                                 </li>
 
                                 <li class="rounded-sm">
-                                    <Link :href="route('categories')"
+                                    <Link :href="route('catalog.categories')"
                                           class="flex items-center p-2 space-x-3 rounded-md">
                                         <i class="pi pi-folder" style="font-size:1.3rem"></i>
                                         <span class="text-gray-700 dark:text-gray-300">Категорії</span>
@@ -40,9 +42,37 @@ const isOpen = ref(false);
                                 </li>
 
                                 <li class="rounded-sm">
-                                    <Link :href="route('logout')" method="post"
+                                    <Link :href="route('crm.clients')"
                                           class="flex items-center p-2 space-x-3 rounded-md">
-                                        <i class="pi pi-folder" style="font-size:1.3rem"></i>
+                                        <i class="pi pi-user" style="font-size:1.3rem"></i>
+                                        <span class="text-gray-700 dark:text-gray-300">Клієнти</span>
+                                    </Link>
+                                </li>
+
+                                <li class="rounded-sm">
+                                    <Link :href="route('crm.orders')"
+                                          class="flex items-center p-2 space-x-3 rounded-md">
+                                        <span class="text-gray-700 dark:text-gray-300">Замовлення</span>
+                                    </Link>
+                                </li>
+
+                                <li class="rounded-sm">
+                                    <Link :href="route('options.sources')"
+                                          class="flex items-center p-2 space-x-3 rounded-md">
+                                        <span class="text-gray-700 dark:text-gray-300">Джерела</span>
+                                    </Link>
+                                </li>
+
+                                <li class="rounded-sm">
+                                    <Link :href="route('options.statuses')"
+                                          class="flex items-center p-2 space-x-3 rounded-md">
+                                        <span class="text-gray-700 dark:text-gray-300">Статуси</span>
+                                    </Link>
+                                </li>
+
+                                <li class="rounded-sm">
+                                    <Link :href="route('logout')" method="post" as="button"
+                                          class="flex items-center p-2 space-x-3 rounded-md">
                                         <span class="text-gray-700 dark:text-gray-300">Вийти</span>
                                     </Link>
                                 </li>
@@ -52,7 +82,7 @@ const isOpen = ref(false);
                 </div>
             </template>
         </transition>
-        <div class="min-h-screen w-full p-4 ml-12">
+        <div class="min-h-screen w-full p-4 pl-14">
             <slot></slot>
             <div v-show="isOpen" class="fixed inset-0 transform transition-all" @click="isOpen = !isOpen    ">
                 <div class="absolute inset-0 bg-gray-500 dark:bg-gray-900 opacity-75"/>

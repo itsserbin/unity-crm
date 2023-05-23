@@ -42,8 +42,13 @@ abstract class CoreRepository
         return $model::where('id', $id)->delete();
     }
 
-    final public function coreFind(Model $model, int $id): Model
+    final public function coreFind(Model $model, int $id): ?Model
     {
         return $model::where('id', $id)->first();
+    }
+
+    final public function coreFindBySlug(Model $model, string $slug): ?Model
+    {
+        return $model::where('slug', $slug)->first();
     }
 }

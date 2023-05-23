@@ -1,6 +1,6 @@
 import './bootstrap';
-import '../css/app.css';
-import 'primeicons/primeicons.css';
+// import '../css/app.css';
+// import 'primeicons/primeicons.css';
 
 if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
     import('primevue/resources/themes/vela-blue/theme.css');
@@ -31,6 +31,9 @@ createInertiaApp({
             formatMoney(value) {
                 return numeral(value).format('0,0[.]00');
             },
+            formatPhone(value) {
+                return `+${value.substr(0, 2)} (${value.substr(2, 3)}) ${value.substr(5, 3)}-${value.substr(8, 2)}-${value.substr(10, 2)}`;
+            }
         };
 
         return app.mount(el);

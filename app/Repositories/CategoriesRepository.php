@@ -4,6 +4,7 @@ namespace App\Repositories;
 
 use App\Models\Category as Model;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class CategoriesRepository extends CoreRepository
 {
@@ -12,12 +13,12 @@ class CategoriesRepository extends CoreRepository
         return Model::class;
     }
 
-    final public function getModelById($id)
+    final public function getModelById(int $id): ?\Illuminate\Database\Eloquent\Model
     {
         return $this->coreFind($this->model, $id);
     }
 
-    final public function getAllWithPaginate(array $data)
+    final public function getAllWithPaginate(array $data): LengthAwarePaginator
     {
         $columns = [
             'id',
