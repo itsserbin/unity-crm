@@ -12,7 +12,6 @@ import CategoriesRepository from "@/Repositories/CategoriesRepository.js";
 import {toast} from 'vue3-toastify';
 import {ref, onMounted, reactive} from 'vue';
 import {useConfirm} from "@/Components/ConfirmationModal/useConfirm.js";
-import isDark from "@/Includes/isDark.js";
 import Heading from "@/Components/Heading.vue";
 
 const props = defineProps(['categories']);
@@ -38,7 +37,6 @@ const lazyParams = ref({
 const item = ref();
 
 onMounted(async () => state.data = props.categories);
-
 const queryParams = () => {
     let data = {};
     if (lazyParams.value.rows) {
@@ -62,9 +60,7 @@ const fetch = async () => {
         state.data = data.success ? data.result : [];
     } catch (e) {
         console.error(e);
-        toast.error("Failed to fetch data", {
-            autoClose: 3000,
-        });
+        toast.error("Failed to fetch data");
     }
     switchLoader();
 }
@@ -110,14 +106,10 @@ const onSubmit = async () => {
 
         await fetch();
         toggleModal();
-        toast.success("Success", {
-            autoClose: 2000,
-        });
+        toast.success("Success");
     } catch (e) {
         console.error(e);
-        toast.error("Error", {
-            autoClose: 2000,
-        });
+        toast.error("Error");
     }
     state.isLoadingModal = false;
 }
@@ -131,9 +123,7 @@ const onEdit = async (id) => {
         toggleModal();
     } catch (e) {
         console.error(e);
-        toast.error("Failed to get data", {
-            autoClose: 3000,
-        });
+        toast.error("Failed to get data");
     }
     switchLoader();
 }
@@ -147,16 +137,10 @@ const onDestroy = async (id) => {
             try {
                 await CategoriesRepository.destroy(id);
                 await fetch();
-                toast.success('Запис успішно видалено', {
-                    autoClose: 3000,
-                    theme: isDark ? 'dark' : 'light'
-                });
+                toast.success('Запис успішно видалено');
             } catch (error) {
                 console.error(error);
-                toast.error('Виникла помилка', {
-                    autoClose: 3000,
-                    theme: isDark ? 'dark' : 'light'
-                });
+                toast.error('Виникла помилка');
             }
         }
     });
@@ -170,9 +154,7 @@ const onSearch = async () => {
             state.data = data.success ? data.result : [];
         } catch (e) {
             console.error(e);
-            toast.error("Failed to fetch data", {
-                autoClose: 3000,
-            });
+            toast.error("Failed to fetch data");
         }
         switchLoader();
     }

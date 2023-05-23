@@ -62,9 +62,7 @@ const fetch = async () => {
         state.data = data.success ? data.result : [];
     } catch (e) {
         console.error(e);
-        toast.error("Failed to fetch data", {
-            autoClose: 3000,
-        });
+        toast.error("Failed to fetch data");
     }
     switchLoader();
 }
@@ -108,14 +106,10 @@ const onSubmit = async () => {
 
         await fetch();
         toggleModal();
-        toast.success("Success", {
-            autoClose: 2000,
-        });
+        toast.success("Success");
     } catch (e) {
         console.error(e);
-        toast.error("Error", {
-            autoClose: 2000,
-        });
+        toast.error("Error");
     }
     state.isLoadingModal = false;
 }
@@ -129,9 +123,7 @@ const onEdit = async (id) => {
         toggleModal();
     } catch (e) {
         console.error(e);
-        toast.error("Failed to get data", {
-            autoClose: 3000,
-        });
+        toast.error("Failed to get data");
     }
     switchLoader();
 }
@@ -145,16 +137,10 @@ const onDestroy = async (id) => {
             try {
                 await OrdersRepository.destroy(id);
                 await fetch();
-                toast.success('Запис успішно видалено', {
-                    autoClose: 3000,
-                    theme: isDark ? 'dark' : 'light'
-                });
+                toast.success('Запис успішно видалено');
             } catch (error) {
                 console.error(error);
-                toast.error('Виникла помилка', {
-                    autoClose: 3000,
-                    theme: isDark ? 'dark' : 'light'
-                });
+                toast.error('Виникла помилка');
             }
         }
     });
@@ -168,9 +154,7 @@ const onSearch = async () => {
             state.data = data.success ? data.result : [];
         } catch (e) {
             console.error(e);
-            toast.error("Failed to fetch data", {
-                autoClose: 3000,
-            });
+            toast.error("Failed to fetch data");
         }
         switchLoader();
     }

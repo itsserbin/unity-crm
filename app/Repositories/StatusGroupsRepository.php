@@ -39,7 +39,7 @@ class StatusGroupsRepository extends CoreRepository
         return $model
             ->orderBy(
                 $data['sort']['column'] ?? 'id',
-                $data['sort']['type'] ?? 'desc'
+                $data['sort']['type'] ?? 'asc'
             )
             ->with('statuses:id,title,group_slug')
             ->paginate($data['perPage'] ?? 15);

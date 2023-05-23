@@ -1,6 +1,4 @@
 import './bootstrap';
-// import '../css/app.css';
-// import 'primeicons/primeicons.css';
 
 if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
     import('primevue/resources/themes/vela-blue/theme.css');
@@ -14,7 +12,9 @@ import {resolvePageComponent} from 'laravel-vite-plugin/inertia-helpers';
 import {ZiggyVue} from '../../vendor/tightenco/ziggy/dist/vue.m';
 
 import PrimeVue from 'primevue/config';
-import numeral from "numeral";
+import Vue3Toastify from 'vue3-toastify';
+import isDark from "@/Includes/isDark.js";
+import filters from "@/filters.js";
 
 const appName = window.document.getElementsByTagName('title')[0]?.innerText || 'Laravel';
 
@@ -25,21 +25,19 @@ createInertiaApp({
         const app = createApp({render: () => h(App, props)})
             .use(plugin)
             .use(ZiggyVue, Ziggy)
+            .use(Vue3Toastify, {
+                autoClose: 3000,
+                pauseOnHover: false,
+                pauseOnFocusLoss: false,
+                theme: isDark ? 'dark' : 'light'
+            })
             .use(PrimeVue);
 
-        app.config.globalProperties.$filters = {
-            formatMoney(value) {
-                return numeral(value).format('0,0[.]00');
-            },
-            formatPhone(value) {
-                return `+${value.substr(0, 2)} (${value.substr(2, 3)}) ${value.substr(5, 3)}-${value.substr(8, 2)}-${value.substr(10, 2)}`;
-            }
-        };
+        app.config.globalProperties.$filters = filters;
 
         return app.mount(el);
     },
     progress: {
         color: '#4B5563',
-    }
-    ,
-});
+    },
+}).then(r => {});

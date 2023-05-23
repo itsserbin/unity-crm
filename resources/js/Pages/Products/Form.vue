@@ -31,9 +31,7 @@ const getCategories = async () => {
         })
     } catch (e) {
         console.error(e);
-        toast.error("Failed to get categories", {
-            autoClose: 3000,
-        });
+        toast.error("Failed to get categories");
     }
     switchIsLoadingCategories();
 }

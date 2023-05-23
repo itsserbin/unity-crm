@@ -146,16 +146,10 @@ const onDestroy = async (id) => {
             try {
                 await StatusesRepository.destroy(id);
                 await fetch();
-                toast.success('Запис успішно видалено', {
-                    autoClose: 3000,
-                    theme: isDark ? 'dark' : 'light'
-                });
+                toast.success('Запис успішно видалено');
             } catch (error) {
                 console.error(error);
-                toast.error('Виникла помилка', {
-                    autoClose: 3000,
-                    theme: isDark ? 'dark' : 'light'
-                });
+                toast.error('Виникла помилка');
             }
         }
     });

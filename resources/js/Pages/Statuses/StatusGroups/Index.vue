@@ -96,10 +96,6 @@ const onCreate = () => {
 const onSubmit = async () => {
     state.isLoadingModal = true;
     try {
-        if (item.value.group_slug) {
-            item.value.group_slug = item.value.group_slug.value;
-        }
-
         item.value.id
             ? await StatusGroupsRepository.update(item.value)
             : await StatusGroupsRepository.create(item.value);
@@ -146,16 +142,10 @@ const onDestroy = async (id) => {
             try {
                 await StatusGroupsRepository.destroy(id);
                 await fetch();
-                toast.success('Запис успішно видалено', {
-                    autoClose: 3000,
-                    theme: isDark ? 'dark' : 'light'
-                });
+                toast.success('Запис успішно видалено');
             } catch (error) {
                 console.error(error);
-                toast.error('Виникла помилка', {
-                    autoClose: 3000,
-                    theme: isDark ? 'dark' : 'light'
-                });
+                toast.error('Виникла помилка');
             }
         }
     });
@@ -208,7 +198,7 @@ const refreshData = async () => {
                @sort="onSort($event)"
                paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown"
     >
-        <Column field="title" header="Назва">
+        <Column field="title" header="Назва" sortable="">
             <template #body="{data}">
                 <Button type="button"
                         :label="data.title"

@@ -26,9 +26,7 @@ const getSources = async () => {
         });
     } catch (e) {
         console.error(e);
-        toast.error("Failed to get sources", {
-            autoClose: 3000,
-        });
+        toast.error("Failed to get sources");
     }
 }
 </script>
