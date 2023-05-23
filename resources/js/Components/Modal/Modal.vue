@@ -61,10 +61,9 @@ const maxWidthClass = computed(() => {
     }[props.maxWidth];
 });
 </script>
-
 <template>
     <teleport to="body">
-        <transition leave-active-class="duration-200">
+        <transition enter-active-class="duration-300" leave-active-class="duration-300">
             <div v-show="show"
                  class="fixed flex items-center justify-center inset-0 overflow-y-auto px-4 py-6 sm:px-0 z-50"
                  scroll-region>
@@ -72,7 +71,7 @@ const maxWidthClass = computed(() => {
                     enter-active-class="ease-out duration-300"
                     enter-from-class="opacity-0"
                     enter-to-class="opacity-100"
-                    leave-active-class="ease-in duration-200"
+                    leave-active-class="ease-in duration-300"
                     leave-from-class="opacity-100"
                     leave-to-class="opacity-0"
                 >
@@ -85,9 +84,9 @@ const maxWidthClass = computed(() => {
                     enter-active-class="ease-out duration-300"
                     enter-from-class="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
                     enter-to-class="opacity-100 translate-y-0 sm:scale-100"
-                    leave-active-class="ease-in duration-200"
-                    leave-from-class="opacity-100 translate-y-0 sm:scale-100"
-                    leave-to-class="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                    leave-active-class="ease-in duration-300"
+                    leave-from-class="opacity-100"
+                    leave-to-class="opacity-0"
                 >
                     <div v-show="show"
                          class="h-auto max-h-full overflow-y-auto my-6 bg-white dark:bg-zinc-800 rounded-lg shadow-xl transform transition-all sm:w-full sm:mx-auto"
@@ -109,3 +108,4 @@ const maxWidthClass = computed(() => {
         </transition>
     </teleport>
 </template>
+

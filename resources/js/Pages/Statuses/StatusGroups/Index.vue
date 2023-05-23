@@ -98,10 +98,10 @@ const onSubmit = async () => {
 
         await fetch();
         toggleModal();
-        toast.success("Success", );
+        toast.success("Success",);
     } catch (e) {
         console.error(e);
-        toast.error("Error", );
+        toast.error("Error",);
     }
     state.isLoadingModal = false;
 }
@@ -163,10 +163,8 @@ const refreshData = async () => {
                         @click="refreshData"
                         :loading="state.isLoadingRefreshButton"
                 />
+                <Button label="Додати" size="small" icon="pi pi-plus" class="mr-2" @click="onCreate"/>
             </div>
-        </template>
-        <template #end>
-            <Button label="Додати" icon="pi pi-plus" class="mr-2" @click="onCreate"/>
         </template>
     </Toolbar>
     <DataTable resizableColumns

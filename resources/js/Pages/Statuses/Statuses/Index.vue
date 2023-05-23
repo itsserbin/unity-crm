@@ -179,10 +179,8 @@ const setPublishedStatus = async (id, val) => {
                         @click="refreshData"
                         :loading="state.isLoadingRefreshButton"
                 />
+                <Button label="Додати" size="small" icon="pi pi-plus" class="mr-2" @click="onCreate"/>
             </div>
-        </template>
-        <template #end>
-            <Button label="Додати" icon="pi pi-plus" class="mr-2" @click="onCreate"/>
         </template>
     </Toolbar>
     <DataTable resizableColumns

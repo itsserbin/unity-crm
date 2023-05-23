@@ -257,7 +257,7 @@ const refreshData = async () => {
                     </div>
                 </template>
                 <template #end>
-                    <Button label="Додати" icon="pi pi-plus" class="mr-2" @click="onCreate"/>
+                    <Button label="Додати" size="small" icon="pi pi-plus" class="mr-2" @click="onCreate"/>
                 </template>
             </Toolbar>
 
@@ -279,17 +279,15 @@ const refreshData = async () => {
             >
                 <template #header>
                     <div class="grid grid-cols-1 md:grid-cols-2">
-                        <div class="p-input-icon-left">
-                            <form @submit.prevent="onSearch">
-                                <InputText v-model="state.search" placeholder="Пошук..."/>
-                                <Button severity="secondary"
-                                        text
-                                        rounded
-                                        icon="pi pi-search"
-                                        type="submit"
-                                />
-                            </form>
-                        </div>
+                        <form @submit.prevent="onSearch" class="flex gap-2 items-center">
+                            <InputText v-model="state.search" placeholder="Пошук..."/>
+                            <Button severity="secondary"
+                                    text
+                                    rounded
+                                    icon="pi pi-search"
+                                    type="submit"
+                            />
+                        </form>
                         <div class="flex justify-end">
                             <Button link type="button" v-for="item in filterItems"
                                     @click="onFilter(item.value)"
@@ -336,6 +334,11 @@ const refreshData = async () => {
                         />
                     </template>
                 </Column>
+                <template #footer>
+                    <div class="text-end">
+                        Показано з {{ state.data.from }} по {{ state.data.to }} із {{ state.data.total }} записів
+                    </div>
+                </template>
             </DataTable>
         </div>
         <Modal :show="state.isShowModal"

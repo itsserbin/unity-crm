@@ -55,7 +55,7 @@ const submit = () => {
             </div>
 
             <div class="mt-4">
-                <InputLabel for="password" value="Password"/>
+                <InputLabel for="password" value="Пароль"/>
 
                 <InputText
                     id="password"
@@ -72,7 +72,7 @@ const submit = () => {
             <div class="block mt-4">
                 <label class="flex items-center">
                     <Checkbox name="remember" v-model:checked="form.remember"/>
-                    <InputLabel for="remember" value="Remember me"
+                    <InputLabel for="remember" value="Запамʼятати мене"
                                 class="ml-2 text-sm text-zinc-600 dark:text-zinc-400"/>
                 </label>
             </div>
@@ -83,7 +83,7 @@ const submit = () => {
                     :href="route('password.request')"
                     class="underline text-sm text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-zinc-800"
                 >
-                    Forgot your password?
+                    Забули свій пароль?
                 </Link>
 
                 <Button type="submit"
