@@ -1,5 +1,6 @@
-import './bootstrap';
-import "@/theme.js";
+import './Includes/bootstrap.js';
+import './Includes/theme.js';
+import filters from './Includes/filters.js';
 
 import {createApp, h} from 'vue';
 import {createInertiaApp} from '@inertiajs/vue3';
@@ -8,8 +9,6 @@ import {ZiggyVue} from '../../vendor/tightenco/ziggy/dist/vue.m';
 
 import PrimeVue from 'primevue/config';
 import Vue3Toastify from 'vue3-toastify';
-import isDark from "@/Includes/isDark.js";
-import filters from "@/filters.js";
 
 const appName = window.document.getElementsByTagName('title')[0]?.innerText || 'Laravel';
 
@@ -21,7 +20,7 @@ createInertiaApp({
             .use(plugin)
             .use(ZiggyVue, Ziggy)
             .use(Vue3Toastify, {
-                autoClose: 3000, pauseOnHover: false, pauseOnFocusLoss: false, theme: isDark ? 'dark' : 'light'
+                autoClose: 3000, pauseOnHover: false, pauseOnFocusLoss: false
             })
             .use(PrimeVue);
 

@@ -13,7 +13,6 @@ import ClientsRepository from "@/Repositories/ClientsRepository.js";
 import {toast} from 'vue3-toastify';
 import {ref, onMounted, reactive} from 'vue';
 import {useConfirm} from "@/Components/ConfirmationModal/useConfirm.js";
-import isDark from "@/Includes/isDark.js";
 
 const props = defineProps(['clients']);
 

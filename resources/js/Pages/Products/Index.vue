@@ -13,7 +13,6 @@ import ProductsRepository from "@/Repositories/ProductsRepository.js";
 import {toast} from 'vue3-toastify';
 import {ref, onMounted, reactive} from 'vue';
 import {useConfirm} from "@/Components/ConfirmationModal/useConfirm.js";
-import isDark from "@/Includes/isDark.js";
 import Heading from "@/Components/Heading.vue";
 
 const props = defineProps(['products']);

@@ -4,7 +4,6 @@ import InputLabel from '@/Components/InputLabel.vue';
 import Dropdown from 'primevue/dropdown';
 import {reactive, onMounted} from "vue";
 import {toast} from "vue3-toastify";
-import isDark from "@/Includes/isDark.js";
 import StatusGroupsRepository from "@/Repositories/StatusGroupsRepository.js";
 
 const props = defineProps(['item']);
@@ -27,10 +26,7 @@ const getGroups = async () => {
         });
     } catch (e) {
         console.error(e);
-        toast.error('Failed to get groups', {
-            autoClose: 3000,
-            theme: isDark ? 'dark' : 'light'
-        });
+        toast.error('Failed to get groups');
     }
 }
 </script>

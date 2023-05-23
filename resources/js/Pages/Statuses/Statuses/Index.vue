@@ -9,7 +9,6 @@ import Toolbar from "primevue/toolbar";
 import {onMounted, reactive, ref} from "vue";
 import StatusesRepository from "@/Repositories/StatusesRepository.js";
 import {toast} from "vue3-toastify";
-import isDark from "@/Includes/isDark.js";
 import {useConfirm} from "@/Components/ConfirmationModal/useConfirm.js";
 
 const props = defineProps(['statuses']);
@@ -59,10 +58,7 @@ const fetch = async () => {
         state.data = data.success ? data.result : [];
     } catch (e) {
         console.error(e);
-        toast.error("Failed to fetch data", {
-            autoClose: 3000,
-            theme: isDark ? 'dark' : 'light'
-        });
+        toast.error("Failed to fetch data");
     }
     switchLoader();
 }
@@ -106,16 +102,10 @@ const onSubmit = async () => {
 
         await fetch();
         toggleModal();
-        toast.success("Success", {
-            autoClose: 2000,
-            theme: isDark ? 'dark' : 'light'
-        });
+        toast.success("Success", );
     } catch (e) {
         console.error(e);
-        toast.error("Error", {
-            autoClose: 2000,
-            theme: isDark ? 'dark' : 'light'
-        });
+        toast.error("Error", );
     }
     state.isLoadingModal = false;
 }
@@ -129,10 +119,7 @@ const onEdit = async (id) => {
         toggleModal();
     } catch (e) {
         console.error(e);
-        toast.error("Failed to get data", {
-            autoClose: 3000,
-            theme: isDark ? 'dark' : 'light'
-        });
+        toast.error("Failed to get data");
     }
     switchLoader();
 }
@@ -173,16 +160,10 @@ const setPublishedStatus = async (id, val) => {
     switchLoader();
     try {
         await StatusesRepository.setPublished({id: id, value: val});
-        toast.success("Оновлено!", {
-            autoClose: 3000,
-            theme: isDark ? 'dark' : 'light'
-        });
+        toast.success("Оновлено!");
     } catch (e) {
         console.error(e);
-        toast.error("Failed set status", {
-            autoClose: 3000,
-            theme: isDark ? 'dark' : 'light'
-        });
+        toast.error("Failed set status");
     }
     switchLoader();
 }
