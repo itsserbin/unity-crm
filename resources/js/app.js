@@ -1,10 +1,5 @@
 import './bootstrap';
-
-if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-    import('primevue/resources/themes/vela-blue/theme.css');
-} else {
-    import('primevue/resources/themes/viva-light/theme.css');
-}
+import "@/theme.js";
 
 import {createApp, h} from 'vue';
 import {createInertiaApp} from '@inertiajs/vue3';
@@ -26,10 +21,7 @@ createInertiaApp({
             .use(plugin)
             .use(ZiggyVue, Ziggy)
             .use(Vue3Toastify, {
-                autoClose: 3000,
-                pauseOnHover: false,
-                pauseOnFocusLoss: false,
-                theme: isDark ? 'dark' : 'light'
+                autoClose: 3000, pauseOnHover: false, pauseOnFocusLoss: false, theme: isDark ? 'dark' : 'light'
             })
             .use(PrimeVue);
 
@@ -40,4 +32,5 @@ createInertiaApp({
     progress: {
         color: '#4B5563',
     },
-}).then(r => {});
+}).then(r => {
+});
