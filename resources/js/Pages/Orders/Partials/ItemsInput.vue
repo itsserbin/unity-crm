@@ -48,6 +48,7 @@ const onSubmit = () => {
         sale_price: ((productModal.item.product_id.discount_price ? productModal.item.product_id.discount_price : productModal.item.product_id.price) * productModal.item.count) - productModal.item.discount
     };
 
+
     if (productModal.action === 'edit') {
         props.item.items[productModal.index] = item;
         switchProductModal();
@@ -58,8 +59,8 @@ const onSubmit = () => {
 }
 const onEdit = (e) => {
     productModal.action = 'edit';
-    productModal.index = e.index;
-    productModal.item = e.data;
+    productModal.index = JSON.parse(JSON.stringify(e.index));
+    productModal.item = JSON.parse(JSON.stringify(e.data));
     productModal.item.product_id = props.products.find((item) => item.id === productModal.item.product_id);
     switchProductModal();
 }

@@ -90,6 +90,7 @@ const mapData = (data) => {
                   placeholder="Оберіть статус"
                   :class="['w-full', { 'p-invalid': errors.status_id }]"
                   :loading="state.isLoadingStatusesDropdown"
+                  panelClass="order-statuses-dropdown"
         >
             <template #optiongroup="slotProps">
                 <div class="p-2 status-drowdown font-bold" :style="`background: ${slotProps.option.hex};`">
@@ -113,7 +114,7 @@ const mapData = (data) => {
 </template>
 
 <style>
-.p-dropdown-panel .p-dropdown-items .p-dropdown-item-group {
+.order-statuses-dropdown.p-dropdown-panel .p-dropdown-items .p-dropdown-item-group {
     padding: 0 !important;
 }
 </style>

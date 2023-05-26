@@ -3,11 +3,8 @@ const props = defineProps(['item']);
 
 const totalPrice = () => {
     const sale_price = props.item.items.reduce((accumulator, currentValue) => accumulator + currentValue.sale_price, 0);
-    console.log(sale_price);
-    console.log(props.item);
     return sale_price - props.item.discount;
 }
-
 
 const totalProductDiscountPrice = () => {
     return props.item.items.reduce((accumulator, currentValue) => accumulator + currentValue.discount, 0);

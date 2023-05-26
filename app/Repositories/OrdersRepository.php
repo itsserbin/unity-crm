@@ -34,7 +34,7 @@ class OrdersRepository extends CoreRepository
                 },
                 'manager:id,name',
                 'deliveryService:id,title',
-                'items:id,title,order_id,product_price,sale_price,trade_price,discount,count,image,additional_sale'
+                'items:id,title,order_id,product_price,sale_price,trade_price,discount,count,image,additional_sale,product_id'
             ])
             ->first();
     }

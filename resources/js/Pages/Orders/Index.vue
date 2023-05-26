@@ -120,7 +120,6 @@ const onCreate = () => {
 const onSubmit = async () => {
     try {
         state.isLoadingModal = true;
-        console.log(item.value);
         const {source_id, status_id, client_id, manager_id, delivery_service_id, id, ...rest} = item.value;
         const updatedItem = {
             ...(source_id && {source_id: source_id.value}),
@@ -289,7 +288,14 @@ const onFilterStatus = async () => {
                                          filter
                                          :maxSelectedLabels="3"
                                          scrollHeight="50vh"
-                            />
+                                         panelClass="orders-status-filter-select"
+                            >
+                                <template #optiongroup="slotProps">
+                                    <div class="p-2 status-drowdown font-bold" :style="`background: ${slotProps.option.hex};`">
+                                        <div>{{ slotProps.option.label }}</div>
+                                    </div>
+                                </template>
+                            </MultiSelect>
                         </div>
                     </div>
                 </template>
@@ -380,3 +386,9 @@ const onFilterStatus = async () => {
         />
     </AppLayout>
 </template>
+
+<style>
+.orders-status-filter-select.p-multiselect-panel .p-multiselect-items .p-multiselect-item-group{
+    padding: 0;
+}
+</style>

@@ -43,7 +43,7 @@ const emits = defineEmits(['close', 'submit']);
                 </div>
 
                 <div class="block">
-                    <InputLabel>Знижка</InputLabel>
+                    <InputLabel>Коментар</InputLabel>
                     <Textarea v-model="item.comment"
                               class="w-full"
                               rows="4"
