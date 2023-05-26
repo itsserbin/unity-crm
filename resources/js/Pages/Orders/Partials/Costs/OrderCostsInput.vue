@@ -4,8 +4,8 @@ import DataTable from "primevue/datatable";
 import Column from "primevue/column";
 import InputSwitch from "primevue/inputswitch";
 import InputLabel from "@/Components/InputLabel.vue";
-import OrderCostModal from "@/Pages/Orders/Partials/OrderCostModal.vue";
-import OrderCostsTable from "@/Pages/Orders/Partials/OrderCostsTable.vue";
+import OrderCostModal from "@/Pages/Orders/Partials/Costs/OrderCostModal.vue";
+import OrderCostsTable from "@/Pages/Orders/Partials/Costs/OrderCostsTable.vue";
 import {reactive} from "vue";
 
 const props = defineProps(['item']);

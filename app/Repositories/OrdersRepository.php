@@ -19,24 +19,25 @@ class OrdersRepository extends CoreRepository
 
     final public function getModelById(int $id): ?\Illuminate\Database\Eloquent\Model
     {
-        return $this->model::where('id', $id)
-            ->with([
-                'source:id,title',
-                'status' => function ($q) {
-                    $q->select(['id', 'title', 'group_slug']);
-                    $q->with('group', function ($q) {
-                        $q->select('slug', 'hex');
-                    });
-                },
-                'client' => function ($q) {
-                    $q->select('id', 'full_name', 'phones');
-                    $q->with('addresses');
-                },
-                'manager:id,name',
-                'costs:title,sum,comment,order_id',
-                'deliveryService:id,title',
-                'items:id,title,order_id,product_price,sale_price,trade_price,discount,count,image,additional_sale,product_id'
-            ])
+        $relations = [
+            'source:id,title',
+            'status' => function ($q) {
+                $q->select(['id', 'title', 'group_slug']);
+                $q->with('group:id,slug,hex');
+            },
+            'client' => function ($q) {
+                $q->select('id', 'full_name', 'phones');
+                $q->with('addresses');
+            },
+            'manager:id,name',
+            'costs:title,sum,comment,order_id',
+            'deliveryService:id,title',
+            'invoices:id,order_id,date,payment_type,sum,comment,status',
+            'items:id,title,order_id,product_price,sale_price,trade_price,discount,count,image,additional_sale,product_id'
+        ];
+
+        return $this->model::with($relations)
+            ->where('id', $id)
             ->first();
     }
 

@@ -6,9 +6,9 @@ import InputText from "primevue/inputtext";
 import Dropdown from 'primevue/dropdown';
 import Textarea from 'primevue/textarea';
 import SelectButton from 'primevue/selectbutton';
-import {ref} from "vue";
+import {computed, onMounted, ref} from "vue";
 
-defineProps(['show', 'item']);
+const props = defineProps(['show', 'item']);
 const emits = defineEmits(['close', 'submit']);
 
 const costs = [
@@ -20,9 +20,7 @@ const costs = [
     'Компенсація клієнту',
 ];
 
-const titleType = ref({
-    value: 0
-});
+const titleType = ref({value: 0});
 const titleOptions = [
     {
         name: 'Із списка',

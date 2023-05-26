@@ -4,10 +4,11 @@ import StatusInput from "@/Pages/Orders/Partials/StatusInput.vue";
 import ManagerInput from "@/Pages/Orders/Partials/ManagerInput.vue";
 import ClientInput from "@/Pages/Orders/Partials/ClientInput.vue";
 import DeliveryInput from "@/Pages/Orders/Partials/DeliveryInput.vue";
-import ItemsInput from "@/Pages/Orders/Partials/ItemsInput.vue";
+import ItemsInput from "@/Pages/Orders/Partials/Items/ItemsInput.vue";
 import TotalInput from "@/Pages/Orders/Partials/TotalInput.vue";
 import CommentInput from "@/Pages/Orders/Partials/CommentInput.vue";
-import OrderCostsInput from "@/Pages/Orders/Partials/OrderCostsInput.vue";
+import OrderCostsInput from "@/Pages/Orders/Partials/Costs/OrderCostsInput.vue";
+import OrderInvoiceInput from "@/Pages/Orders/Partials/Invoices/OrderInvoiceInput.vue";
 import Card from "primevue/card";
 
 const props = defineProps([
@@ -62,6 +63,11 @@ const props = defineProps([
             <Card>
                 <template #content>
                     <OrderCostsInput :item="item"/>
+                </template>
+            </Card>
+            <Card>
+                <template #content>
+                    <OrderInvoiceInput :item="item"/>
                 </template>
             </Card>
         </div>

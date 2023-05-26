@@ -80,8 +80,12 @@ class ClientsRepository extends CoreRepository
 
     private function fillData(\Illuminate\Database\Eloquent\Model $model, array $data): \Illuminate\Database\Eloquent\Model
     {
-        foreach ($data['phones'] as $phone) {
-            $phone['number'] = preg_replace('/[^0-9]/', '', $phone['number']);
+        if (isset($data['phones'])) {
+            $phones = [];
+            foreach ($data['phones'] as $phone) {
+                $phones[] = ['number' => preg_replace('/[^0-9]/', '', $phone['number'])];
+            }
+            $model->phones = $phones;
         }
 
         if (isset($data['full_name'])) {
@@ -90,10 +94,6 @@ class ClientsRepository extends CoreRepository
 
         if (isset($data['comment'])) {
             $model->comment = $data['comment'];
-        }
-
-        if (isset($data['phones'])) {
-            $model->phones = $data['phones'];
         }
 
         if (isset($data['emails'])) {

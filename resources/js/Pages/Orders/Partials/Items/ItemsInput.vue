@@ -2,8 +2,8 @@
 import Button from "primevue/button";
 import InputLabel from "@/Components/InputLabel.vue";
 import {reactive} from "vue";
-import ItemsModal from "@/Pages/Orders/Partials/ItemsModal.vue";
-import ItemsTable from "@/Pages/Orders/Partials/ItemsTable.vue";
+import ItemsModal from "@/Pages/Orders/Partials/Items/ItemsModal.vue";
+import ItemsTable from "@/Pages/Orders/Partials/Items/ItemsTable.vue";
 
 const props = defineProps(['item', 'products']);
 

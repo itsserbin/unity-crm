@@ -115,6 +115,7 @@ const onCreate = () => {
         discount: null,
         items: [],
         costs: [],
+        invoices: [],
     };
     toggleModal();
 }
@@ -130,7 +131,7 @@ const onSubmit = async () => {
             ...(delivery_service_id && {delivery_service_id: delivery_service_id.value}),
             ...rest
         };
-        const data = id ? await OrdersRepository.update(id,updatedItem) : await OrdersRepository.create(updatedItem);
+        const data = id ? await OrdersRepository.update(id, updatedItem) : await OrdersRepository.create(updatedItem);
         if (data.success) {
             await fetch();
             toggleModal();
@@ -292,7 +293,8 @@ const onFilterStatus = async () => {
                                          panelClass="orders-status-filter-select"
                             >
                                 <template #optiongroup="slotProps">
-                                    <div class="p-2 status-drowdown font-bold" :style="`background: ${slotProps.option.hex};`">
+                                    <div class="p-2 status-drowdown font-bold"
+                                         :style="`background: ${slotProps.option.hex};`">
                                         <div>{{ slotProps.option.label }}</div>
                                     </div>
                                 </template>
@@ -389,7 +391,7 @@ const onFilterStatus = async () => {
 </template>
 
 <style>
-.orders-status-filter-select.p-multiselect-panel .p-multiselect-items .p-multiselect-item-group{
+.orders-status-filter-select.p-multiselect-panel .p-multiselect-items .p-multiselect-item-group {
     padding: 0;
 }
 </style>
