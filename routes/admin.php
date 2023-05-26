@@ -30,5 +30,8 @@ Route::middleware('auth')->group(function () {
 
         Route::get('statuses', [HomeController::class, 'statuses'])
             ->name('options.statuses');
+
+        Route::get('delivery-services', [HomeController::class, 'deliveryServices'])
+            ->name('options.delivery-services');
     });
 });

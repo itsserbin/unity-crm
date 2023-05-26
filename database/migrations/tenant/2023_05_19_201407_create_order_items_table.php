@@ -17,6 +17,7 @@ return new class extends Migration {
                 ->references('id')
                 ->on('orders')
                 ->onDelete('cascade');
+            $table->foreignId('product_id')->nullable();
             $table->boolean('additional_sale')->default(0);
             $table->string('image')->nullable();
             $table->string('sku')->nullable();

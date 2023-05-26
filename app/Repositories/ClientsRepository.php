@@ -3,6 +3,7 @@
 namespace App\Repositories;
 
 use App\Models\Client as Model;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 class ClientsRepository extends CoreRepository
@@ -63,14 +64,41 @@ class ClientsRepository extends CoreRepository
         return $model;
     }
 
+    final public function update(int $id, array $data): \Illuminate\Database\Eloquent\Model
+    {
+        $model = $this->getModelById($id);
+        $model = $this->fillData($model, $data);
+        $model->save();
+
+        if (isset($data['addresses'])) {
+            $model->addresses()->delete();
+            $model->addresses()->createMany($data['addresses']);
+        }
+
+        return $model;
+    }
+
     private function fillData(\Illuminate\Database\Eloquent\Model $model, array $data): \Illuminate\Database\Eloquent\Model
     {
-        foreach ($data['phones'] as &$phone) {
+        foreach ($data['phones'] as $phone) {
             $phone['number'] = preg_replace('/[^0-9]/', '', $phone['number']);
         }
-        $model->full_name = $data['full_name'];
-        $model->comment = $data['comment'];
-        $model->phones = $data['phones'];
+
+        if (isset($data['full_name'])) {
+            $model->full_name = $data['full_name'];
+        }
+
+        if (isset($data['comment'])) {
+            $model->comment = $data['comment'];
+        }
+
+        if (isset($data['phones'])) {
+            $model->phones = $data['phones'];
+        }
+
+        if (isset($data['emails'])) {
+            $model->emails = $data['emails'];
+        }
         $model->emails = $data['emails'];
         return $model;
     }
@@ -104,5 +132,19 @@ class ClientsRepository extends CoreRepository
             ->orWhereRaw("phones->>'$[*].number' LIKE ?", ["%$query%"])
             ->orWhereJsonContains('emails', $query)
             ->paginate($data['perPage'] ?? 15);
+    }
+
+    final public function list(): Collection
+    {
+        return $this->model::select(['id', 'full_name', 'phones', 'emails'])->get();
+    }
+
+    final public function createClientAddress(int $id, array $data): ?\Illuminate\Database\Eloquent\Model
+    {
+        $model = $this->model::where('id', $id)->with('addresses')->first();
+        if ($model) {
+            $model->addresses()->create($data);
+        }
+        return $model;
     }
 }

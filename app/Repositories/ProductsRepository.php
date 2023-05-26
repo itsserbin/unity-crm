@@ -3,6 +3,7 @@
 namespace App\Repositories;
 
 use App\Models\Product as Model;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 class ProductsRepository extends CoreRepository
@@ -90,5 +91,18 @@ class ProductsRepository extends CoreRepository
             ->orWhere('sku', 'LIKE', "%$query%")
             ->with('categories:id,title')
             ->paginate($data['perPage'] ?? 15);
+    }
+
+    final public function list(): Collection
+    {
+        return $this->model::select([
+            'id',
+            'title',
+            'trade_price',
+            'price',
+            'image',
+            'sku',
+            'discount_price',
+        ])->get();
     }
 }

@@ -71,6 +71,13 @@ const isOpen = ref(false);
                                 </li>
 
                                 <li class="rounded-sm">
+                                    <Link :href="route('options.delivery-services')"
+                                          class="flex items-center p-2 space-x-3 rounded-md">
+                                        <span class="text-zinc-700 dark:text-zinc-300">Служби доставки</span>
+                                    </Link>
+                                </li>
+
+                                <li class="rounded-sm">
                                     <Link :href="route('logout')" method="post" as="button"
                                           class="flex items-center p-2 space-x-3 rounded-md">
                                         <span class="text-zinc-700 dark:text-zinc-300">Вийти</span>

@@ -49,7 +49,7 @@ export default {
     },
     async setPublished(params) {
         try {
-            const response = await axios.get(route('api.statuses.set-published', params));
+            const response = await axios.post(route('api.statuses.set-published', params));
             return response.data;
         } catch (error) {
             throw new Error(error);

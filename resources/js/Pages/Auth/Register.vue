@@ -16,6 +16,7 @@ const form = useForm({
     password_confirmation: '',
 });
 
+const appDomain = import.meta.env.VITE_APP_DOMAIN;
 const submit = () => {
     form.post(route('register'), {
         onFinish: () => form.reset('password', 'password_confirmation'),
@@ -39,6 +40,7 @@ const submit = () => {
                     required
                     autofocus
                     autocomplete="name"
+                    placeholder="Ваше імʼя"
                 />
 
                 <InputError class="mt-2" :message="form.errors.name"/>
@@ -72,6 +74,7 @@ const submit = () => {
                     v-model="form.email"
                     required
                     autocomplete="username"
+                    placeholder="example@domain.com"
                 />
 
                 <InputError class="mt-2" :message="form.errors.email"/>
@@ -80,14 +83,19 @@ const submit = () => {
             <div>
                 <InputLabel for="domain" value="Адрес ЦРМ"/>
 
-                <InputText
-                    id="domain"
-                    type="text"
-                    class="mt-1 block w-full"
-                    v-model="form.domain"
-                    required
-                    autocomplete="domain"
-                />
+                <div class="p-inputgroup">
+                    <InputText
+                        id="domain"
+                        type="text"
+                        class="mt-1 block w-full"
+                        v-model="form.domain"
+                        required
+                        autocomplete="domain"
+                        placeholder="domain"
+                    />
+                    <Button type="button" disabled :label="'.' + appDomain"/>
+                </div>
+
 
                 <InputError class="mt-2" :message="form.errors.domain"/>
             </div>
@@ -130,7 +138,8 @@ const submit = () => {
                     Вже зареєстровані?
                 </Link>
 
-                <Button type="submit" class="ml-4" :class="{ 'opacity-25': form.processing }" :disabled="form.processing">
+                <Button type="submit" class="ml-4" :class="{ 'opacity-25': form.processing }"
+                        :disabled="form.processing">
                     Зареєструватись
                 </Button>
             </div>

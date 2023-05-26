@@ -2,13 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Enums\DeliveryServices;
 use App\Repositories\CategoriesRepository;
 use App\Repositories\ClientsRepository;
+use App\Repositories\DeliveryServicesRepository;
 use App\Repositories\OrdersRepository;
 use App\Repositories\ProductsRepository;
 use App\Repositories\SourcesRepository;
 use App\Repositories\StatusesRepository;
 use App\Repositories\StatusGroupsRepository;
+use App\Repositories\UsersRepository;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -22,6 +25,8 @@ class HomeController extends Controller
     private mixed $sourcesRepository;
     private mixed $statusesRepository;
     private mixed $statusGroupsRepository;
+    private mixed $deliveryServicesRepository;
+    private mixed $usersRepository;
 
     final public function __construct()
     {
@@ -33,6 +38,8 @@ class HomeController extends Controller
         $this->sourcesRepository = app(SourcesRepository::class);
         $this->statusesRepository = app(StatusesRepository::class);
         $this->statusGroupsRepository = app(StatusGroupsRepository::class);
+        $this->deliveryServicesRepository = app(DeliveryServicesRepository::class);
+        $this->usersRepository = app(UsersRepository::class);
     }
 
     final public function dashboard(): Response
@@ -70,9 +77,21 @@ class HomeController extends Controller
     final public function orders(Request $request): Response
     {
         $orders = $this->ordersRepository->getAllWithPaginate($request->all());
+        $sources = $this->sourcesRepository->list();
+        $statuses = $this->statusGroupsRepository->list();
+        $users = $this->usersRepository->list();
+        $deliveryServices = $this->deliveryServicesRepository->list();
+        $products = $this->productsRepository->list();
+        $clients = $this->clientsRepository->list();
 
         return Inertia::render('Orders/Index', [
-            'orders' => $orders
+            'orders' => $orders,
+            'sources' => $sources,
+            'statuses' => $statuses,
+            'users' => $users,
+            'deliveryServices' => $deliveryServices,
+            'products' => $products,
+            'clients' => $clients,
         ]);
     }
 
@@ -93,6 +112,17 @@ class HomeController extends Controller
         return Inertia::render('Statuses/Index', [
             'statuses' => $statuses,
             'statusGroups' => $statusGroups
+        ]);
+    }
+
+    final public function deliveryServices(Request $request): Response
+    {
+        $deliveryServices = $this->deliveryServicesRepository->getAllWithPaginate($request->all());
+        $globalServices = DeliveryServices::state;
+
+        return Inertia::render('DeliveryServices/Index', [
+            'deliveryServices' => $deliveryServices,
+            'globalServices' => $globalServices
         ]);
     }
 }

@@ -17,8 +17,14 @@ return new class extends Migration {
             $table->foreignId('client_id')->nullable();
             $table->foreignId('manager_id')->nullable();
             $table->foreignId('delivery_service_id')->nullable();
+            $table->string('delivery_address')->nullable();
             $table->string('tracking_code')->nullable();
             $table->text('comment')->nullable();
+
+            $table->integer('total_price')->nullable();
+            $table->integer('trade_price')->nullable();
+            $table->integer('clear_total_price')->nullable();
+            $table->integer('discount')->nullable();
             $table->timestamps();
         });
     }

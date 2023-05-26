@@ -11,6 +11,7 @@ import PrimeVue from 'primevue/config';
 import Vue3Toastify from 'vue3-toastify';
 
 const appName = window.document.getElementsByTagName('title')[0]?.innerText || 'Laravel';
+import ToastService from 'primevue/toastservice';
 
 createInertiaApp({
     title: (title) => `${title} - ${appName}`,
@@ -19,6 +20,7 @@ createInertiaApp({
         const app = createApp({render: () => h(App, props)})
             .use(plugin)
             .use(ZiggyVue, Ziggy)
+            .use(ToastService)
             .use(Vue3Toastify, {
                 autoClose: 3000, pauseOnHover: false, pauseOnFocusLoss: false
             })

@@ -2,10 +2,13 @@
 
 use App\Http\Controllers\Api\CategoriesController;
 use App\Http\Controllers\Api\ClientsController;
+use App\Http\Controllers\Api\DeliveryServicesController;
+use App\Http\Controllers\Api\OrdersController;
 use App\Http\Controllers\Api\ProductsController;
 use App\Http\Controllers\Api\SourcesController;
 use App\Http\Controllers\Api\StatusesController;
 use App\Http\Controllers\Api\StatusGroupsController;
+use App\Http\Controllers\Api\UsersController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -82,6 +85,9 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('create', [ClientsController::class, 'create'])
             ->name('api.clients.create');
 
+        Route::post('create-client-address/{id}', [ClientsController::class, 'createClientAddress'])
+            ->name('api.clients.create-client-address');
+
         Route::get('/', [ClientsController::class, 'index'])
             ->name('api.clients.index');
 
@@ -96,6 +102,26 @@ Route::middleware('auth:sanctum')->group(function () {
 
         Route::delete('/destroy/{id}', [ClientsController::class, 'destroy'])
             ->name('api.clients.destroy');
+    });
+
+    Route::prefix('orders')->group(function () {
+        Route::post('create', [OrdersController::class, 'create'])
+            ->name('api.orders.create');
+
+        Route::get('/', [OrdersController::class, 'index'])
+            ->name('api.orders.index');
+
+        Route::get('edit/{id}', [OrdersController::class, 'edit'])
+            ->name('api.orders.edit');
+
+        Route::put('update/{id}', [OrdersController::class, 'update'])
+            ->name('api.orders.update');
+
+        Route::get('search={search}', [OrdersController::class, 'search'])
+            ->name('api.orders.search');
+
+        Route::delete('/destroy/{id}', [OrdersController::class, 'destroy'])
+            ->name('api.orders.destroy');
     });
 
     Route::prefix('sources')->group(function () {
@@ -125,7 +151,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('list', [StatusesController::class, 'list'])
             ->name('api.statuses.list');
 
-        Route::get('set-published', [StatusesController::class, 'setPublished'])
+        Route::post('set-published', [StatusesController::class, 'setPublished'])
             ->name('api.statuses.set-published');
 
         Route::post('create', [StatusesController::class, 'create'])
@@ -162,5 +188,48 @@ Route::middleware('auth:sanctum')->group(function () {
 
         Route::delete('/destroy/{id}', [StatusGroupsController::class, 'destroy'])
             ->name('api.status-groups.destroy');
+    });
+
+    Route::prefix('delivery-services')->group(function () {
+        Route::get('list', [DeliveryServicesController::class, 'list'])
+            ->name('api.delivery-services.list');
+
+        Route::post('set-published', [DeliveryServicesController::class, 'setPublished'])
+            ->name('api.delivery-services.set-published');
+
+        Route::post('create', [DeliveryServicesController::class, 'create'])
+            ->name('api.delivery-services.create');
+
+        Route::get('/', [DeliveryServicesController::class, 'index'])
+            ->name('api.delivery-services.index');
+
+        Route::get('edit/{id}', [DeliveryServicesController::class, 'edit'])
+            ->name('api.delivery-services.edit');
+
+        Route::put('update/{id}', [DeliveryServicesController::class, 'update'])
+            ->name('api.delivery-services.update');
+
+        Route::delete('/destroy/{id}', [DeliveryServicesController::class, 'destroy'])
+            ->name('api.delivery-services.destroy');
+    });
+
+    Route::prefix('users')->group(function () {
+        Route::get('list', [UsersController::class, 'list'])
+            ->name('api.users.list');
+
+        Route::post('create', [UsersController::class, 'create'])
+            ->name('api.users.create');
+
+        Route::get('/', [UsersController::class, 'index'])
+            ->name('api.users.index');
+
+        Route::get('edit/{id}', [UsersController::class, 'edit'])
+            ->name('api.users.edit');
+
+        Route::put('update/{id}', [UsersController::class, 'update'])
+            ->name('api.users.update');
+
+        Route::delete('/destroy/{id}', [UsersController::class, 'destroy'])
+            ->name('api.users.destroy');
     });
 });

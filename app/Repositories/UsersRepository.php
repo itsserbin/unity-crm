@@ -2,12 +2,11 @@
 
 namespace App\Repositories;
 
-use App\Models\StatusGroup as Model;
+use App\Models\User as Model;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Support\Str;
 
-class StatusGroupsRepository extends CoreRepository
+class UsersRepository extends CoreRepository
 {
     protected function getModelClass(): string
     {
@@ -19,19 +18,13 @@ class StatusGroupsRepository extends CoreRepository
         return $this->coreFind($this->model, $id);
     }
 
-    final public function getModelBySlug(string $slug): ?\Illuminate\Database\Eloquent\Model
-    {
-        return $this->coreFindBySlug($this->model, $slug);
-    }
-
     final public function getAllWithPaginate(array $data): LengthAwarePaginator
     {
         $columns = [
             'id',
-            'title',
-            'slug',
-            'hex',
-            'is_system_status',
+            'name',
+            'email',
+            'phone',
         ];
 
         $model = $this->model::select($columns);
@@ -39,19 +32,14 @@ class StatusGroupsRepository extends CoreRepository
         return $model
             ->orderBy(
                 $data['sort']['column'] ?? 'id',
-                $data['sort']['type'] ?? 'asc'
+                $data['sort']['type'] ?? 'desc'
             )
-            ->with('statuses:id,title,group_slug')
             ->paginate($data['perPage'] ?? 15);
     }
 
     final public function create(array $data): \Illuminate\Database\Eloquent\Model
     {
-        return $this->model::create([
-            'title' => $data['title'],
-            'hex' => Str::startsWith($data['hex'], '#') ? $data['hex'] : '#' . $data['hex'],
-            'slug' => $data['slug'] ?? Str::slug($data['title'])
-        ]);
+        return $this->coreCreate($this->model, $data);
     }
 
     final public function update(int $id, array $data): \Illuminate\Database\Eloquent\Model
@@ -66,9 +54,8 @@ class StatusGroupsRepository extends CoreRepository
 
     final public function list(): Collection
     {
-        return $this->model::select(['id', 'title', 'slug', 'hex'])
-            ->orderBy('id', 'asc')
-            ->with('statuses')
-            ->get();
+        return $this->model::select([
+            'id', 'email', 'phone'
+        ])->orderBy('id', 'desc')->get();
     }
 }

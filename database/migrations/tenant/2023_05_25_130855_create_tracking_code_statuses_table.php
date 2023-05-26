@@ -10,14 +10,18 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::create('delivery_services', function (Blueprint $table) {
+        Schema::create('tracking_code_statuses', function (Blueprint $table) {
             $table->id();
-            $table->boolean('status')->default(1);
+            $table->foreignId('order_id')
+                ->nullable()
+                ->references('id')
+                ->on('orders')
+                ->onDelete('cascade');
+
+            $table->string('code');
             $table->string('title');
-            $table->string('type')->nullable();
-            $table->string('api_key')->nullable();
-            $table->integer('orders_count')->default(0);
-            $table->json('configuration');
+            $table->string('description')->nullable();
+
             $table->timestamps();
         });
     }
@@ -27,6 +31,6 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        Schema::dropIfExists('delivery_services');
+        Schema::dropIfExists('tracking_code_statuses');
     }
 };

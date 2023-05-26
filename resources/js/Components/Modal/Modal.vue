@@ -58,6 +58,8 @@ const maxWidthClass = computed(() => {
         '3xl': 'sm:max-w-3xl',
         '4xl': 'sm:max-w-4xl',
         '5xl': 'sm:max-w-5xl',
+        '6xl': 'sm:max-w-6xl',
+        '7xl': 'sm:max-w-7xl',
     }[props.maxWidth];
 });
 </script>
@@ -89,7 +91,7 @@ const maxWidthClass = computed(() => {
                     leave-to-class="opacity-0"
                 >
                     <div v-show="show"
-                         class="h-auto max-h-full overflow-y-auto my-6 bg-white dark:bg-zinc-800 rounded-lg shadow-xl transform transition-all sm:w-full sm:mx-auto"
+                         class="h-auto max-h-full overflow-y-auto my-6 bg-zinc-100 dark:bg-zinc-800 rounded-lg shadow-xl transform transition-all sm:w-full sm:mx-auto"
                          :class="maxWidthClass">
                         <div v-if="show">
                             <ModalHead v-if="$slots.head" @close="close">

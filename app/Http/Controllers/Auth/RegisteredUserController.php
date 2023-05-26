@@ -6,9 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Models\Tenant;
 use App\Models\User;
 use App\Providers\RouteServiceProvider;
+use Database\Seeders\StatusesSeeder;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
@@ -21,7 +23,7 @@ class RegisteredUserController extends Controller
     /**
      * Display the registration view.
      */
-    public function create(): Response
+    final public function create(): Response
     {
         return Inertia::render('Auth/Register');
     }
@@ -31,7 +33,7 @@ class RegisteredUserController extends Controller
      *
      * @throws ValidationException
      */
-    public function store(Request $request)
+    final public function store(Request $request)
     {
         $request->validate([
             'name' => 'required|string|max:255',
@@ -41,26 +43,37 @@ class RegisteredUserController extends Controller
         ]);
 
         if (!Tenant::where('id', $request->domain)->first()) {
-            $tenant = Tenant::create(['id' => $request->domain]);
-            $tenant->domains()->create(['domain' => $request->domain . '.' . env('APP_DOMAIN')]);
+            $user = User::create([
+                'name' => $request->name,
+                'phone' => $request->phone,
+                'email' => $request->email,
+                'password' => Hash::make($request->password),
+            ]);
+
+            $tenant = Tenant::create([
+                'id' => $request->domain,
+                'data' => [
+                    'user_id' => $user->id
+                ]
+            ]);
+
+            $tenant->domains()->create([
+                'domain' => $request->domain . '.' . env('APP_DOMAIN')
+            ]);
+
             $tenant->run(function () use ($request) {
                 $user = User::create([
                     'name' => $request->name,
                     'phone' => $request->phone,
                     'email' => $request->email,
                     'password' => Hash::make($request->password),
-                    'tenant_id' => $request->domain,
                 ]);
+                Artisan::call('db:seed');
+                Artisan::call('storage:link');
                 Auth::login($user);
             });
 
-            $user = User::create([
-                'name' => $request->name,
-                'phone' => $request->phone,
-                'email' => $request->email,
-                'password' => Hash::make($request->password),
-                'tenant_id' => $request->domain,
-            ]);
+
             Auth::login($user);
             event(new Registered($user));
             return Inertia::location('http://' . $request->domain . '.' . env('APP_DOMAIN'));

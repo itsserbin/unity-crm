@@ -1,7 +1,7 @@
 export default {
     async fetch(params) {
         try {
-            const response = await axios.get(route('api.orders.index', params));
+            const response = await axios.get(route('api.users.index', params));
             return response.data;
         } catch (error) {
             throw new Error(error);
@@ -9,7 +9,7 @@ export default {
     },
     async destroy(id) {
         try {
-            const response = await axios.delete(route('api.orders.destroy', id));
+            const response = await axios.delete(route('api.users.destroy', id));
             return response.data;
         } catch (error) {
             throw new Error(error);
@@ -17,15 +17,15 @@ export default {
     },
     async edit(id) {
         try {
-            const response = await axios.get(route('api.orders.edit', id));
+            const response = await axios.get(route('api.users.edit', id));
             return response.data;
         } catch (error) {
             throw new Error(error);
         }
     },
-    async update(id, item) {
+    async update(item) {
         try {
-            const response = await axios.put(route('api.orders.update', id), item);
+            const response = await axios.put(route('api.users.update', item.id), item);
             return response.data;
         } catch (error) {
             throw new Error(error);
@@ -33,16 +33,15 @@ export default {
     },
     async create(item) {
         try {
-            const response = await axios.post(route('api.orders.create'), item);
+            const response = await axios.post(route('api.users.create'), item);
             return response.data;
         } catch (error) {
-            console.error(error);
-            return error.response;
+            throw new Error(error);
         }
     },
-    async search(query) {
+    async list() {
         try {
-            const response = await axios.get(route('api.orders.search', query));
+            const response = await axios.get(route('api.users.list'));
             return response.data;
         } catch (error) {
             throw new Error(error);

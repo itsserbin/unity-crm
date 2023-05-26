@@ -54,5 +54,13 @@ export default {
         } catch (error) {
             throw new Error(error);
         }
+    },
+    async createClientAddress(id, params) {
+        try {
+            const response = await axios.post(route('api.clients.create-client-address', id), params);
+            return response.data;
+        } catch (error) {
+            throw new Error(error);
+        }
     }
 }

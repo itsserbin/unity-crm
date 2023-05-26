@@ -1,7 +1,7 @@
 export default {
     async fetch(params) {
         try {
-            const response = await axios.get(route('api.products.index', params));
+            const response = await axios.get(route('api.delivery-services.index', params));
             return response.data;
         } catch (error) {
             throw new Error(error);
@@ -9,7 +9,7 @@ export default {
     },
     async destroy(id) {
         try {
-            const response = await axios.delete(route('api.products.destroy', id));
+            const response = await axios.delete(route('api.delivery-services.destroy', id));
             return response.data;
         } catch (error) {
             throw new Error(error);
@@ -17,7 +17,7 @@ export default {
     },
     async edit(id) {
         try {
-            const response = await axios.get(route('api.products.edit', id));
+            const response = await axios.get(route('api.delivery-services.edit', id));
             return response.data;
         } catch (error) {
             throw new Error(error);
@@ -25,7 +25,7 @@ export default {
     },
     async update(item) {
         try {
-            const response = await axios.put(route('api.products.update', item.id), item);
+            const response = await axios.put(route('api.delivery-services.update', item.id), item);
             return response.data;
         } catch (error) {
             throw new Error(error);
@@ -33,7 +33,7 @@ export default {
     },
     async create(item) {
         try {
-            const response = await axios.post(route('api.products.create'), item);
+            const response = await axios.post(route('api.delivery-services.create'), item);
             return response.data;
         } catch (error) {
             throw new Error(error);
@@ -41,15 +41,15 @@ export default {
     },
     async list() {
         try {
-            const response = await axios.get(route('api.products.list'));
+            const response = await axios.get(route('api.delivery-services.list'));
             return response.data;
         } catch (error) {
             throw new Error(error);
         }
     },
-    async search(query) {
+    async setPublished(params) {
         try {
-            const response = await axios.get(route('api.products.search', query));
+            const response = await axios.get(route('api.delivery-services.set-published', params));
             return response.data;
         } catch (error) {
             throw new Error(error);

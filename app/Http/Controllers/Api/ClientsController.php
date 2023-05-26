@@ -66,6 +66,22 @@ class ClientsController extends BaseController
         ]);
     }
 
+    final public function list(): JsonResponse
+    {
+        return $this->returnResponse([
+            'success' => true,
+            'result' => $this->clientsRepository->list(),
+        ]);
+    }
+
+    final public function createClientAddress(int $id, Request $request): JsonResponse
+    {
+        return $this->returnResponse([
+            'success' => true,
+            'result' => $this->clientsRepository->createClientAddress($id, $request->all()),
+        ]);
+    }
+
 //    final public function statuses(): JsonResponse
 //    {
 //        return $this->returnResponse([
