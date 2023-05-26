@@ -6,6 +6,10 @@ const totalPrice = () => {
     return sale_price - props.item.discount;
 }
 
+const costs = () => {
+    return props.item.costs.reduce((accumulator, currentValue) => accumulator + currentValue.sum, 0);
+}
+
 const totalProductDiscountPrice = () => {
     return props.item.items.reduce((accumulator, currentValue) => accumulator + currentValue.discount, 0);
 }
@@ -46,9 +50,16 @@ const totalTradePrice = () => {
         </tr>
 
         <tr>
+            <td class="py-2 text-start md:text-end">Витрати на замовлення:</td>
+            <td class="py-2 text-lg font-bold">
+                {{ $filters.formatMoney(costs()) }} грн.
+            </td>
+        </tr>
+
+        <tr>
             <td class="py-2 text-start md:text-end">Чистий прибуток:</td>
             <td class="py-2 text-lg font-bold">
-                {{ $filters.formatMoney(totalPrice() - totalTradePrice()) }} грн.
+                {{ $filters.formatMoney(totalPrice() - totalTradePrice() - costs()) }} грн.
             </td>
         </tr>
     </table>

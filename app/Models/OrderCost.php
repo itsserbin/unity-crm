@@ -7,5 +7,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class OrderCost extends Model
 {
-    use HasFactory;
+    protected $fillable = [
+        'title',
+        'sum',
+        'comment',
+        'order_id'
+    ];
 }

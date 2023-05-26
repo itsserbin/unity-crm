@@ -7,6 +7,7 @@ import DeliveryInput from "@/Pages/Orders/Partials/DeliveryInput.vue";
 import ItemsInput from "@/Pages/Orders/Partials/ItemsInput.vue";
 import TotalInput from "@/Pages/Orders/Partials/TotalInput.vue";
 import CommentInput from "@/Pages/Orders/Partials/CommentInput.vue";
+import OrderCostsInput from "@/Pages/Orders/Partials/OrderCostsInput.vue";
 import Card from "primevue/card";
 
 const props = defineProps([
@@ -56,6 +57,14 @@ const props = defineProps([
                 <ItemsInput :item="item" :products="products"/>
             </template>
         </Card>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Card>
+                <template #content>
+                    <OrderCostsInput :item="item"/>
+                </template>
+            </Card>
+        </div>
 
         <Card>
             <template #content>

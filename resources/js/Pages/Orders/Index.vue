@@ -114,6 +114,7 @@ const onCreate = () => {
         comment: null,
         discount: null,
         items: [],
+        costs: [],
     };
     toggleModal();
 }

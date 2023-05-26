@@ -33,6 +33,7 @@ class OrdersRepository extends CoreRepository
                     $q->with('addresses');
                 },
                 'manager:id,name',
+                'costs:title,sum,comment,order_id',
                 'deliveryService:id,title',
                 'items:id,title,order_id,product_price,sale_price,trade_price,discount,count,image,additional_sale,product_id'
             ])
@@ -106,6 +107,11 @@ class OrdersRepository extends CoreRepository
         }
         $model = $this->fillData($model, $data);
 
+        if (count($data['costs'])) {
+            $model->costs()->delete();
+            $model->costs()->createMany($data['costs']);
+        }
+
         if (count($data['items'])) {
             $model = $this->calculateSum($model, $data['items']);
             $model->items()->delete();
@@ -118,6 +124,10 @@ class OrdersRepository extends CoreRepository
 
     private function calculateSum(\Illuminate\Database\Eloquent\Model $model, array $items): \Illuminate\Database\Eloquent\Model
     {
+        $costs = array_reduce($model->costs->toArray(), function ($carry, $item) {
+            return $carry + $item['sum'];
+        }, 0);
+
         $model->total_price = array_reduce($items, function ($carry, $item) {
                 return $carry + $item['sale_price'];
             }, 0) - $model->discount;
@@ -126,7 +136,7 @@ class OrdersRepository extends CoreRepository
             return $carry + $item['trade_price'];
         }, 0);
 
-        $model->clear_total_price = $model->total_price - $model->trade_price;
+        $model->clear_total_price = $model->total_price - $model->trade_price - $costs;
 
         return $model;
     }

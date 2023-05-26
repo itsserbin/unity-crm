@@ -38,7 +38,6 @@ const onEdit = (e) => {
                 </div>
             </template>
         </Column>
-        <Column field="product_id" header="SUKA EBANAYA" />
         <Column field="image">
             <template #header>
                 <div class="text-center w-full">
