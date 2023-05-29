@@ -1,7 +1,8 @@
 <script setup>
-import {onMounted, ref} from 'vue';
-import Modal from '@/Components/Modal/Modal.vue';
+import {defineAsyncComponent, onMounted, ref} from 'vue';
 import Button from 'primevue/button';
+
+const Modal = defineAsyncComponent(() => import('@/Components/Modal/Modal.vue'))
 
 const props = defineProps({
     showReject: {

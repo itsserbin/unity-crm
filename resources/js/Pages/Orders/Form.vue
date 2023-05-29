@@ -1,17 +1,17 @@
 <script setup>
-import SourcesInput from "@/Pages/Orders/Partials/SourcesInput.vue";
-import StatusInput from "@/Pages/Orders/Partials/StatusInput.vue";
-import ManagerInput from "@/Pages/Orders/Partials/ManagerInput.vue";
-import ClientInput from "@/Pages/Orders/Partials/ClientInput.vue";
-import DeliveryInput from "@/Pages/Orders/Partials/DeliveryInput.vue";
-import ItemsInput from "@/Pages/Orders/Partials/Items/ItemsInput.vue";
-import TotalInput from "@/Pages/Orders/Partials/TotalInput.vue";
-import CommentInput from "@/Pages/Orders/Partials/CommentInput.vue";
-import OrderCostsInput from "@/Pages/Orders/Partials/Costs/OrderCostsInput.vue";
-import OrderInvoiceInput from "@/Pages/Orders/Partials/Invoices/OrderInvoiceInput.vue";
 import Card from "primevue/card";
+import OrderCostsInput from '@/Pages/Orders/Partials/Costs/OrderCostsInput.vue'
+import OrderInvoiceInput from '@/Pages/Orders/Partials/Invoices/OrderInvoiceInput.vue'
+import ClientInput from '@/Pages/Orders/Partials/ClientInput.vue'
+import DeliveryInput from '@/Pages/Orders/Partials/TrackingCodesInput.vue'
+import StatusInput from '@/Pages/Orders/Partials/StatusInput.vue'
+import SourcesInput from '@/Pages/Orders/Partials/SourcesInput.vue'
+import ManagerInput from '@/Pages/Orders/Partials/ManagerInput.vue'
+import ItemsInput from '@/Pages/Orders/Partials/Items/ItemsInput.vue'
+import TotalInput from '@/Pages/Orders/Partials/TotalInput.vue'
+import CommentInput from '@/Pages/Orders/Partials/CommentInput.vue'
 
-const props = defineProps([
+defineProps([
     'item',
     'sources',
     'statuses',
@@ -47,9 +47,7 @@ const props = defineProps([
 
         <Card>
             <template #content>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <DeliveryInput :item="item" :deliveryServices="deliveryServices"/>
-                </div>
+                <DeliveryInput :item="item" :deliveryServices="deliveryServices"/>
             </template>
         </Card>
 

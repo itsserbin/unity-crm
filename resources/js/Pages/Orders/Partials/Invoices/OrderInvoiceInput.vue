@@ -1,11 +1,17 @@
 <script setup>
 import Button from "primevue/button";
 import InputLabel from "@/Components/InputLabel.vue";
-import OrderInvoiceModal from "@/Pages/Orders/Partials/Invoices/OrderInvoiceModal.vue";
 import OrderInvoiceTable from "@/Pages/Orders/Partials/Invoices/OrderInvoiceTable.vue";
-import {reactive, ref} from "vue";
+import {defineAsyncComponent, reactive} from "vue";
 
-const props = defineProps(['item']);
+const OrderInvoiceModal = defineAsyncComponent(() => import('@/Pages/Orders/Partials/Invoices/OrderInvoiceModal.vue'));
+
+const props = defineProps({
+    item: {
+        type: Object,
+        required: true
+    },
+});
 
 const modal = reactive({
     isShow: false,
@@ -14,22 +20,35 @@ const modal = reactive({
     item: null
 });
 
-const switchModal = (val) => val ? modal.isShow = val : modal.isShow = !modal.isShow;
-const onEdit = (e) => {
+const toggleModal = (val = !modal.isShow) => modal.isShow = val;
+
+const onEdit = ({index, data}) => {
     modal.action = 'edit';
-    modal.index = JSON.parse(JSON.stringify(e.index));
-    modal.item = JSON.parse(JSON.stringify(e.data));
-    switchModal();
+    modal.index = index;
+    modal.item = {...data};
+    if (data.payment_type) {
+        modal.item.payment_type = {value: data.payment_type};
+    }
+    if (data.status) {
+        modal.item.status = {value: data.status};
+    }
+    toggleModal();
 }
 
 const onSubmit = (e) => {
+    if (modal.item.payment_type.value) {
+        modal.item.payment_type = modal.item.payment_type.value;
+    }
+    if (modal.item.status.value) {
+        modal.item.status = modal.item.status.value;
+    }
     if (modal.action === 'create') {
-        props.item.costs.push(modal.item);
+        props.item.invoices.push(modal.item);
     }
     if (modal.action === 'edit') {
-        props.item.costs[modal.index] = modal.item;
+        props.item.invoices[modal.index] = modal.item;
     }
-    switchModal();
+    toggleModal();
 }
 
 const onCreate = () => {
@@ -37,14 +56,17 @@ const onCreate = () => {
     modal.item = {
         title: null,
         sum: null,
+        payment_type: null,
+        status: null,
         comment: null,
     };
-    switchModal();
+    toggleModal();
 }
 
-const onDestroy = (i) => {
-    props.item.costs.splice(i, 1);
+const onDestroy = (index) => {
+    props.item.invoices.splice(index, 1);
 }
+
 </script>
 
 <template>
@@ -62,6 +84,6 @@ const onDestroy = (i) => {
 
     <OrderInvoiceTable :item="item" @onEdit="onEdit" @onDestroy="onDestroy"/>
 
-    <OrderInvoiceModal :show="modal.isShow" :item="modal.item"
-                       @close="switchModal" @submit="onSubmit"/>
+    <OrderInvoiceModal v-if="modal.isShow" :show="modal.isShow" :item="modal.item"
+                       @close="toggleModal" @submit="onSubmit"/>
 </template>

@@ -3,6 +3,7 @@
 namespace App\Repositories;
 
 use App\Models\Order as Model;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 class OrdersRepository extends CoreRepository
@@ -33,57 +34,13 @@ class OrdersRepository extends CoreRepository
             'costs:title,sum,comment,order_id',
             'deliveryService:id,title',
             'invoices:id,order_id,date,payment_type,sum,comment,status',
-            'items:id,title,order_id,product_price,sale_price,trade_price,discount,count,image,additional_sale,product_id'
+            'items:id,title,order_id,product_price,sale_price,trade_price,discount,count,image,additional_sale,product_id',
+            'trackingCodes:id,order_id,code,data,delivery_service_id'
         ];
 
         return $this->model::with($relations)
             ->where('id', $id)
             ->first();
-    }
-
-    final public function getAllWithPaginate(array $data): LengthAwarePaginator
-    {
-        $columns = [
-            'id',
-            'source_id',
-            'status_id',
-            'client_id',
-            'manager_id',
-            'delivery_service_id',
-            'delivery_address',
-            'tracking_code',
-            'comment',
-            'total_price',
-            'trade_price',
-            'clear_total_price',
-            'discount',
-        ];
-
-        $model = $this->model::select($columns);
-
-        if (isset($data['statuses'])) {
-            $model->whereIn('status_id', $data['statuses']);
-        }
-
-        return $model
-            ->orderBy(
-                $data['sort']['column'] ?? 'id',
-                $data['sort']['type'] ?? 'desc'
-            )
-            ->with([
-                'source:id,title',
-                'status' => function ($q) {
-                    $q->select(['id', 'title', 'group_slug']);
-                    $q->with('group', function ($q) {
-                        $q->select('slug', 'hex');
-                    });
-                },
-                'client:id,full_name,phones',
-                'manager:id,name',
-                'deliveryService:id,title',
-                'items:id,title,order_id'
-            ])
-            ->paginate($data['perPage'] ?? 15);
     }
 
     final public function create(array $data): \Illuminate\Database\Eloquent\Model
@@ -92,6 +49,18 @@ class OrdersRepository extends CoreRepository
         $this->updateStatusesOrderCount(null, $data['status_id']);
         $model = $this->fillData($model, $data);
         $model->save();
+
+        if (count($data['invoices'])) {
+            $model->invoices()->createMany($data['invoices']);
+        }
+
+        if (count($data['costs'])) {
+            $model->costs()->createMany($data['costs']);
+        }
+
+        if (count($data['tracking_codes'])) {
+            $model->trackingCodes()->createMany($data['tracking_codes']);
+        }
 
         if (count($data['items'])) {
             $model = $this->calculateSum($model, $data['items']);
@@ -108,9 +77,19 @@ class OrdersRepository extends CoreRepository
         }
         $model = $this->fillData($model, $data);
 
+        if (count($data['invoices'])) {
+            $model->invoices()->delete();
+            $model->invoices()->createMany($data['invoices']);
+        }
+
         if (count($data['costs'])) {
             $model->costs()->delete();
             $model->costs()->createMany($data['costs']);
+        }
+
+        if (count($data['tracking_codes'])) {
+            $model->trackingCodes()->delete();
+            $model->trackingCodes()->createMany($data['tracking_codes']);
         }
 
         if (count($data['items'])) {
@@ -198,30 +177,82 @@ class OrdersRepository extends CoreRepository
         return $this->model::where('id', $id)->delete();
     }
 
+    final public function getAllWithPaginate(array $data): LengthAwarePaginator
+    {
+        $model = $this->model::select($this->getTableColumns());
+
+        if (isset($data['statuses'])) {
+            $model->whereIn('status_id', $data['statuses']);
+        }
+
+        return $this->returnTableData($model, $data);
+    }
+
     final public function search(string $query, array $data): LengthAwarePaginator
     {
-        $columns = [
-            'id',
-            'full_name',
-            'emails',
-            'phones',
-            'emails',
-            'number_of_orders',
-            'number_of_success_orders',
-            'average_check',
-            'general_check',
-            'last_order_created_at',
-            'created_at'
-        ];
-
-        return $this->model::select($columns)
+        $model = $this->model::select($this->getTableColumns())
             ->where('id', 'LIKE', "%$query%")
-            ->orWhere('full_name', 'LIKE', "%$query%")
-            ->orWhereRaw("phones->>'$[*].number' LIKE ?", ["%$query%"])
-            ->orWhereRaw("phones->>'$[*].number' LIKE ?", ["%$query%"])
-            ->orWhereRaw("phones->>'$[*].number' LIKE ?", ["%$query%"])
-            ->orWhereJsonContains('emails', $query)
-            ->paginate($data['perPage'] ?? 15);
+            ->orWhereHas('client', function ($q) use ($query) {
+                $q->where('full_name', 'LIKE', "%$query%");
+                $q->orWhereRaw("phones->>'$[*].number' LIKE ?", ["%$query%"]);
+                $q->orWhereRaw("emails->>'$[*].address' LIKE ?", ["%$query%"]);
+            })
+            ->orWhere('tracking_code', 'LIKE', "%$query%")
+            ->orWhere('comment', 'LIKE', "%$query%");
 
+        return $this->returnTableData($model, $data);
+    }
+
+    private function returnTableData(Builder $model, array $data): LengthAwarePaginator
+    {
+        return $model
+            ->orderBy(
+                $data['sort']['column'] ?? 'id',
+                $data['sort']['type'] ?? 'desc'
+            )
+            ->with($this->getRelations())
+            ->paginate($this->getPagination($data));
+    }
+
+    private function getTableColumns(): array
+    {
+        return [
+            'id',
+            'source_id',
+            'status_id',
+            'client_id',
+            'manager_id',
+            'delivery_service_id',
+            'delivery_address',
+            'tracking_code',
+            'comment',
+            'total_price',
+            'trade_price',
+            'clear_total_price',
+            'discount',
+        ];
+    }
+
+    private function getRelations(): array
+    {
+        return [
+            'source:id,title',
+            'status' => function ($q) {
+                $q->select(['id', 'title', 'group_slug']);
+                $q->with('group', function ($q) {
+                    $q->select('slug', 'hex');
+                });
+            },
+            'client:id,full_name,phones',
+            'manager:id,name',
+            'deliveryService:id,title',
+            'items:id,title,order_id',
+            'trackingCodes:id,order_id,code,data'
+        ];
+    }
+
+    private function getPagination(array $data): int
+    {
+        return $data['perPage'] ?? 15;
     }
 }

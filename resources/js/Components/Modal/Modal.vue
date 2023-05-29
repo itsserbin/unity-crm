@@ -65,17 +65,18 @@ const maxWidthClass = computed(() => {
 </script>
 <template>
     <teleport to="body">
-        <transition enter-active-class="duration-300" leave-active-class="duration-300">
+        <transition enter-active-class="duration-500" leave-active-class="duration-500" appear>
             <div v-show="show"
                  class="fixed flex items-center justify-center inset-0 overflow-y-auto px-4 py-6 sm:px-0 z-50"
                  scroll-region>
                 <transition
-                    enter-active-class="ease-out duration-300"
+                    enter-active-class="ease-in-out duration-500"
                     enter-from-class="opacity-0"
                     enter-to-class="opacity-100"
-                    leave-active-class="ease-in duration-300"
+                    leave-active-class="ease-in-out duration-500"
                     leave-from-class="opacity-100"
                     leave-to-class="opacity-0"
+                    appear
                 >
                     <div v-show="show" class="fixed inset-0 transform transition-all" @click="close">
                         <div class="absolute inset-0 bg-zinc-500 dark:bg-zinc-900 opacity-75"/>
@@ -83,12 +84,13 @@ const maxWidthClass = computed(() => {
                 </transition>
 
                 <transition
-                    enter-active-class="ease-out duration-300"
+                    enter-active-class="ease-in-out duration-500"
                     enter-from-class="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
                     enter-to-class="opacity-100 translate-y-0 sm:scale-100"
-                    leave-active-class="ease-in duration-300"
+                    leave-active-class="ease-in-out duration-500"
                     leave-from-class="opacity-100"
                     leave-to-class="opacity-0"
+                    appear
                 >
                     <div v-show="show"
                          class="h-auto max-h-full overflow-y-auto my-6 bg-zinc-100 dark:bg-zinc-800 rounded-lg shadow-xl transform transition-all sm:w-full sm:mx-auto"

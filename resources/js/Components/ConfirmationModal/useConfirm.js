@@ -1,6 +1,7 @@
-import {createApp} from 'vue';
-import ConfirmModal from '@/Components/ConfirmationModal/ConfirmationModal.vue';
+import {createApp, defineAsyncComponent} from 'vue';
 import PrimeVue from 'primevue/config';
+
+const ConfirmModal = defineAsyncComponent(() => import('@/Components/ConfirmationModal/ConfirmationModal.vue'));
 
 export function useConfirm({message, header, icon, accept, reject}) {
     return new Promise((resolve) => {

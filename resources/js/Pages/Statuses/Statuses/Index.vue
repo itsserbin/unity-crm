@@ -3,13 +3,14 @@ import InputSwitch from "primevue/inputswitch";
 import Column from "primevue/column";
 import Button from "primevue/button";
 import DataTable from "primevue/datatable";
-import Modal from "@/Pages/Statuses/Statuses/Modal.vue";
 import Toolbar from "primevue/toolbar";
 
-import {onMounted, reactive, ref} from "vue";
+import {defineAsyncComponent, onMounted, reactive, ref} from "vue";
 import StatusesRepository from "@/Repositories/StatusesRepository.js";
 import {toast} from "vue3-toastify";
 import {useConfirm} from "@/Components/ConfirmationModal/useConfirm.js";
+
+const Modal = defineAsyncComponent(() => import('./Modal.vue'))
 
 const props = defineProps(['statuses']);
 
@@ -102,10 +103,10 @@ const onSubmit = async () => {
 
         await fetch();
         toggleModal();
-        toast.success("Success", );
+        toast.success("Success",);
     } catch (e) {
         console.error(e);
-        toast.error("Error", );
+        toast.error("Error",);
     }
     state.isLoadingModal = false;
 }
@@ -244,7 +245,8 @@ const setPublishedStatus = async (id, val) => {
             </template>
         </Column>
     </DataTable>
-    <Modal :show="state.isShowModal"
+    <Modal v-if="state.isShowModal"
+           :show="state.isShowModal"
            :item="item"
            @close="toggleModal(false)"
            @submit="onSubmit"

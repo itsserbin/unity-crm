@@ -1,21 +1,47 @@
 <template>
-    <div class="relative">
+    <div class="relative" id="picker">
         <InputText
             type="text"
             class="input"
             @click="switchOpen"
             :value="displayValue"
             @input="updateModelValue($event.target.value)"
+            :placeholder="placeholder"
         />
         <div v-if="isOpened" class="popup-content">
             <div class="header">
                 <button class="button" @click="previousMonth">
                     &lt;
                 </button>
-                <div class="title">{{ selectedMonthLabel }}</div>
+                <div class="title" @click="switchMonthsOpen">
+                    {{ selectedMonthLabel }}
+                </div>
+                <div class="title" @click="switchYearsOpen">
+                    {{ selectedYearLabel }}
+                </div>
                 <button class="button" @click="nextMonth">
                     &gt;
                 </button>
+            </div>
+            <div v-if="isMonthsOpen" class="months-list">
+                <div
+                    v-for="(month, index) in months"
+                    :key="index"
+                    class="month-item"
+                    @click="selectMonth(index)"
+                >
+                    {{ month }}
+                </div>
+            </div>
+            <div v-if="isYearsOpen" class="years-list">
+                <div
+                    v-for="year in generateYearList()"
+                    :key="year"
+                    class="year-item"
+                    @click="selectYear(year)"
+                >
+                    {{ year }}
+                </div>
             </div>
             <div class="days-header">
                 <div
@@ -71,253 +97,262 @@
     </div>
 </template>
 
-<script>
+<script setup>
 import InputText from "primevue/inputtext";
 import {ref, computed, watch, onMounted} from 'vue';
 
-export default {
-    components: {InputText},
-    props: {
-        modelValue: {
-            type: String,
-            required: true,
-        },
-        timePickerEnabled: {
-            type: Boolean,
-            default: false,
-        },
-        timeFormat: {
-            type: String,
-            default: 'HH:mm:ss',
-        },
+const props = defineProps({
+    modelValue: {
+        type: String,
+        required: true,
     },
-    emits: ['update:modelValue'],
-    setup(props, {emit}) {
-        const isOpened = ref(false);
-        const currentDate = new Date();
-        const selectedDate = ref(currentDate);
-        const selectedTime = ref({
-            hours: currentDate.getHours(),
-            minutes: currentDate.getMinutes(),
-            seconds: currentDate.getSeconds(),
-        });
-
-        const switchOpen = () => (isOpened.value = !isOpened.value);
-
-        // Розрахунок днів в місяці
-        const daysInMonth = computed(() => {
-            if (!selectedDate.value) return [];
-            const year = selectedDate.value.getFullYear();
-            const month = selectedDate.value.getMonth();
-            return new Date(year, month + 1, 0).getDate();
-        });
-
-        // Назви днів тижня
-        const days = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Нд'];
-
-        // Розрахунок першого дня поточного місяця
-        const firstDayOfMonth = computed(() => {
-            if (!selectedDate.value) return 0;
-            const year = selectedDate.value.getFullYear();
-            const month = selectedDate.value.getMonth();
-            const firstDay = new Date(year, month, 1).getDay();
-            return firstDay === 0 ? 6 : firstDay - 1; // Понеділок - 0, Вівторок - 1, ..., Неділя - 6
-        });
-
-
-        function generateCurrentMonthDays() {
-            const currentMonthDays = [];
-            const daysCount = daysInMonth.value;
-            const firstDay = firstDayOfMonth.value;
-
-            // Додавання порожніх значень для початкових порожніх днів
-            for (let i = 0; i < firstDay; i++) {
-                currentMonthDays.push("");
-            }
-
-            // Додавання днів місяця
-            for (let i = 1; i <= daysCount; i++) {
-                currentMonthDays.push(i);
-            }
-
-            return currentMonthDays;
-        }
-
-        // Форматування вибраної дати в формат YYYY-MM-DD
-        function formatSelectedDate(day) {
-            if (!selectedDate.value) return '';
-            const year = selectedDate.value.getFullYear();
-            const month = selectedDate.value.getMonth() + 1;
-            const formattedMonth = month.toString().padStart(2, '0');
-            const formattedDay = day.toString().padStart(2, '0');
-            return `${year}-${formattedMonth}-${formattedDay}`;
-        }
-
-        // Перехід до попереднього місяця
-        function previousMonth() {
-            if (!selectedDate.value) return;
-            const year = selectedDate.value.getFullYear();
-            const month = selectedDate.value.getMonth();
-            selectedDate.value = new Date(year, month - 1, 1);
-        }
-
-        // Перехід до наступного місяця
-        function nextMonth() {
-            if (!selectedDate.value) return;
-            const year = selectedDate.value.getFullYear();
-            const month = selectedDate.value.getMonth();
-            selectedDate.value = new Date(year, month + 1, 1);
-        }
-
-        // Перевірка, чи вибрана дата є поточним днем
-        function isCurrentDay(day) {
-            if (!selectedDate.value) return false;
-            const year = selectedDate.value.getFullYear();
-            const month = selectedDate.value.getMonth();
-            const currentDate = new Date();
-            return (
-                year === currentDate.getFullYear() &&
-                month === currentDate.getMonth() &&
-                day === currentDate.getDate()
-            );
-        }
-
-        // Перевірка, чи вибрана дата є вибраною датою моделі
-        function isSelectedDay(day) {
-            if (!selectedDate.value) return false;
-            const modelDate = new Date(props.modelValue);
-            if (isNaN(modelDate.getTime())) return false;
-            const year = selectedDate.value.getFullYear();
-            const month = selectedDate.value.getMonth();
-            return (
-                year === modelDate.getFullYear() &&
-                month === modelDate.getMonth() &&
-                day === modelDate.getDate()
-            );
-        }
-
-        // Вибір дати
-        function selectDate(day) {
-            if (!selectedDate.value) return;
-            const selectedYear = selectedDate.value.getFullYear();
-            const selectedMonth = selectedDate.value.getMonth();
-            selectedDate.value = new Date(selectedYear, selectedMonth, day);
-
-            const formattedDate = formatSelectedDate(day);
-            if (props.timePickerEnabled) {
-                if (!props.modelValue) {
-                    setDefaultTime();
-                }
-                const formattedTime = `${selectedTime.value.hours}:${selectedTime.value.minutes}:${selectedTime.value.seconds}`;
-                emit('update:modelValue', `${formattedDate} ${formattedTime}`);
-            } else {
-                emit('update:modelValue', formattedDate);
-            }
-
-            switchOpen();
-        }
-
-        // Оновлення значення часу
-        function updateTimeValue() {
-            const formattedDate = formatSelectedDate(
-                selectedDate.value.getDate()
-            );
-            const formattedTime = `${selectedTime.value.hours}:${selectedTime.value.minutes}:${selectedTime.value.seconds}`;
-            emit('update:modelValue', `${formattedDate} ${formattedTime}`);
-        }
-
-        // Оновлення значення моделі
-        function updateModelValue(value) {
-            emit('update:modelValue', value);
-        }
-
-        // Поточний місяць та рік
-        const selectedMonthLabel = computed(() => {
-            if (!selectedDate.value) return '';
-            const year = selectedDate.value.getFullYear();
-            const month = selectedDate.value.toLocaleString('default', {month: 'long'});
-            return `${month} ${year}`;
-        });
-
-        // Значення для відображення в полі вводу
-        const displayValue = computed(() => {
-            if (!props.modelValue) return '';
-            const modelDate = new Date(props.modelValue);
-            if (isNaN(modelDate.getTime())) return '';
-            const year = modelDate.getFullYear();
-            const month = (modelDate.getMonth() + 1).toString().padStart(2, '0');
-            const day = modelDate.getDate().toString().padStart(2, '0');
-            let time = '';
-            if (props.timePickerEnabled) {
-                const timeFormat = props.timeFormat || 'HH:mm:ss';
-                const hours = modelDate.getHours().toString().padStart(2, '0');
-                const minutes = modelDate.getMinutes().toString().padStart(2, '0');
-                const seconds = modelDate.getSeconds().toString().padStart(2, '0');
-                time = ` ${hours}:${minutes}:${seconds}`;
-            }
-            return `${year}-${month}-${day}${time}`;
-        });
-
-        // Встановлення значень за замовчуванням для часу
-        function setDefaultTime() {
-            const currentDate = new Date();
-            selectedTime.value.hours = currentDate.getHours();
-            selectedTime.value.minutes = currentDate.getMinutes();
-            selectedTime.value.seconds = currentDate.getSeconds();
-        }
-
-        // Слідкування за зміною моделі
-        watch(
-            () => props.modelValue,
-            (newValue) => {
-                if (newValue) {
-                    const modelDate = new Date(newValue);
-                    if (!isNaN(modelDate.getTime())) {
-                        selectedDate.value = new Date(modelDate.getFullYear(), modelDate.getMonth(), modelDate.getDate());
-                        selectedTime.value.hours = modelDate.getHours();
-                        selectedTime.value.minutes = modelDate.getMinutes();
-                        selectedTime.value.seconds = modelDate.getSeconds();
-                    }
-                } else {
-                    selectedDate.value = null;
-                    setDefaultTime();
-                }
-            }
-        );
-
-        // Встановлення значень за замовчуванням при монтуванні компонента
-        onMounted(() => {
-            if (!props.modelValue) {
-                setDefaultTime();
-            }
-        });
-
-        return {
-            isOpened,
-            selectedDate,
-            selectedTime,
-            switchOpen,
-            firstDayOfMonth,
-            daysInMonth,
-            days,
-            formatSelectedDate,
-            previousMonth,
-            nextMonth,
-            isCurrentDay,
-            isSelectedDay,
-            selectDate,
-            updateTimeValue,
-            updateModelValue,
-            selectedMonthLabel,
-            displayValue,
-            generateCurrentMonthDays,
-        };
+    placeholder: {
+        type: String,
+        required: false,
     },
-};
+    timePickerEnabled: {
+        type: Boolean,
+        default: false,
+    },
+    timeFormat: {
+        type: String,
+        default: 'HH:mm:ss',
+    },
+});
+
+const emit = defineEmits([
+    'update:modelValue'
+]);
+
+const isOpened = ref(false);
+const isMonthsOpen = ref(false);
+const isYearsOpen = ref(false);
+const currentDate = new Date();
+const selectedDate = ref(currentDate);
+const selectedTime = ref({
+    hours: currentDate.getHours(),
+    minutes: currentDate.getMinutes(),
+    seconds: currentDate.getSeconds(),
+});
+
+const switchOpen = () => (isOpened.value = !isOpened.value);
+const switchMonthsOpen = () => (isMonthsOpen.value = !isMonthsOpen.value);
+const switchYearsOpen = () => (isYearsOpen.value = !isYearsOpen.value);
+
+function selectMonth(monthIndex) {
+    if (!selectedDate.value) return;
+    const year = selectedDate.value.getFullYear();
+    selectedDate.value = new Date(year, monthIndex, 1);
+    isMonthsOpen.value = false;
+}
+
+function generateYearList() {
+    const currentYear = new Date().getFullYear();
+    return Array.from({length: 10}, (_, i) => currentYear - i);
+}
+
+function selectYear(year) {
+    if (!selectedDate.value) return;
+    const month = selectedDate.value.getMonth();
+    selectedDate.value = new Date(year, month, 1);
+    isYearsOpen.value = false;
+}
+
+const selectedYearLabel = computed(() => {
+    if (!selectedDate.value) return '';
+    return selectedDate.value.getFullYear();
+});
+// Розрахунок днів в місяці
+const daysInMonth = computed(() => {
+    if (!selectedDate.value) return [];
+    const year = selectedDate.value.getFullYear();
+    const month = selectedDate.value.getMonth();
+    return new Date(year, month + 1, 0).getDate();
+});
+
+// Назви днів тижня
+const days = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Нд'];
+const months = ['Січень', 'Лютий', 'Березень', 'Квітень', 'Травень', 'Червень', 'Липень', 'Серпень', 'Вересень', 'Жовтень', 'Листопад', 'Грудень'];
+
+// Розрахунок першого дня поточного місяця
+const firstDayOfMonth = computed(() => {
+    if (!selectedDate.value) return 0;
+    const year = selectedDate.value.getFullYear();
+    const month = selectedDate.value.getMonth();
+    const firstDay = new Date(year, month, 1).getDay();
+    return firstDay === 0 ? 6 : firstDay - 1; // Понеділок - 0, Вівторок - 1, ..., Неділя - 6
+});
+
+
+function generateCurrentMonthDays() {
+    const currentMonthDays = [];
+    const daysCount = daysInMonth.value;
+    const firstDay = firstDayOfMonth.value;
+
+    // Додавання порожніх значень для початкових порожніх днів
+    for (let i = 0; i < firstDay; i++) {
+        currentMonthDays.push("");
+    }
+
+    // Додавання днів місяця
+    for (let i = 1; i <= daysCount; i++) {
+        currentMonthDays.push(i);
+    }
+
+    return currentMonthDays;
+}
+
+// Форматування вибраної дати в формат YYYY-MM-DD
+function formatSelectedDate(day) {
+    if (!selectedDate.value) return '';
+    const year = selectedDate.value.getFullYear();
+    const month = selectedDate.value.getMonth() + 1;
+    const formattedMonth = month.toString().padStart(2, '0');
+    const formattedDay = day.toString().padStart(2, '0');
+    return `${year}-${formattedMonth}-${formattedDay}`;
+}
+
+// Перехід до попереднього місяця
+function previousMonth() {
+    if (!selectedDate.value) return;
+    const year = selectedDate.value.getFullYear();
+    const month = selectedDate.value.getMonth();
+    selectedDate.value = new Date(year, month - 1, 1);
+}
+
+// Перехід до наступного місяця
+function nextMonth() {
+    if (!selectedDate.value) return;
+    const year = selectedDate.value.getFullYear();
+    const month = selectedDate.value.getMonth();
+    selectedDate.value = new Date(year, month + 1, 1);
+}
+
+// Перевірка, чи вибрана дата є поточним днем
+function isCurrentDay(day) {
+    if (!selectedDate.value) return false;
+    const year = selectedDate.value.getFullYear();
+    const month = selectedDate.value.getMonth();
+    const currentDate = new Date();
+    return (
+        year === currentDate.getFullYear() &&
+        month === currentDate.getMonth() &&
+        day === currentDate.getDate()
+    );
+}
+
+// Перевірка, чи вибрана дата є вибраною датою моделі
+function isSelectedDay(day) {
+    if (!selectedDate.value) return false;
+    const modelDate = new Date(props.modelValue);
+    if (isNaN(modelDate.getTime())) return false;
+    const year = selectedDate.value.getFullYear();
+    const month = selectedDate.value.getMonth();
+    return (
+        year === modelDate.getFullYear() &&
+        month === modelDate.getMonth() &&
+        day === modelDate.getDate()
+    );
+}
+
+// Вибір дати
+function selectDate(day) {
+    if (!selectedDate.value) return;
+    const selectedYear = selectedDate.value.getFullYear();
+    const selectedMonth = selectedDate.value.getMonth();
+    selectedDate.value = new Date(selectedYear, selectedMonth, day);
+
+    const formattedDate = formatSelectedDate(day);
+    if (props.timePickerEnabled) {
+        if (!props.modelValue) {
+            setDefaultTime();
+        }
+        const formattedTime = `${selectedTime.value.hours}:${selectedTime.value.minutes}:${selectedTime.value.seconds}`;
+        emit('update:modelValue', `${formattedDate} ${formattedTime}`);
+    } else {
+        emit('update:modelValue', formattedDate);
+    }
+
+    switchOpen();
+}
+
+// Оновлення значення часу
+function updateTimeValue() {
+    const formattedDate = formatSelectedDate(
+        selectedDate.value.getDate()
+    );
+    const formattedTime = `${selectedTime.value.hours}:${selectedTime.value.minutes}:${selectedTime.value.seconds}`;
+    emit('update:modelValue', `${formattedDate} ${formattedTime}`);
+}
+
+// Оновлення значення моделі
+function updateModelValue(value) {
+    emit('update:modelValue', value);
+}
+
+// Поточний місяць та рік
+const selectedMonthLabel = computed(() => {
+    if (!selectedDate.value) return '';
+    const month = selectedDate.value.toLocaleString('default', {month: 'long'});
+    return `${month}`;
+});
+
+// Значення для відображення в полі вводу
+const displayValue = computed(() => {
+    if (!props.modelValue) return '';
+    const modelDate = new Date(props.modelValue);
+    if (isNaN(modelDate.getTime())) return '';
+    const year = modelDate.getFullYear();
+    const month = (modelDate.getMonth() + 1).toString().padStart(2, '0');
+    const day = modelDate.getDate().toString().padStart(2, '0');
+    let time = '';
+    if (props.timePickerEnabled) {
+        const timeFormat = props.timeFormat || 'HH:mm:ss';
+        const hours = modelDate.getHours().toString().padStart(2, '0');
+        const minutes = modelDate.getMinutes().toString().padStart(2, '0');
+        const seconds = modelDate.getSeconds().toString().padStart(2, '0');
+        time = ` ${hours}:${minutes}:${seconds}`;
+    }
+    return `${year}-${month}-${day}${time}`;
+});
+
+// Встановлення значень за замовчуванням для часу
+function setDefaultTime() {
+    const currentDate = new Date();
+    selectedTime.value.hours = currentDate.getHours();
+    selectedTime.value.minutes = currentDate.getMinutes();
+    selectedTime.value.seconds = currentDate.getSeconds();
+}
+
+// Слідкування за зміною моделі
+watch(
+    () => props.modelValue,
+    (newValue) => {
+        if (newValue) {
+            const modelDate = new Date(newValue);
+            if (!isNaN(modelDate.getTime())) {
+                selectedDate.value = new Date(modelDate.getFullYear(), modelDate.getMonth(), modelDate.getDate());
+                selectedTime.value.hours = modelDate.getHours();
+                selectedTime.value.minutes = modelDate.getMinutes();
+                selectedTime.value.seconds = modelDate.getSeconds();
+            }
+        } else {
+            selectedDate.value = null;
+            setDefaultTime();
+        }
+    }
+);
+
+// Встановлення значень за замовчуванням при монтуванні компонента
+onMounted(() => {
+    if (!props.modelValue) {
+        setDefaultTime();
+    }
+});
 </script>
-<style>
 
-:root {
+<style scoped>
+#picker {
     --background-color: #fff; /* Колір фону */
     --text-color: #000; /* Колір тексту */
     --border-color: #ccc; /* Колір межі */
@@ -325,7 +360,7 @@ export default {
 }
 
 @media (prefers-color-scheme: dark) {
-    :root {
+    #picker {
         --background-color: #18181b; /* Колір фону у темній темі */
         --text-color: #fff; /* Колір тексту у темній темі */
         --border-color: #888; /* Колір межі у темній темі */
@@ -394,9 +429,6 @@ export default {
     border-radius: 4px;
     cursor: pointer;
     color: var(--text-color);
-    background-color: var(--background-color);
-    border: 1px solid var(--border-color);
-    box-shadow: 0 2px 4px var(--shadow-color); /* Додано тінь */
 }
 
 .current-day {
@@ -415,6 +447,10 @@ export default {
 .hover-selected-day:hover {
     background-color: #3f51b5;
     color: #fff;
+}
+
+.input {
+    width: 100%;
 }
 
 .active {
@@ -438,11 +474,39 @@ export default {
     margin-right: 4px;
     background-color: var(--background-color);
     color: var(--text-color);
-    box-shadow: 0 2px 4px var(--shadow-color); /* Додано тінь */
+    box-shadow: 0 2px 4px var(--shadow-color);
+    text-align: center;
 }
 
 .time-separator {
     margin: 0 4px;
+}
+
+.months-list, .years-list {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* 3 колонки для місяців або років */
+    gap: 4px; /* відстань між місяцями або роками */
+    padding: 4px;
+}
+
+.month-item, .year-item {
+    text-align: center; /* текст по центру */
+    padding: 4px; /* невеликий внутрішній відступ */
+    border-radius: 4px; /* закруглені кути */
+    cursor: pointer; /* курсор-указівник при наведенні */
+    background-color: var(--background-color); /* колір фону змінної */
+    color: var(--text-color); /* колір тексту змінної */
+    box-shadow: 0 2px 4px var(--shadow-color); /* додано тінь */
+}
+
+.month-item:hover, .year-item:hover {
+    background-color: #eee; /* зміна кольору фону при наведенні */
+    color: var(--text-color); /* колір тексту при наведенні */
+}
+
+.month-item:active, .year-item:active {
+    background-color: #ddd; /* зміна кольору фону при натисканні */
+    color: var(--text-color); /* колір тексту при натисканні */
 }
 
 </style>

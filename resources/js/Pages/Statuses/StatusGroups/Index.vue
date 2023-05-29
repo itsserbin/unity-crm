@@ -2,13 +2,14 @@
 import Column from "primevue/column";
 import Button from "primevue/button";
 import DataTable from "primevue/datatable";
-import Modal from "./Modal.vue";
 import Toolbar from "primevue/toolbar";
 
-import {onMounted, reactive, ref} from "vue";
+import {defineAsyncComponent, onMounted, reactive, ref} from "vue";
 import StatusGroupsRepository from "@/Repositories/StatusGroupsRepository.js";
 import {toast} from "vue3-toastify";
 import {useConfirm} from "@/Components/ConfirmationModal/useConfirm.js";
+
+const Modal = defineAsyncComponent(() => import('./Modal.vue'))
 
 const props = defineProps(['statuses']);
 
@@ -205,7 +206,8 @@ const refreshData = async () => {
             </template>
         </Column>
     </DataTable>
-    <Modal :show="state.isShowModal"
+    <Modal v-if="state.isShowModal"
+           :show="state.isShowModal"
            :item="item"
            @close="toggleModal(false)"
            @submit="onSubmit"

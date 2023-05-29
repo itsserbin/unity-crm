@@ -47,4 +47,9 @@ class Order extends Model
     {
         return $this->hasMany(OrderInvoice::class, 'order_id');
     }
+
+    final public function trackingCodes(): HasMany
+    {
+        return $this->hasMany(TrackingCode::class, 'order_id');
+    }
 }

@@ -1,17 +1,21 @@
 <script setup>
 import Button from "primevue/button";
+import Textarea from "primevue/textarea";
+import InputLabel from "@/Components/InputLabel.vue";
+import Dropdown from "primevue/dropdown";
+import InputText from "primevue/inputtext";
 import Modal from "@/Components/Modal/Modal.vue";
-import OrderInvoiceForm from "@/Pages/Orders/Partials/Invoices/OrderInvoiceForm.vue";
+import SelectButton from "primevue/selectbutton";
 
 const props = defineProps(['show', 'item']);
 const emits = defineEmits(['close', 'submit']);
-
 </script>
 
 <template>
     <Modal :show="show" @close="emits('close')">
         <template #body>
-            <OrderInvoiceForm :item="item"/>
+            asd
+            {{ item }}
         </template>
         <template #footer>
             <Button label="Скасувати"

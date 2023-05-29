@@ -5,14 +5,14 @@ import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
 import Toolbar from 'primevue/toolbar';
 import Button from 'primevue/button';
-import Modal from './Modal.vue';
-import Form from './Form.vue';
 import InputText from 'primevue/inputtext';
 
 import ClientsRepository from "@/Repositories/ClientsRepository.js";
 import {toast} from 'vue3-toastify';
-import {ref, onMounted, reactive} from 'vue';
+import {ref, onMounted, reactive, defineAsyncComponent} from 'vue';
 import {useConfirm} from "@/Components/ConfirmationModal/useConfirm.js";
+
+const Modal = defineAsyncComponent(() => import('./Modal.vue'))
 
 const props = defineProps(['clients']);
 
@@ -262,7 +262,8 @@ const refreshData = async () => {
                 </template>
             </DataTable>
         </div>
-        <Modal :show="state.isShowModal"
+        <Modal v-if="state.isShowModal"
+               :show="state.isShowModal"
                :item="item"
                @close="toggleModal(false)"
                @submit="onSubmit"

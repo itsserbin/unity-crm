@@ -3,9 +3,10 @@ import Button from "primevue/button";
 import InputLabel from "@/Components/InputLabel.vue";
 import Dropdown from "primevue/dropdown";
 import SourcesRepository from "@/Repositories/SourcesRepository.js";
-import SourcesModal from "@/Pages/Sources/Modal.vue";
 import {toast} from "vue3-toastify";
-import {reactive, onMounted} from "vue";
+import {reactive, onMounted, defineAsyncComponent} from "vue";
+
+const SourcesModal = defineAsyncComponent(() => import('@/Pages/Sources/Modal.vue'))
 
 const props = defineProps(['item', 'sources', 'errors']);
 
@@ -87,6 +88,6 @@ const mapData = (data) => {
     </div>
     <small class="p-error" v-if="errors.source_id" v-for="error in errors.source_id">{{ error }}</small>
 
-    <SourcesModal :show="sourceModal.isShow" :item="sourceModal.item"
+    <SourcesModal v-if="sourceModal.isShow" :show="sourceModal.isShow" :item="sourceModal.item"
                   @close="switchSourceModal" @submit="onCreateSource"/>
 </template>

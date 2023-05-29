@@ -5,15 +5,15 @@ import Toolbar from 'primevue/toolbar';
 import Button from 'primevue/button';
 import Tag from 'primevue/tag';
 import AppLayout from '@/Layouts/AppLayout.vue';
-import Modal from './Modal.vue';
-import Form from './Form.vue';
 import InputText from 'primevue/inputtext';
 
 import ProductsRepository from "@/Repositories/ProductsRepository.js";
 import {toast} from 'vue3-toastify';
-import {ref, onMounted, reactive} from 'vue';
+import {ref, onMounted, reactive, defineAsyncComponent} from 'vue';
 import {useConfirm} from "@/Components/ConfirmationModal/useConfirm.js";
 import Heading from "@/Components/Heading.vue";
+
+const Modal = defineAsyncComponent(() => import('./Modal.vue'))
 
 const props = defineProps(['products']);
 
@@ -341,7 +341,8 @@ const refreshData = async () => {
                 </template>
             </DataTable>
         </div>
-        <Modal :show="state.isShowModal"
+        <Modal v-if="state.isShowModal"
+               :show="state.isShowModal"
                @close="toggleModal(false)"
                :isLoadingModal="state.isLoadingModal"
                :item="item"

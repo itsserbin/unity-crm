@@ -4,17 +4,18 @@ import Column from 'primevue/column';
 import Toolbar from 'primevue/toolbar';
 import Button from 'primevue/button';
 import AppLayout from '@/Layouts/AppLayout.vue';
-import Modal from './Modal.vue';
-import Form from './Form.vue';
 import InputText from 'primevue/inputtext';
 import MultiSelect from 'primevue/multiselect';
+import Heading from "@/Components/Heading.vue";
 
+import TrackingCodesRepository from "@/Repositories/TrackingCodesRepository.js";
 import OrdersRepository from "@/Repositories/OrdersRepository.js";
 import {toast} from 'vue3-toastify';
-import {ref, onMounted, reactive} from 'vue';
+import {ref, onMounted, reactive, defineAsyncComponent} from 'vue';
 import {useConfirm} from "@/Components/ConfirmationModal/useConfirm.js";
-import Heading from "@/Components/Heading.vue";
-import Dropdown from "primevue/dropdown";
+
+const Modal = defineAsyncComponent(() => import('./Modal.vue'))
+const TrackingCodeModal = defineAsyncComponent(() => import('./TrackingCode/TrackingCodeModal.vue'))
 
 const props = defineProps([
     'orders',
@@ -30,10 +31,12 @@ const state = reactive({
     errors: [],
     isLoading: false,
     isShowModal: false,
+    isShowTrackingCodeModal: false,
     isLoadingModal: false,
     isLoadingRefreshButton: false,
     data: {},
-    search: null
+    search: null,
+    trackingItem: {},
 });
 
 const lazyParams = ref({
@@ -86,6 +89,7 @@ const fetch = async () => {
 }
 
 const toggleModal = (val) => val ? state.isShowModal = val : state.isShowModal = !state.isShowModal;
+const toggleTrackingCodeModal = (val) => val ? state.isShowTrackingCodeModal = val : state.isShowTrackingCodeModal = !state.isShowTrackingCodeModal;
 const switchLoader = (val) => val ? state.isLoading = val : state.isLoading = !state.isLoading;
 const switchLoaderRefreshButton = (val) => val ? state.isLoadingRefreshButton = val : state.isLoadingRefreshButton = !state.isLoadingRefreshButton;
 
@@ -109,10 +113,14 @@ const onCreate = () => {
         status_id: null,
         client_id: null,
         manager_id: null,
-        delivery_service_id: null,
-        tracking_code: null,
         comment: null,
         discount: null,
+        tracking_codes: [
+            {
+                code: null,
+                delivery_service_id: null,
+            }
+        ],
         items: [],
         costs: [],
         invoices: [],
@@ -122,13 +130,29 @@ const onCreate = () => {
 const onSubmit = async () => {
     try {
         state.isLoadingModal = true;
-        const {source_id, status_id, client_id, manager_id, delivery_service_id, id, ...rest} = item.value;
+        const {
+            tracking_codes,
+            source_id,
+            status_id,
+            client_id,
+            manager_id,
+            delivery_service_id,
+            id,
+            ...rest
+        } = item.value;
         const updatedItem = {
             ...(source_id && {source_id: source_id.value}),
             ...(status_id && {status_id: status_id.code}),
             ...(client_id && {client_id: client_id.value}),
             ...(manager_id && {manager_id: manager_id.value}),
-            ...(delivery_service_id && {delivery_service_id: delivery_service_id.value}),
+            ...(tracking_codes && {
+                tracking_codes: tracking_codes.map((item) => {
+                    return {
+                        delivery_service_id: item.delivery_service_id.value,
+                        code: item.code
+                    }
+                })
+            }),
             ...rest
         };
         const data = id ? await OrdersRepository.update(id, updatedItem) : await OrdersRepository.create(updatedItem);
@@ -154,6 +178,19 @@ const onEdit = async (id) => {
         const data = await OrdersRepository.edit(id);
         item.value = data.result;
         item.value.source = {code: data.result.source};
+        if (!item.value.tracking_codes.length) {
+            item.value.tracking_codes.push({
+                code: null,
+                delivery_service_id: null,
+            })
+        } else {
+            item.value.tracking_codes = item.value.tracking_codes.map((i) => {
+                return {
+                    delivery_service_id: {value: i.delivery_service_id},
+                    code: i.code
+                }
+            })
+        }
         toggleModal();
     } catch (e) {
         console.error(e);
@@ -225,6 +262,16 @@ const selectStatuses = props.statuses.map((item) => {
 const onFilterStatus = async () => {
     lazyParams.value.page = 1;
     await fetch();
+}
+
+const showTrackingCodeLog = async (id) => {
+    try {
+        const response = await TrackingCodesRepository.edit(id);
+        state.trackingItem = response.result;
+        toggleTrackingCodeModal();
+    } catch (e) {
+        console.error(e);
+    }
 }
 </script>
 
@@ -336,16 +383,22 @@ const onFilterStatus = async () => {
                         <div v-else>(Пусто)</div>
                     </template>
                 </Column>
-                <Column field="delivery_service_id" header="Служба доставки">
-                    <template #body="{data}">
-                        {{
-                            data.delivery_service && data.delivery_service.title ? data.delivery_service.title : '(Пусто)'
-                        }}
+                <Column field="tracking_codes">
+                    <template #header>
+                        <div class="flex justify-center w-full">
+                            Трекінг-код
+                        </div>
                     </template>
-                </Column>
-                <Column field="tracking_code" header="Трекінг-код">
                     <template #body="{data}">
-                        {{ data.tracking_code ? data.tracking_code : '(Пусто)' }}
+                        <div class="grid grid-cols-1 gap-2">
+                            <Button v-if="data.tracking_codes.length"
+                                    v-for="item in data.tracking_codes"
+                                    :label="item.code"
+                                    text
+                                    @click="showTrackingCodeLog(item.id)"
+                            />
+                            <div v-else class="text-center">(Пусто)</div>
+                        </div>
                     </template>
                 </Column>
                 <Column field="items" header="Товари">
@@ -374,7 +427,8 @@ const onFilterStatus = async () => {
                 </template>
             </DataTable>
         </div>
-        <Modal :show="state.isShowModal"
+        <Modal v-if="state.isShowModal"
+               :show="state.isShowModal"
                :item="item"
                @close="toggleModal(false)"
                @submit="onSubmit"
@@ -386,6 +440,11 @@ const onFilterStatus = async () => {
                :products="products"
                :clients="clients"
                :errors="state.errors"
+        />
+        <TrackingCodeModal v-if="state.isShowTrackingCodeModal"
+                           :show="state.isShowTrackingCodeModal"
+                           :item="state.trackingItem"
+                           @close="toggleTrackingCodeModal"
         />
     </AppLayout>
 </template>

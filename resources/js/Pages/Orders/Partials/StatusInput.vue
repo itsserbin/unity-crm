@@ -2,11 +2,12 @@
 import Button from "primevue/button";
 import InputLabel from "@/Components/InputLabel.vue";
 import Dropdown from "primevue/dropdown";
-import {onMounted, reactive} from "vue";
+import {defineAsyncComponent, onMounted, reactive} from "vue";
 import StatusGroupsRepository from "@/Repositories/StatusGroupsRepository.js";
 import {toast} from "vue3-toastify";
-import StatusModal from "@/Pages/Statuses/Statuses/Modal.vue";
 import StatusesRepository from "@/Repositories/StatusesRepository.js";
+
+const StatusModal = defineAsyncComponent(() => import('@/Pages/Statuses/Statuses/Modal.vue'))
 
 const props = defineProps(['item', 'statuses', 'errors']);
 
@@ -109,7 +110,7 @@ const mapData = (data) => {
     </div>
     <small class="p-error" v-if="errors.status_id" v-for="error in errors.status_id">{{ error }}</small>
 
-    <StatusModal :show="statusModal.isShow" :item="statusModal.item"
+    <StatusModal v-if="statusModal.isShow" :show="statusModal.isShow" :item="statusModal.item"
                  @close="switchStatusModal" @submit="onCreateStatus"/>
 </template>
 

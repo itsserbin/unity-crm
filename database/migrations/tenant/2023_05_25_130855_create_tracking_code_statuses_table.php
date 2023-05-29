@@ -10,7 +10,7 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::create('tracking_code_statuses', function (Blueprint $table) {
+        Schema::create('tracking_codes', function (Blueprint $table) {
             $table->id();
             $table->foreignId('order_id')
                 ->nullable()
@@ -19,8 +19,10 @@ return new class extends Migration {
                 ->onDelete('cascade');
 
             $table->string('code');
-            $table->string('title');
-            $table->string('description')->nullable();
+            $table->foreignId('delivery_service_id')->nullable();
+
+            $table->json('log')->nullable();
+            $table->json('data')->nullable();
 
             $table->timestamps();
         });
@@ -31,6 +33,6 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        Schema::dropIfExists('tracking_code_statuses');
+        Schema::dropIfExists('tracking_codes');
     }
 };

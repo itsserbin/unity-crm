@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\ProductsController;
 use App\Http\Controllers\Api\SourcesController;
 use App\Http\Controllers\Api\StatusesController;
 use App\Http\Controllers\Api\StatusGroupsController;
+use App\Http\Controllers\Api\TrackingCodesController;
 use App\Http\Controllers\Api\UsersController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -231,5 +232,22 @@ Route::middleware('auth:sanctum')->group(function () {
 
         Route::delete('/destroy/{id}', [UsersController::class, 'destroy'])
             ->name('api.users.destroy');
+    });
+
+    Route::prefix('tracking-codes')->group(function () {
+        Route::post('create', [TrackingCodesController::class, 'create'])
+            ->name('api.tracking-codes.create');
+
+        Route::get('/', [TrackingCodesController::class, 'index'])
+            ->name('api.tracking-codes.index');
+
+        Route::get('edit/{id}', [TrackingCodesController::class, 'edit'])
+            ->name('api.tracking-codes.edit');
+
+        Route::put('update/{id}', [TrackingCodesController::class, 'update'])
+            ->name('api.tracking-codes.update');
+
+        Route::delete('/destroy/{id}', [TrackingCodesController::class, 'destroy'])
+            ->name('api.tracking-codes.destroy');
     });
 });

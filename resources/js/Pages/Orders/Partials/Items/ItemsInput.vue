@@ -1,9 +1,10 @@
 <script setup>
 import Button from "primevue/button";
 import InputLabel from "@/Components/InputLabel.vue";
-import {reactive} from "vue";
-import ItemsModal from "@/Pages/Orders/Partials/Items/ItemsModal.vue";
 import ItemsTable from "@/Pages/Orders/Partials/Items/ItemsTable.vue";
+import {defineAsyncComponent, reactive} from "vue";
+
+const ItemsModal = defineAsyncComponent(() => import('@/Pages/Orders/Partials/Items/ItemsModal.vue'))
 
 const props = defineProps(['item', 'products']);
 
@@ -84,6 +85,7 @@ const onCreate = () => {
 
     <ItemsTable :item="item" @onEdit="onEdit"/>
 
-    <ItemsModal :show="productModal.isShow" :item="productModal.item"
+    <ItemsModal v-if="productModal.isShow" :show="productModal.isShow" :item="productModal.item"
                 @close="switchProductModal" @submit="onSubmit" :products="products"/>
 </template>
+

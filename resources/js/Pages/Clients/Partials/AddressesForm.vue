@@ -2,8 +2,9 @@
 import Button from "primevue/button";
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
-import {reactive} from "vue";
-import AddressesModal from "@/Pages/Clients/Partials/AddressesModal.vue";
+import {defineAsyncComponent, reactive} from "vue";
+
+const AddressesModal = defineAsyncComponent(() => import('@/Pages/Clients/Partials/AddressesModal.vue'))
 
 const props = defineProps(['item']);
 
@@ -38,7 +39,8 @@ const submit = () => {
     <div class="flex items-center justify-center">
         <Button label="Додати адресу" @click="toggleModal"/>
     </div>
-    <AddressesModal :show="state.isModal"
+    <AddressesModal v-if="state.isModal"
+                    :show="state.isModal"
                     :item="state.item"
                     @close="toggleModal"
                     @submit="submit"

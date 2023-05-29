@@ -40,6 +40,7 @@ Route::middleware([
 //        ->middleware('auth')
 //        ->name('categories');
 
+    Route::get('test', [\App\Http\Controllers\External\NovaPoshtaController::class, 'index']);
 
     require __DIR__ . '/api.php';
     require __DIR__ . '/auth.php';

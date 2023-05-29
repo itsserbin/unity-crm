@@ -3,12 +3,14 @@ import Button from "primevue/button";
 import Loader from "@/Components/Loader.vue";
 import InputLabel from "@/Components/InputLabel.vue";
 import Dropdown from "primevue/dropdown";
-import {onMounted, reactive} from "vue";
+import Card from "primevue/card";
+
+import {defineAsyncComponent, onMounted, reactive} from "vue";
 import ClientsRepository from "@/Repositories/ClientsRepository.js";
 import {toast} from "vue3-toastify";
-import ClientModal from "@/Pages/Clients/Modal.vue";
-import AddressesModal from "@/Pages/Clients/Partials/AddressesModal.vue";
-import Card from "primevue/card";
+
+const ClientModal = defineAsyncComponent(() => import('@/Pages/Clients/Modal.vue'))
+const AddressesModal = defineAsyncComponent(() => import('@/Pages/Clients/Partials/AddressesModal.vue'))
 
 const props = defineProps(['item', 'clients']);
 
@@ -244,9 +246,11 @@ const onCreateAddress = async () => {
             </template>
         </Card>
     </div>
-    <ClientModal :show="clientModal.isShow" :item="clientModal.item"
+    <ClientModal v-if="clientModal.isShow"
+                 :show="clientModal.isShow" :item="clientModal.item"
                  @close="switchClientModal" @submit="onCreateClient"/>
 
-    <AddressesModal :show="addressModal.isShow" :item="addressModal.item"
+    <AddressesModal v-if="addressModal.isShow"
+                    :show="addressModal.isShow" :item="addressModal.item"
                     @close="switchAddressModal" @submit="onCreateAddress"/>
 </template>

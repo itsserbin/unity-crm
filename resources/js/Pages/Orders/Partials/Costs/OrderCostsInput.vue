@@ -1,12 +1,10 @@
 <script setup>
 import Button from "primevue/button";
-import DataTable from "primevue/datatable";
-import Column from "primevue/column";
-import InputSwitch from "primevue/inputswitch";
 import InputLabel from "@/Components/InputLabel.vue";
-import OrderCostModal from "@/Pages/Orders/Partials/Costs/OrderCostModal.vue";
-import OrderCostsTable from "@/Pages/Orders/Partials/Costs/OrderCostsTable.vue";
-import {reactive} from "vue";
+import {reactive, defineAsyncComponent} from "vue";
+
+const OrderCostsTable = defineAsyncComponent(() => import('@/Pages/Orders/Partials/Costs/OrderCostsTable.vue'))
+const OrderCostModal = defineAsyncComponent(() => import('@/Pages/Orders/Partials/Costs/OrderCostModal.vue'))
 
 const props = defineProps(['item']);
 
@@ -65,6 +63,7 @@ const onDestroy = (i) => {
 
     <OrderCostsTable :item="item" @onEdit="onEdit" @onDestroy="onDestroy"/>
 
-    <OrderCostModal :show="modal.isShow" :item="modal.item"
+    <OrderCostModal v-if="modal.isShow"
+                    :show="modal.isShow" :item="modal.item"
                     @close="switchModal" @submit="onSubmit"/>
 </template>
