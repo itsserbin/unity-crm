@@ -85,14 +85,10 @@ const onRowSelect = (event) => {
 const onCreate = () => {
     item.value = {
         id: null,
-        availability: {value: -1},
         title: null,
         description: null,
-        trade_price: null,
-        price: null,
-        discount_price: null,
-        image: null,
-        sku: null
+        preview_id: null,
+        preview: null
     };
     toggleModal();
 }
@@ -223,9 +219,33 @@ const refreshData = async () => {
                     </form>
                 </template>
 
-                <Column field="id" header="ID" sortable=""></Column>
+                <Column field="id" header="ID" sortable="" style="width:10%;"></Column>
+                <Column field="preview_id">
+                    <template #header>
+                        <div class="w-full text-center">Зображення</div>
+                    </template>
+                    <template #body="{data}">
+                        <picture v-if="data.preview">
+                            <source :srcset="route('images',data.preview.data.webp)"
+                                    type="image/webp">
+
+                            <img :src="route('images',data.preview.data.jpeg)"
+                                 :alt="data.preview.data.alt"
+                                 class="object-cover w-[55px] mx-auto"
+                                 loading="lazy"
+                            >
+                        </picture>
+                        <img v-else class="mx-auto w-[55px]"
+                             src="/storage/no_image.jpeg"
+                             :alt="data.title"/>
+                    </template>
+                </Column>
                 <Column field="title" header="Назва"></Column>
-                <Column field="description" header="Опис"></Column>
+                <Column field="description" style="width:40%;">
+                    <template #header>
+                        <div class="w-full text-center">Опис</div>
+                    </template>
+                </Column>
                 <Column>
                     <template #body="{data}">
                         <Button icon="pi pi-trash"

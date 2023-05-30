@@ -6,6 +6,7 @@ use App\Models\Enums\DeliveryServices;
 use App\Repositories\CategoriesRepository;
 use App\Repositories\ClientsRepository;
 use App\Repositories\DeliveryServicesRepository;
+use App\Repositories\ImagesRepository;
 use App\Repositories\OrdersRepository;
 use App\Repositories\ProductsRepository;
 use App\Repositories\SourcesRepository;
@@ -15,6 +16,7 @@ use App\Repositories\UsersRepository;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
+use Stancl\Tenancy\Facades\Tenancy;
 
 class HomeController extends Controller
 {
@@ -27,6 +29,7 @@ class HomeController extends Controller
     private mixed $statusGroupsRepository;
     private mixed $deliveryServicesRepository;
     private mixed $usersRepository;
+    private mixed $imagesRepository;
 
     final public function __construct()
     {
@@ -40,6 +43,7 @@ class HomeController extends Controller
         $this->statusGroupsRepository = app(StatusGroupsRepository::class);
         $this->deliveryServicesRepository = app(DeliveryServicesRepository::class);
         $this->usersRepository = app(UsersRepository::class);
+        $this->imagesRepository = app(ImagesRepository::class);
     }
 
     final public function dashboard(): Response
@@ -50,9 +54,11 @@ class HomeController extends Controller
     final public function products(Request $request): Response
     {
         $products = $this->productsRepository->getAllWithPaginate($request->all());
+        $categories = $this->categoriesRepository->list();
 
         return Inertia::render('Products/Index', [
-            'products' => $products
+            'products' => $products,
+            'categories' => $categories
         ]);
     }
 
@@ -62,6 +68,15 @@ class HomeController extends Controller
 
         return Inertia::render('Categories/Index', [
             'categories' => $categories
+        ]);
+    }
+
+    final public function images(Request $request): Response
+    {
+        $images = $this->imagesRepository->getAllWithPaginate($request->all());
+
+        return Inertia::render('Images/Index', [
+            'images' => $images
         ]);
     }
 

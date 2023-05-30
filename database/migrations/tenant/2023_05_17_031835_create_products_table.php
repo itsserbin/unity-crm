@@ -18,7 +18,7 @@ return new class extends Migration {
             $table->float('trade_price')->nullable();
             $table->float('price');
             $table->float('discount_price')->nullable();
-            $table->string('image')->nullable();
+            $table->foreignId('preview_id')->nullable();
             $table->string('sku')->nullable();
             $table->timestamps();
         });

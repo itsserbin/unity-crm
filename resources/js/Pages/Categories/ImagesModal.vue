@@ -1,17 +1,25 @@
 <script setup>
-import Modal from "@/Components/Modal/Modal.vue";
-import Form from "@/Pages/Categories/Form.vue";
+import Images from '@/Pages/Images/List.vue';
+import Modal from '@/Components/Modal/Modal.vue'
+import {ref} from "vue";
 import Button from "primevue/button";
 
-defineProps(['item', 'show', 'isLoadingModal']);
+defineProps(['show']);
 const emits = defineEmits(['close', 'submit']);
+const selectItem = ref();
+
+const onSelect = (e) => {
+    selectItem.value = e;
+}
+
 </script>
 
 <template>
-    <Modal :show="show" @close="emits('close')" max-width="5xl">
+    <Modal :show="show" @close="emits('close')" max-width="7xl">
         <template #body>
-            <Form :item="item"/>
+            <Images :selectable="true" @selected="onSelect"/>
         </template>
+
         <template #footer>
             <Button label="Скасувати"
                     icon="pi pi-times"
@@ -20,9 +28,8 @@ const emits = defineEmits(['close', 'submit']);
             />
             <Button label="Зберегти"
                     icon="pi pi-check"
-                    @click="emits('submit')"
+                    @click="emits('submit',selectItem)"
                     autofocus
-                    :loading="isLoadingModal"
             />
         </template>
     </Modal>

@@ -13,6 +13,9 @@ Route::middleware('auth')->group(function () {
 
         Route::get('categories', [HomeController::class, 'categories'])
             ->name('catalog.categories');
+
+        Route::get('images', [HomeController::class, 'images'])
+            ->name('catalog.images');
     });
 
     Route::prefix('crm')->group(function () {

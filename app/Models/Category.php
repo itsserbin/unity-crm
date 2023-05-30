@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 
 class Category extends Model
@@ -11,7 +12,7 @@ class Category extends Model
     protected $fillable = [
         'title',
         'description',
-        'image',
+        'preview_id',
     ];
 
     protected array $dates = [
@@ -22,5 +23,10 @@ class Category extends Model
     final public function products(): MorphToMany
     {
         return $this->morphedbyMany(Product::class, 'categoryables');
+    }
+
+    final public function preview(): BelongsTo
+    {
+        return $this->belongsTo(Image::class);
     }
 }

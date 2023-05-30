@@ -178,11 +178,11 @@ const onCreateAddress = async () => {
                     >
                         <template #option="slotProps">
                             <div class="text-base">{{ slotProps.option.name }}</div>
-                            <div class="text-sm text-gray-500"
+                            <div class="text-sm text-zinc-800 dark:text-zinc-200"
                                  v-for="phone in slotProps.option.phones">
                                 {{ phone.number }}
                             </div>
-                            <div class="text-sm text-gray-500"
+                            <div class="text-sm text-zinc-800 dark:text-zinc-200"
                                  v-for="email in slotProps.option.emails"
                                  v-if="slotProps.option.emails.length">
                                 {{ email.address }}
@@ -192,9 +192,10 @@ const onCreateAddress = async () => {
                     <Button @click="switchClientModal" type="button" icon="pi pi-plus"></Button>
                 </div>
                 <div v-if="state.client && item.client_id"
-                     class="flex hover:bg-zinc-200 p-2 rounded transition-all">
+
+                     class="flex p-2 text-zinc-800 dark:text-zinc-200 hover:bg-zinc-300 dark:hover:bg-zinc-700 rounded transition-all">
                     <div class="flex flex-col w-full">
-                        <div class="text-lg text-zinc-900">
+                        <div class="text-lg">
                             <i class="pi pi-user"></i>
                             {{ state.client.full_name }}
                         </div>
@@ -233,7 +234,7 @@ const onCreateAddress = async () => {
                     />
                     <Button @click="switchAddressModal" type="button" icon="pi pi-plus"></Button>
                 </div>
-                <div v-else class="flex hover:bg-zinc-200 p-2 rounded transition-all w-full">
+                <div v-else class="flex text-zinc-800 dark:text-zinc-200 hover:bg-zinc-300 dark:hover:bg-zinc-700 p-2 rounded transition-all w-full">
                     <div class="w-full flex items-center">
                         {{ item.delivery_address }}
                     </div>

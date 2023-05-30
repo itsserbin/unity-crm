@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 
 class Product extends Model
@@ -14,7 +15,7 @@ class Product extends Model
         'trade_price',
         'price',
         'discount_price',
-        'image',
+        'preview_id',
         'sku',
     ];
 
@@ -28,6 +29,10 @@ class Product extends Model
         'updated_at',
     ];
 
+    protected $casts = [
+        'image' => 'array'
+    ];
+
     /**
      * The categories() function returns a morphToMany relationship between the Product model and the Category model.
      * This relationship allows the Product model to belong to multiple categories through the categoryables table.
@@ -38,5 +43,10 @@ class Product extends Model
     final public function categories(): MorphToMany
     {
         return $this->morphToMany(Category::class, 'categoryables',);
+    }
+
+    final public function preview(): BelongsTo
+    {
+        return $this->belongsTo(Image::class);
     }
 }

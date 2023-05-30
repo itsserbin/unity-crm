@@ -3,12 +3,14 @@
 use App\Http\Controllers\Api\CategoriesController;
 use App\Http\Controllers\Api\ClientsController;
 use App\Http\Controllers\Api\DeliveryServicesController;
+use App\Http\Controllers\Api\ImagesController;
 use App\Http\Controllers\Api\OrdersController;
 use App\Http\Controllers\Api\ProductsController;
 use App\Http\Controllers\Api\SourcesController;
 use App\Http\Controllers\Api\StatusesController;
 use App\Http\Controllers\Api\StatusGroupsController;
 use App\Http\Controllers\Api\TrackingCodesController;
+use App\Http\Controllers\Api\UploadController;
 use App\Http\Controllers\Api\UsersController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -249,5 +251,24 @@ Route::middleware('auth:sanctum')->group(function () {
 
         Route::delete('/destroy/{id}', [TrackingCodesController::class, 'destroy'])
             ->name('api.tracking-codes.destroy');
+    });
+
+    Route::prefix('images')->group(function () {
+        Route::get('/', [ImagesController::class, 'index'])
+            ->name('api.images.index');
+
+        Route::get('edit/{id}', [ImagesController::class, 'edit'])
+            ->name('api.images.edit');
+
+        Route::put('update/{id}', [ImagesController::class, 'update'])
+            ->name('api.images.update');
+
+        Route::delete('/destroy/{id}', [ImagesController::class, 'destroy'])
+            ->name('api.images.destroy');
+    });
+
+    Route::prefix('upload')->group(function () {
+        Route::post('product-preview', [UploadController::class, 'uploadProductPreview'])
+            ->name('api.upload.product-preview');
     });
 });

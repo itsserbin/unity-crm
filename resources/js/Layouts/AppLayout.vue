@@ -23,6 +23,10 @@ const menu = [
             {
                 href: route('catalog.categories'),
                 title: 'Категорії'
+            },
+            {
+                href: route('catalog.images'),
+                title: 'Зображення'
             }
         ]
     },
@@ -31,13 +35,13 @@ const menu = [
         icon: 'pi pi-database',
         child: [
             {
+                href: route('crm.orders'),
+                title: 'Замовлення'
+            },
+            {
                 href: route('crm.clients'),
                 title: 'Клієнти'
             },
-            {
-                href: route('crm.orders'),
-                title: 'Замовлення'
-            }
         ]
     },
     {
@@ -71,10 +75,20 @@ const isOpen = ref(true);
 const toggleCollapse = (e) => {
     isOpen.value = e;
 }
+
+const isDark = () => {
+    return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+        ? ''
+        : 'white-theme';
+}
 </script>
 <template>
     <div class="flex">
-        <sidebar-menu @update:collapsed="toggleCollapse" :menu="menu" :collapsed="true"/>
+        <sidebar-menu @update:collapsed="toggleCollapse"
+                      :menu="menu"
+                      :collapsed="true"
+                      :theme="isDark()"
+        />
         <div class="w-full p-4" :class="{'pl-[75px]' : isOpen,'pl-[300px]' : !isOpen}">
             <slot></slot>
         </div>

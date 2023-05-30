@@ -5,6 +5,7 @@ namespace App\Repositories;
 use App\Models\Product as Model;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Arr;
 
 class ProductsRepository extends CoreRepository
 {
@@ -15,7 +16,7 @@ class ProductsRepository extends CoreRepository
 
     final public function getModelById(int $id): ?\Illuminate\Database\Eloquent\Model
     {
-        return $this->model::where('id', $id)->with('categories:id,title')->first();
+        return $this->model::where('id', $id)->with('categories:id,title', 'preview')->first();
     }
 
     final public function getAllWithPaginate(array $data): LengthAwarePaginator
@@ -27,7 +28,7 @@ class ProductsRepository extends CoreRepository
             'trade_price',
             'price',
             'discount_price',
-            'image',
+            'preview_id',
             'sku',
         ];
 
@@ -46,7 +47,7 @@ class ProductsRepository extends CoreRepository
                 $data['sort']['column'] ?? 'id',
                 $data['sort']['type'] ?? 'desc'
             )
-            ->with('categories:id,title')
+            ->with('categories:id,title', 'preview')
             ->paginate($data['perPage'] ?? 15);
     }
 
@@ -59,9 +60,16 @@ class ProductsRepository extends CoreRepository
 
     final public function update(int $id, array $data): \Illuminate\Database\Eloquent\Model
     {
+        $model = $this->coreUpdate($this->model, $id, $data);
+        $model->categories()->sync($data['categories']);
         return $this->coreUpdate($this->model, $id, $data);
     }
-
+//    private function syncCategories($model, $categories): bool
+//    {
+//        $categoryItems = Arr::pluck($categories, 'id');
+//        $model->categories()->sync($categoryItems);
+//        return 1;
+//    }
     final public function destroy(int $id): int
     {
         return $this->coreDestroy($this->model, $id);
@@ -77,7 +85,7 @@ class ProductsRepository extends CoreRepository
             'trade_price',
             'price',
             'discount_price',
-            'image',
+            'preview_id',
             'sku',
         ];
 
@@ -89,7 +97,7 @@ class ProductsRepository extends CoreRepository
             ->orWhere('price', 'LIKE', "%$query%")
             ->orWhere('discount_price', 'LIKE', "%$query%")
             ->orWhere('sku', 'LIKE', "%$query%")
-            ->with('categories:id,title')
+            ->with('categories:id,title', 'preview')
             ->paginate($data['perPage'] ?? 15);
     }
 
@@ -100,7 +108,7 @@ class ProductsRepository extends CoreRepository
             'title',
             'trade_price',
             'price',
-            'image',
+            'preview_id',
             'sku',
             'discount_price',
         ])->get();

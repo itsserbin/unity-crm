@@ -3,32 +3,37 @@ import InputText from 'primevue/inputtext';
 import InputLabel from '@/Components/InputLabel.vue';
 import Dropdown from 'primevue/dropdown';
 import Textarea from 'primevue/textarea';
-import FileUpload from 'primevue/fileupload';
+import Button from 'primevue/button';
 import MultiSelect from 'primevue/multiselect';
+import Card from 'primevue/card';
 
-import {onMounted, reactive} from "vue";
+import {defineAsyncComponent, onMounted, reactive} from "vue";
 import CategoriesRepository from "@/Repositories/CategoriesRepository.js";
 import {toast} from "vue3-toastify";
 
-defineProps(['item']);
+const ImagesModal = defineAsyncComponent(() => import('./ImagesModal.vue'))
+
+const props = defineProps(['item', 'categories']);
 
 const state = reactive({
     categories: [],
+    isShowImagesModal: false,
     isLoadingCategories: false
 });
 
-onMounted(async () => await getCategories());
+onMounted(async () => {
+    if (props.categories) {
+        state.categories = mapData(props.categories);
+    } else {
+        await getCategories();
+    }
+});
 
 const getCategories = async () => {
     switchIsLoadingCategories();
     try {
         const data = await CategoriesRepository.list();
-        state.categories = data.result.map((item) => {
-            return {
-                label: item.title,
-                code: item.id
-            }
-        })
+        state.categories = mapData(data.result);
     } catch (e) {
         console.error(e);
         toast.error("Failed to get categories");
@@ -36,7 +41,17 @@ const getCategories = async () => {
     switchIsLoadingCategories();
 }
 
+const mapData = (data) => {
+    return data.map((item) => {
+        return {
+            label: item.title,
+            code: item.id
+        }
+    });
+}
+
 const switchIsLoadingCategories = () => state.isLoadingCategories = !state.isLoadingCategories;
+const toggleImagesModal = () => state.isShowImagesModal = !state.isShowImagesModal;
 
 const availabilityOptions = [
     {
@@ -53,85 +68,113 @@ const availabilityOptions = [
     }
 ];
 
-const onUpload = (e) => {
-    console.log(e);
+const setPreview = (e) => {
+    props.item.preview_id = e.id;
+    props.item.preview = e;
+    toggleImagesModal();
+}
+
+const onDestroyPreview = () => {
+    props.item.preview_id = null;
+    props.item.preview = null;
 }
 </script>
 
 <template>
     <div class="grid gap-4">
-        <div class="grid grid cols-1 md:grid-cols-2 gap-4">
-            <div class="block">
-                <InputLabel :required="true">Наявність товару</InputLabel>
-                <Dropdown v-model="item.availability"
-                          :options="availabilityOptions"
-                          optionLabel="label"
-                          dataKey="value"
-                          placeholder="Оберіть статус"
-                          class="w-full"
-                />
-            </div>
-            <div class="block">
-                <InputLabel :required="true">Категорії</InputLabel>
-                <MultiSelect v-model="item.categories"
-                             :options="state.categories"
-                             optionLabel="label"
-                             placeholder="Оберіть одну або більше"
-                             class="w-full"
-                             filter
-                             :loading="state.isLoadingCategories"
-                />
-            </div>
-        </div>
+        <Card>
+            <template #content>
+                <div class="grid grid-cols-1 md grid-cols-12 gap-4">
+                    <div class="md:col-span-9">
+                        <div class="grid grid-cols-1 gap-4">
+                            <div class="block">
+                                <InputLabel :required="true">Наявність товару</InputLabel>
+                                <Dropdown v-model="item.availability"
+                                          :options="availabilityOptions"
+                                          optionLabel="label"
+                                          dataKey="value"
+                                          placeholder="Оберіть статус"
+                                          class="w-full"
+                                />
+                            </div>
+                            <div class="block">
+                                <InputLabel :required="true">Категорії</InputLabel>
+                                <MultiSelect v-model="item.categories"
+                                             :options="state.categories"
+                                             optionLabel="label"
+                                             placeholder="Оберіть одну або більше"
+                                             class="w-full"
+                                             filter
+                                             :loading="state.isLoadingCategories"
+                                />
+                            </div>
+                            <div class="block">
+                                <InputLabel :required="true">Назва товару</InputLabel>
+                                <InputText type="text" v-model="item.title" class="w-full"
+                                           placeholder="Вкажіть назву товара"/>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="md:col-span-3">
+                        <div v-if="!item.preview" class="w-full h-full flex items-center justify-center">
+                            <Button label="Обрати зображення товару" @click="toggleImagesModal"/>
+                        </div>
+                        <div class="relative" v-if="item.preview">
+                            <InputLabel>Зображення товару</InputLabel>
+                            <Button icon="pi pi-times" link class="absolute right-0" @click="onDestroyPreview"/>
+                            <picture>
+                                <source :srcset="route('images',item.preview.data.webp)"
+                                        type="image/webp">
 
-        <div class="grid grid-cols-1 md grid-cols-12 gap-4">
-            <div class="md:col-span-8">
-                <InputLabel :required="true">Назва товару</InputLabel>
-                <InputText type="text" v-model="item.title" class="w-full"
-                           placeholder="Вкажіть назву товара"/>
-            </div>
-            <div class="md:col-span-4">
-                <InputLabel>Зображення товару</InputLabel>
-                <FileUpload mode="basic"
-                            accept="image/*"
-                            :maxFileSize="1000000"
-                            @upload="onUpload($event)"
-                />
-            </div>
-        </div>
-
-        <div class="block">
-            <InputLabel>Опис</InputLabel>
-            <Textarea v-model="item.description" rows="5" class="w-full"
-                      placeholder="Вкажіть опис товара"/>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div class="block">
-                <div class="block">
-                    <InputLabel>Ціна купівлі</InputLabel>
-                    <InputText type="number" v-model="item.trade_price"
-                               placeholder="грн" class="w-full"/>
+                                <img :src="route('images',item.preview.data.jpeg)"
+                                     :alt="item.preview.data.alt"
+                                     class="object-cover"
+                                     loading="lazy"
+                                >
+                            </picture>
+                        </div>
+                    </div>
                 </div>
-            </div>
-            <div class="block">
-                <InputLabel>Артикул</InputLabel>
-                <InputText type="text" v-model="item.sku" class="w-full"
-                           placeholder="Вкажіть артикул"/>
-            </div>
-        </div>
+            </template>
+        </Card>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div class="block">
-                <InputLabel :required="true">Ціна продажу</InputLabel>
-                <InputText type="number" v-model="item.price"
-                           placeholder="грн" class="w-full"/>
-            </div>
-            <div class="block">
-                <InputLabel>Ціна продажу зі знижкою</InputLabel>
-                <InputText type="number" v-model="item.discount_price"
-                           placeholder="грн" class="w-full"/>
-            </div>
-        </div>
+        <Card>
+            <template #content>
+                <div class="block">
+                    <InputLabel>Опис</InputLabel>
+                    <Textarea v-model="item.description" rows="5" class="w-full"
+                              placeholder="Вкажіть опис товара"/>
+                </div>
+            </template>
+        </Card>
+
+        <Card>
+            <template #content>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="block">
+                        <InputLabel>Ціна купівлі</InputLabel>
+                        <InputText type="number" v-model="item.trade_price"
+                                   placeholder="грн" class="w-full"/>
+                    </div>
+                    <div class="block">
+                        <InputLabel>Артикул</InputLabel>
+                        <InputText type="text" v-model="item.sku" class="w-full"
+                                   placeholder="Вкажіть артикул"/>
+                    </div>
+                    <div class="block">
+                        <InputLabel :required="true">Ціна продажу</InputLabel>
+                        <InputText type="number" v-model="item.price"
+                                   placeholder="грн" class="w-full"/>
+                    </div>
+                    <div class="block">
+                        <InputLabel>Ціна продажу зі знижкою</InputLabel>
+                        <InputText type="number" v-model="item.discount_price"
+                                   placeholder="грн" class="w-full"/>
+                    </div>
+                </div>
+            </template>
+        </Card>
     </div>
+    <ImagesModal :show="state.isShowImagesModal" @close="toggleImagesModal"
+                 @submit="setPreview"/>
 </template>

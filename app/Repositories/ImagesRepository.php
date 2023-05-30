@@ -2,11 +2,12 @@
 
 namespace App\Repositories;
 
-use App\Models\Category as Model;
+use App\Models\Image as Model;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Storage;
 
-class CategoriesRepository extends CoreRepository
+class ImagesRepository extends CoreRepository
 {
     protected function getModelClass(): string
     {
@@ -22,9 +23,8 @@ class CategoriesRepository extends CoreRepository
     {
         $columns = [
             'id',
-            'title',
-            'description',
-            'preview_id',
+            'alt',
+            'data',
         ];
 
         $model = $this->model::select($columns);
@@ -34,7 +34,6 @@ class CategoriesRepository extends CoreRepository
                 $data['sort']['column'] ?? 'id',
                 $data['sort']['type'] ?? 'desc'
             )
-            ->with('preview')
             ->paginate($data['perPage'] ?? 15);
     }
 
@@ -50,11 +49,35 @@ class CategoriesRepository extends CoreRepository
 
     final public function destroy(int $id): int
     {
+        $model = $this->model::find($id);
+        foreach ($model->data as $item => $val) {
+            if (env('APP_ENV') !== 'local') {
+                $path = tenancy()->tenant->id . '/images/';
+            } else {
+                $path = 'local/' . tenancy()->tenant->id . '/images/';
+            }
+            Storage::disk('s3')->delete($path . $val);
+        }
         return $this->coreDestroy($this->model, $id);
     }
 
     final public function list(): Collection
     {
         return $this->model::select(['id', 'title'])->orderBy('id', 'desc')->get();
+    }
+
+    final public function search(string $query, array $data): LengthAwarePaginator
+    {
+        $columns = [
+            'id',
+            'alt',
+            'data',
+        ];
+
+        return $this->model::select($columns)
+            ->where('id', 'LIKE', "%$query%")
+            ->orWhere('title', 'LIKE', "%$query%")
+            ->orWhere('source', 'LIKE', "%$query%")
+            ->paginate($data['perPage'] ?? 15);
     }
 }

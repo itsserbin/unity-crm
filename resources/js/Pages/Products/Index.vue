@@ -15,7 +15,7 @@ import Heading from "@/Components/Heading.vue";
 
 const Modal = defineAsyncComponent(() => import('./Modal.vue'))
 
-const props = defineProps(['products']);
+const props = defineProps(['products', 'categories']);
 
 const state = reactive({
     isLoading: false,
@@ -297,21 +297,51 @@ const refreshData = async () => {
                     </div>
                 </template>
 
-                <Column field="id" header="ID" sortable=""></Column>
-                <Column field="availability" header="Наявність" sortable="">
+                <Column field="id" header="ID" sortable="" header-class="flex justify-center">
                     <template #body="{data}">
-                        <Tag :value="availabilityStatus(data.availability)"
-                             :severity="availabilityStatusLabel(data.availability)"/>
+                        <div class="text-center">{{ data.id }}</div>
+                    </template>
+                </Column>
+                <Column field="preview_id">
+                    <template #header>
+                        <div class="w-full text-center">Зображення</div>
+                    </template>
+                    <template #body="{data}">
+                        <picture v-if="data.preview">
+                            <source :srcset="route('images',data.preview.data.webp)"
+                                    type="image/webp">
+
+                            <img :src="route('images',data.preview.data.jpeg)"
+                                 :alt="data.preview.data.alt"
+                                 class="object-cover w-[55px] mx-auto"
+                                 loading="lazy"
+                            >
+                        </picture>
+                        <img v-else class="mx-auto w-[55px]"
+                             src="/storage/no_image.jpeg"
+                             :alt="data.title"/>
+                    </template>
+                </Column>
+                <Column field="availability" header="Наявність" sortable="" header-class="flex justify-center">
+                    <template #body="{data}">
+                        <div class="text-center">
+                            <Tag :value="availabilityStatus(data.availability)"
+                                 :severity="availabilityStatusLabel(data.availability)"/>
+                        </div>
                     </template>
                 </Column>
                 <Column field="title" header="Назва"></Column>
-                <Column field="trade_price" header="Ціна купівлі" sortable=""></Column>
-                <Column field="price" header="Ціна продажу" sortable="">
+                <Column field="trade_price" header="Ціна купівлі" sortable="" style="width:8%">
                     <template #body="{data}">
-                        {{ $filters.formatMoney(data.price) }}
+                        <div class="text-center">{{ $filters.formatMoney(data.trade_price) }}</div>
                     </template>
                 </Column>
-                <Column field="discount_price" header="Ціна продажу зі знижкою" sortable="">
+                <Column field="price" header="Ціна продажу" sortable="" style="width:8%">
+                    <template #body="{data}">
+                        <div class="text-center">{{ $filters.formatMoney(data.price) }}</div>
+                    </template>
+                </Column>
+                <Column field="discount_price" header="Ціна зі знижкою" sortable="" style="width:10%">
                     <template #body="{data}">
                         {{ data.discount_price ? $filters.formatMoney(data.discount_price) : null }}
                     </template>
@@ -347,6 +377,7 @@ const refreshData = async () => {
                :isLoadingModal="state.isLoadingModal"
                :item="item"
                @submit="onSubmit"
+               :categories="categories"
         />
     </AppLayout>
 </template>
