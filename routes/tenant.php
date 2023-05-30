@@ -39,9 +39,7 @@ Route::middleware([
 //    Route::get('categories', [HomeController::class, 'categories'])
 //        ->middleware('auth')
 //        ->name('categories');
-
-    Route::get('test', [\App\Http\Controllers\External\NovaPoshtaController::class, 'index']);
-
+    
     require __DIR__ . '/api.php';
     require __DIR__ . '/auth.php';
     require __DIR__ . '/admin.php';

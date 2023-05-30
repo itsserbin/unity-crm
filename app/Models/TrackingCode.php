@@ -24,4 +24,9 @@ class TrackingCode extends Model
     {
         return $this->belongsTo(Order::class);
     }
+
+    final public function deliveryServices(): BelongsTo
+    {
+        return $this->belongsTo(DeliveryService::class, 'delivery_service_id');
+    }
 }
