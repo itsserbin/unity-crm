@@ -12,6 +12,7 @@ import Vue3Toastify from 'vue3-toastify';
 
 const appName = window.document.getElementsByTagName('title')[0]?.innerText || 'Laravel';
 import ToastService from 'primevue/toastservice';
+import {Link} from "@inertiajs/vue3";
 
 createInertiaApp({
     title: (title) => `${title} - ${appName}`,
@@ -24,6 +25,7 @@ createInertiaApp({
             .use(Vue3Toastify, {
                 autoClose: 3000, pauseOnHover: false, pauseOnFocusLoss: false
             })
+            .component('inertia-link', Link)
             .use(PrimeVue);
 
         app.config.globalProperties.$filters = filters;
