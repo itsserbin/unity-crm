@@ -1,7 +1,7 @@
 <script setup>
 import {ref} from "vue";
 import SidebarMenu from '@/Components/Sidebar/SidebarMenu.vue'
-
+import NavbarComponent from "@/Layouts/NavbarComponent.vue";
 const menu = [
     {
         header: 'UnityCRM',
@@ -10,11 +10,13 @@ const menu = [
     {
         href: '/',
         title: 'Dashboard',
-        icon: 'pi pi-bars'
+        icon: 'pi pi-bars',
+        isActive: false,
     },
     {
         title: 'Каталог',
         icon: 'pi pi-th-large',
+        isActive: false,
         child: [
             {
                 href: route('catalog.products'),
@@ -33,6 +35,7 @@ const menu = [
     {
         title: 'CRM',
         icon: 'pi pi-database',
+        isActive: false,
         child: [
             {
                 href: route('crm.orders'),
@@ -47,6 +50,7 @@ const menu = [
     {
         title: 'Налаштування',
         icon: 'pi pi-cog',
+        isActive: false,
         child: [
             {
                 href: route('options.sources'),
@@ -84,12 +88,14 @@ const isDark = () => {
 </script>
 <template>
     <div class="flex">
+        <NavbarComponent :items="menu"/>
         <sidebar-menu @update:collapsed="toggleCollapse"
                       :menu="menu"
                       :collapsed="true"
                       :theme="isDark()"
+                      class="hidden md:flex"
         />
-        <div class="w-full p-4" :class="{'pl-[75px]' : isOpen,'pl-[300px]' : !isOpen}">
+        <div class="w-full p-4" :class="{'md:pl-[75px]' : isOpen,'md:pl-[300px]' : !isOpen}">
             <slot></slot>
         </div>
     </div>
