@@ -11,6 +11,7 @@ const form = useForm({
     name: '',
     phone: '',
     email: '',
+    tanant_name: '',
     domain: '',
     password: '',
     password_confirmation: '',
@@ -78,6 +79,21 @@ const submit = () => {
                 />
 
                 <InputError class="mt-2" :message="form.errors.email"/>
+            </div>
+
+            <div>
+                <InputLabel for="tanant_name" value="Назва CRM"/>
+
+                <InputText
+                    id="tanant_name"
+                    type="text"
+                    class="mt-1 block w-full"
+                    v-model="form.tanant_name"
+                    required
+                    placeholder="Вкажіть назву"
+                />
+
+                <InputError class="mt-2" :message="form.errors.tanant_name"/>
             </div>
 
             <div>

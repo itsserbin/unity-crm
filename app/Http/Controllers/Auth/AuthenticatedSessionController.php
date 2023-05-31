@@ -36,7 +36,7 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
-        return Inertia::location('http://' . $request->getHost());
+        return Inertia::location(route('dashboard'));
     }
 
     public function destroy(Request $request)
@@ -47,6 +47,6 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerateToken();
 
-        return Inertia::location('http://' . $request->getHost());
+        return Inertia::location(route('index'));
     }
 }
