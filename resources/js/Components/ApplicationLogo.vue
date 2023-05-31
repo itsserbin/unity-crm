@@ -1,19 +1,9 @@
 <script setup>
-const props = defineProps({
-    size: {
-        required: false,
-        default: '10'
-    }
-});
-
-const sizeClass = () => {
-    return 'w-' + props.size + ' h-' + props.size;
-};
 </script>
 
 <template>
     <div class="flex items-center justify-center">
-        <div class="app-logo" :class="sizeClass()"></div>
+        <div class="app-logo"></div>
     </div>
 </template>
 
@@ -23,6 +13,8 @@ const sizeClass = () => {
     perspective: 1000px;
     border-radius: 50%;
     color: #3F51B5;
+    width: 100%;
+    height: 100%;
 }
 
 .app-logo:before,
