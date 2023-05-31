@@ -62,7 +62,6 @@ class TenantsRepository extends CoreRepository
                 'email' => auth()->user()->email,
                 'password' => auth()->user()->password,
             ]);
-            Artisan::call('db:seed');
         });
 
 
