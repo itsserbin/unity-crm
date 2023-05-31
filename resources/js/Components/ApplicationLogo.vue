@@ -1,6 +1,4 @@
 <script setup>
-import {computed} from "vue";
-
 const props = defineProps({
     size: {
         required: false,
@@ -8,14 +6,14 @@ const props = defineProps({
     }
 });
 
-const sizeClass = computed(() => {
+const sizeClass = () => {
     return 'w-' + props.size + ' h-' + props.size;
-});
+};
 </script>
 
 <template>
     <div class="flex items-center justify-center">
-        <div class="app-logo" :class="sizeClass"></div>
+        <div class="app-logo" :class="sizeClass()"></div>
     </div>
 </template>
 
