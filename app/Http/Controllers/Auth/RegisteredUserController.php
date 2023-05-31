@@ -58,7 +58,6 @@ class RegisteredUserController extends Controller
                 'email' => $request->email,
                 'password' => Hash::make($request->password),
             ]);
-            Artisan::call('db:seed');
         });
 
         Auth::login($user);
