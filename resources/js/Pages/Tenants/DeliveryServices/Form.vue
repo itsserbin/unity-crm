@@ -4,17 +4,12 @@ import InputLabel from '@/Components/InputLabel.vue';
 import Dropdown from 'primevue/dropdown';
 import {onMounted, ref} from "vue";
 
-const props = defineProps(['item', 'globalServices']);
+const props = defineProps(['item']);
 
-const globalServices = ref([]);
-onMounted(() => {
-    globalServices.value = props.globalServices.map((item) => {
-        return {
-            label: item.label,
-            code: item.key
-        }
-    })
-})
+const globalServices = [
+    {'label': 'НоваПошта', 'code': 'novaposhta'},
+    {'label': 'УкрПошта', 'code': 'ukrposhta'}
+];
 </script>
 
 <template>

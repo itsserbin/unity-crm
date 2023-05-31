@@ -14,7 +14,7 @@ import InputSwitch from "primevue/inputswitch";
 
 const Modal = defineAsyncComponent(() => import('./Modal.vue'))
 
-const props = defineProps(['deliveryServices', 'globalServices']);
+const props = defineProps(['deliveryServices']);
 
 const state = reactive({
     isLoading: false,
@@ -146,20 +146,6 @@ const onDestroy = async (id) => {
     });
 }
 
-const onSearch = async () => {
-    if (state.search) {
-        switchLoader();
-        try {
-            const data = await DeliveryServicesRepository.search(state.search);
-            state.data = data.success ? data.result : [];
-        } catch (e) {
-            console.error(e);
-            toast.error("Failed to fetch data");
-        }
-        switchLoader();
-    }
-}
-
 const refreshData = async () => {
     switchLoaderRefreshButton();
     lazyParams.value = ({
@@ -261,7 +247,6 @@ const setPublishedStatus = async (id, val) => {
                @close="toggleModal(false)"
                @submit="onSubmit"
                :isLoadingModal="state.isLoadingModal"
-               :globalServices="globalServices"
         />
     </AppLayout>
 </template>

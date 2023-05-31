@@ -30,19 +30,19 @@ const submit = () => {
 </script>
 
 <template>
-    <DataTable v-if="item.addresses.length" :value="item.addresses" class="mb-4">
-        <Column field="address" header="Адреса"></Column>
-        <Column field="city" header="Місто"></Column>
-        <Column field="region" header="Регіон"></Column>
-        <Column field="zip_code" header="Поштовий індекс"></Column>
-    </DataTable>
-    <div class="flex items-center justify-center">
-        <Button label="Додати адресу" @click="toggleModal"/>
-    </div>
-    <AddressesModal v-if="state.isModal"
-                    :show="state.isModal"
-                    :item="state.item"
-                    @close="toggleModal"
-                    @submit="submit"
-    />
+        <DataTable v-if="item.addresses.length" :value="item.addresses" class="mb-4">
+            <Column field="address" header="Адреса"></Column>
+            <Column field="city" header="Місто"></Column>
+            <Column field="region" header="Регіон"></Column>
+            <Column field="zip_code" header="Поштовий індекс"></Column>
+        </DataTable>
+        <div class="flex items-center justify-center">
+            <Button label="Додати адресу" @click="toggleModal"/>
+        </div>
+        <AddressesModal v-if="state.isModal"
+                        :show="state.isModal"
+                        :item="state.item"
+                        @close="toggleModal"
+                        @submit="submit"
+        />
 </template>

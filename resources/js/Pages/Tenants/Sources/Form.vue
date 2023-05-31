@@ -7,6 +7,22 @@ const props = defineProps(['item']);
 
 const options = [
     {
+        label: 'Сайт',
+        code: 'site'
+    },
+    {
+        label: 'Facebook',
+        code: 'facebook'
+    },
+    {
+        label: 'Telegram',
+        code: 'telegram'
+    },
+    {
+        label: 'Instagram',
+        code: 'instagram'
+    },
+    {
         label: 'Інше',
         code: 'other'
     }

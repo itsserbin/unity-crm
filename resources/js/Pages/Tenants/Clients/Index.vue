@@ -222,29 +222,118 @@ const refreshData = async () => {
                     </form>
                 </template>
 
-                <Column field="id" header="ID" sortable=""></Column>
-                <Column field="full_name" header="Повне імʼя" sortable=""></Column>
-                <Column field="phones" header="Телефон">
+                <Column field="id" sortable="" style="width:5%;">
+                    <template #header>
+                        <div class="w-full text-center">ID</div>
+                    </template>
                     <template #body="{data}">
-                        <div v-for="phone in data.phones" v-if="data.phones.length">
-                            <a :href="'tel:' + phone.number">{{ $filters.formatPhone(phone.number) }}</a>
-                        </div>
-                        <div v-else>Пусто</div>
+                        <div class="text-center">{{ data.id }}</div>
                     </template>
                 </Column>
-                <Column field="phones" header="Email">
+                <Column field="full_name" style="width:10%;" sortable="">
+                    <template #header>
+                        <div class="w-full text-center">Повне імʼя</div>
+                    </template>
                     <template #body="{data}">
-                        <div v-for="email in data.emails" v-if="data.emails.length">
-                            <a :href="'mailto:' + email.address">{{ email.email }}</a>
-                        </div>
-                        <div v-else>Пусто</div>
+                        <div class="text-center">{{ data.full_name }}</div>
                     </template>
                 </Column>
-                <Column field="number_of_orders" header="Кількість замовлень" sortable=""></Column>
-                <Column field="number_of_success_orders" header="Кількість виконаних замовлень" sortable=""></Column>
-                <Column field="average_check" header="Середній чек" sortable=""></Column>
-                <Column field="general_check" header="Загальний чек" sortable=""></Column>
-                <Column field="last_order_created_at" header="Останне замовлення" sortable=""></Column>
+                <Column field="phones" style="width:10%;">
+                    <template #header>
+                        <div class="w-full text-center">Телефон</div>
+                    </template>
+                    <template #body="{data}">
+                        <div class="text-center">
+                            <div v-for="phone in data.phones" v-if="data.phones.length">
+                                <a :href="'tel:' + phone.number">{{ $filters.formatPhone(phone.number) }}</a>
+                            </div>
+                            <div v-else>Не вказано</div>
+                        </div>
+                    </template>
+                </Column>
+                <Column field="emails" style="width:10%;">
+                    <template #header>
+                        <div class="w-full text-center">Email</div>
+                    </template>
+                    <template #body="{data}">
+                        <div class="text-center">
+                            <div v-for="email in data.emails" v-if="data.emails.some((i) => i.address !== null)">
+                                <a :href="'mailto:' + email.address">{{ email.address }}</a>
+                            </div>
+                            <div v-else>Не вказано</div>
+                        </div>
+                    </template>
+                </Column>
+                <Column field="number_of_orders" sortable="">
+                    <template #header>
+                        <div class="w-full text-center">
+                            Кількість <br> замовлень
+                        </div>
+                    </template>
+                    <template #body="{data}">
+                        <div class="text-center">{{ data.number_of_orders }}</div>
+                    </template>
+                </Column>
+                <Column field="number_of_success_orders" sortable="">
+                    <template #header>
+                        <div class="w-full text-center">
+                            Кількість <br> виконаних <br> замовлень
+                        </div>
+                    </template>
+                    <template #body="{data}">
+                        <div class="text-center">{{ data.number_of_success_orders }}</div>
+                    </template>
+                </Column>
+                <Column field="average_check" sortable="">
+                    <template #header>
+                        <div class="w-full text-center">
+                            Середній <br> чек
+                        </div>
+                    </template>
+                    <template #body="{data}">
+                        <div class="text-center">{{ $filters.formatMoney(data.average_check) }}</div>
+                    </template>
+                </Column>
+                <Column field="success_average_check" sortable="">
+                    <template #header>
+                        <div class="w-full text-center">
+                            Середній <br> чек <br> виконаних <br> замовлень
+                        </div>
+                    </template>
+                    <template #body="{data}">
+                        <div class="text-center">{{ $filters.formatMoney(data.success_average_check) }}</div>
+                    </template>
+                </Column>
+                <Column field="general_check" sortable="">
+                    <template #header>
+                        <div class="w-full text-center">
+                            Загальний <br> чек
+                        </div>
+                    </template>
+                    <template #body="{data}">
+                        <div class="text-center">{{ $filters.formatMoney(data.general_check) }}</div>
+                    </template>
+                </Column>
+                <Column field="success_general_check" sortable="">
+                    <template #header>
+                        <div class="w-full text-center">
+                            Загальний <br> чек <br> виконаних <br> замовлень
+                        </div>
+                    </template>
+                    <template #body="{data}">
+                        <div class="text-center">{{ $filters.formatMoney(data.success_general_check) }}</div>
+                    </template>
+                </Column>
+                <Column field="last_order_created_at" sortable="">
+                    <template #header>
+                        <div class="w-full text-center">
+                            Останне <br> замовлення
+                        </div>
+                    </template>
+                    <template #body="{data}">
+                        <div class="text-center">{{ $filters.formatDateTime(data.last_order_created_at) }}</div>
+                    </template>
+                </Column>
                 <Column>
                     <template #body="{data}">
                         <Button icon="pi pi-trash"

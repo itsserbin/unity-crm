@@ -70,7 +70,7 @@ const menu = [
         href: route('logout'),
         method: 'POST',
         title: 'Вихід',
-        icon: 'pi pi-user'
+        icon: 'pi pi-sign-out'
     },
 ];
 

@@ -9,14 +9,14 @@ defineProps(['item']);
 </script>
 
 <template>
-    <TabView class="w-full">
+    <TabView class="w-full min-h-[300px]">
         <TabPanel header="Загальне">
             <GeneralForm :item="item"/>
         </TabPanel>
         <TabPanel header="Адреси">
             <AddressesForm :item="item"/>
         </TabPanel>
-        <TabPanel header="Замовлення">
+        <TabPanel header="Замовлення" v-if="item.orders.length">
             <OrdersForm :item="item"/>
         </TabPanel>
     </TabView>

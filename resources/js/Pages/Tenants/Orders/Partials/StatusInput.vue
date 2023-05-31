@@ -25,7 +25,11 @@ const state = reactive({
 });
 
 onMounted(async () => {
-    state.statuses = mapData(props.statuses);
+    if (props.statuses) {
+        state.statuses = mapData(props.statuses);
+    } else {
+        await getStatuses();
+    }
     if (props.item.status_id) {
         props.item.status_id = {code: props.item.status_id};
     }

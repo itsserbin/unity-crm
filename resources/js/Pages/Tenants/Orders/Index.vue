@@ -145,11 +145,13 @@ const onSubmit = async () => {
             ...(status_id && {status_id: status_id.code}),
             ...(client_id && {client_id: client_id.value}),
             ...(manager_id && {manager_id: manager_id.value}),
-            ...(tracking_codes && {
+            ...(tracking_codes.length && tracking_codes[0].code && {
                 tracking_codes: tracking_codes.map((item) => {
-                    return {
-                        delivery_service_id: item.delivery_service_id.value,
-                        code: item.code
+                    if (item.delivery_service_id) {
+                        return {
+                            delivery_service_id: item.delivery_service_id.value,
+                            code: item.code
+                        }
                     }
                 })
             }),
@@ -350,40 +352,72 @@ const showTrackingCodeLog = async (id) => {
                     </div>
                 </template>
 
-                <Column field="id" header="ID" sortable=""></Column>
-                <Column field="status_id" header="Статус">
+                <Column field="id" sortable="" style="width:5%">
+                    <template #header>
+                        <div class="w-full text-center">ID</div>
+                    </template>
                     <template #body="{data}">
-                        <Button :label="data.status.title"
-                                type="button"
-                                :style="`background: ${data.status.group.hex}`"
-                        />
+                        <div class="text-center">{{ data.id }}</div>
                     </template>
                 </Column>
-                <Column field="source_id" header="Джерело">
-                    <template #body="{data}">
-                        {{ data.source.title }}
+                <Column field="status_id" style="width:10%">
+                    <template #header>
+                        <div class="w-full text-center">Статус</div>
                     </template>
-                </Column>
-                <Column field="manager_id" header="Менеджер">
                     <template #body="{data}">
-                        {{ data.manager && data.manager.name ? data.manager.name : '(Пусто)' }}
-                    </template>
-                </Column>
-                <Column field="client_id" header="Клієнт">
-                    <template #body="{data}">
-                        {{ data.client && data.client.full_name ? data.client.full_name : '(Пусто)' }}
-                    </template>
-                </Column>
-                <Column header="Телефон">
-                    <template #body="{data}">
-                        <div v-if="data.client && data.client.phones.length"
-                             v-for="phone in data.client.phones">
-                            {{ $filters.formatPhone(phone.number) }}
+                        <div class="text-center">
+                            <Button :label="data.status.title"
+                                    type="button"
+                                    :style="`background: ${data.status.group.hex}`"
+                            />
                         </div>
-                        <div v-else>(Пусто)</div>
                     </template>
                 </Column>
-                <Column field="tracking_codes">
+                <Column field="source_id" style="width:10%">
+                    <template #header>
+                        <div class="w-full text-center">Джерело</div>
+                    </template>
+                    <template #body="{data}">
+                        <div class="text-center">
+                            {{ data.source.title }}
+                        </div>
+                    </template>
+                </Column>
+                <Column field="manager_id" style="width:10%">
+                    <template #header>
+                        <div class="w-full text-center">Менеджер</div>
+                    </template>
+                    <template #body="{data}">
+                        <div class="text-center">
+                            {{ data.manager && data.manager.name ? data.manager.name : '(Пусто)' }}
+                        </div>
+                    </template>
+                </Column>
+                <Column field="client_id" style="width:10%">
+                    <template #header>
+                        <div class="w-full text-center">Клієнт</div>
+                    </template>
+                    <template #body="{data}">
+                        <div class="text-center">
+                            {{ data.client && data.client.full_name ? data.client.full_name : '(Пусто)' }}
+                        </div>
+                    </template>
+                </Column>
+                <Column style="width:10%">
+                    <template #header>
+                        <div class="w-full text-center">Телефон</div>
+                    </template>
+                    <template #body="{data}">
+                        <div class="text-center">
+                            <div v-if="data.client && data.client.phones.length"
+                                 v-for="phone in data.client.phones">
+                                {{ $filters.formatPhone(phone.number) }}
+                            </div>
+                            <div v-else>(Пусто)</div>
+                        </div>
+                    </template>
+                </Column>
+                <Column field="tracking_codes" style="width:15%">
                     <template #header>
                         <div class="flex justify-center w-full">
                             Трекінг-код
@@ -401,10 +435,30 @@ const showTrackingCodeLog = async (id) => {
                         </div>
                     </template>
                 </Column>
-                <Column field="items" header="Товари">
+                <Column field="items" style="width:10%">
+                    <template #header>
+                        <div class="flex justify-center w-full">
+                            Загальна сума
+                        </div>
+                    </template>
+                    <template #body="{data}">
+                        <div class="text-center">{{ $filters.formatMoney(data.total_price) }}</div>
+                    </template>
+                </Column>
+
+                <Column field="items" header="Товари" style="width:10%">
                     <template #body="{data}">
                         <div v-if="data.items.length" v-for="item in data.items">
                             {{ item.title }}
+                        </div>
+                        <div v-else>(Пусто)</div>
+                    </template>
+                </Column>
+
+                <Column field="items" header="Ціни" style="width:8%">
+                    <template #body="{data}">
+                        <div v-if="data.items.length" v-for="item in data.items">
+                            {{ $filters.formatMoney(item.sale_price) }}
                         </div>
                         <div v-else>(Пусто)</div>
                     </template>

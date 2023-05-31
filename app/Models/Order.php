@@ -8,6 +8,21 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Order extends Model
 {
+    protected $fillable = [
+        'source_id',
+        'status_id',
+        'client_id',
+        'manager_id',
+        'delivery_service_id',
+        'delivery_address',
+        'tracking_code',
+        'comment',
+        'total_price',
+        'trade_price',
+        'clear_total_price',
+        'discount',
+    ];
+
     final public function items(): HasMany
     {
         return $this->hasMany(OrderItem::class, 'order_id');

@@ -24,7 +24,11 @@ const sourceModal = reactive({
 });
 
 onMounted(async () => {
-    state.sources = mapData(props.sources);
+    if (props.sources) {
+        state.sources = mapData(props.sources);
+    } else {
+        await getSources();
+    }
 
     if (props.item.source_id) {
         props.item.source_id = {value: props.item.source_id};

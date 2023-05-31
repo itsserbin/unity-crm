@@ -20,11 +20,14 @@ use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
 |
 */
 
+InitializeTenancyByDomain::$onFail = function ($exception, $request, $next) {
+    return redirect(\route('index'));
+};
+
 Route::middleware(['web', InitializeTenancyByDomain::class, PreventAccessFromCentralDomains::class,])->group(function () {
 
     Route::get('/', [AuthenticatedSessionController::class, 'create'])
         ->middleware('guest');
-
 
     Route::get('images/{slug}', function ($slug) {
         try {

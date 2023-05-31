@@ -27,7 +27,7 @@ defineProps({
                     <ApplicationLogo class="mx-auto fill-current text-zinc-500" size="20"/>
                     <Heading size="5xl">UnityCRM</Heading>
                 </div>
-                <div v-if="canLogin" class="flex justify-center">
+                <div class="flex justify-center">
                     <Link
                         :href="route('login')"
                         class="font-semibold text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white focus:outline focus:outline-2 focus:rounded-sm focus:outline-red-500"
@@ -35,7 +35,6 @@ defineProps({
                     </Link>
 
                     <Link
-                        v-if="canRegister"
                         :href="route('register')"
                         class="ml-4 font-semibold text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white focus:outline focus:outline-2 focus:rounded-sm focus:outline-red-500"
                     >Реєстрація

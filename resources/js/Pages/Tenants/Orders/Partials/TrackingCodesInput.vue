@@ -3,29 +3,55 @@ import InputLabel from "@/Components/InputLabel.vue";
 import Dropdown from "primevue/dropdown";
 import Button from "primevue/button";
 import InputText from "primevue/inputtext";
-import {onMounted, reactive} from "vue";
+import {onMounted, reactive, defineAsyncComponent} from "vue";
+import DeliveryServicesRepository from "@/Repositories/Tenants/DeliveryServicesRepository.js";
+import {toast} from "vue3-toastify";
+
+const DeliveryServiceModal = defineAsyncComponent(() => import('@/Pages/Tenants/DeliveryServices/Modal.vue'))
 
 const state = reactive({
     delivery_services: [],
-    isLoadingDeliveryServicesDropdown: false
+    isLoadingDeliveryServicesDropdown: false,
+    isShowDeliveryServiceModal: false,
+    isLoadingDeliveryServiceModal: false,
+    deliveryServiceItem: {
+        title: null,
+        type: null,
+        api_key: null,
+        configuration: [],
+    },
 });
 
 const props = defineProps(['item', 'deliveryServices']);
 
 onMounted(async () => {
     state.isLoadingDeliveryServicesDropdown = true;
-    try {
-        state.delivery_services = props.deliveryServices.map((item) => {
-            return {
-                label: item.title,
-                value: item.id
-            }
-        });
-    } catch (e) {
-        console.error(e);
+    if (props.deliveryServices) {
+        state.delivery_services = mapData(props.deliveryServices);
+    } else {
+        await getDeliveryServices();
     }
     state.isLoadingDeliveryServicesDropdown = false;
 });
+
+const mapData = (data) => {
+    return data.map((item) => {
+        return {
+            label: item.title,
+            value: item.id
+        }
+    });
+}
+
+const getDeliveryServices = async () => {
+    try {
+        const data = await DeliveryServicesRepository.list();
+        state.delivery_services = mapData(data.result);
+    } catch (e) {
+        console.error(e);
+        toast.error("Failed to fetch data");
+    }
+}
 
 const addRow = () => {
     props.item.tracking_codes.push({
@@ -37,10 +63,45 @@ const addRow = () => {
 const destroyRow = (i) => {
     props.item.tracking_codes.splice(i, 1);
 }
+
+const onCreateDeliveryService = () => {
+    state.deliveryServiceItem = {
+        title: null,
+        type: null,
+        api_key: null,
+        configuration: [],
+    }
+    toggleDeliveryServiceModal();
+}
+
+const onSubmitDeliveryService = async () => {
+    state.isLoadingDeliveryServiceModal = true;
+    try {
+        if (state.deliveryServiceItem.type) {
+            state.deliveryServiceItem.type = state.deliveryServiceItem.type.code;
+        }
+
+        state.deliveryServiceItem.id
+            ? await DeliveryServicesRepository.update(state.deliveryServiceItem)
+            : await DeliveryServicesRepository.create(state.deliveryServiceItem);
+
+        await getDeliveryServices();
+        toggleDeliveryServiceModal();
+        toast.success("Служба доставки додана!");
+    } catch (e) {
+        console.error(e);
+        toast.error("Перевірте введені дані");
+    }
+    state.isLoadingDeliveryServiceModal = false;
+}
+
+const toggleDeliveryServiceModal = () => state.isShowDeliveryServiceModal = !state.isShowDeliveryServiceModal;
 </script>
 
 <template>
-    <div v-for="(code,i) in item.tracking_codes" class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+    <div v-if="state.delivery_services.length"
+         v-for="(code,i) in item.tracking_codes"
+         class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
         <div class="block w-full">
             <InputLabel>Служба доставки</InputLabel>
             <Dropdown v-model="code.delivery_service_id"
@@ -69,5 +130,17 @@ const destroyRow = (i) => {
                 <Button icon="pi pi-minus" v-if="i !== 0" text @click="destroyRow(i)"/>
             </div>
         </div>
+    </div>
+    <div v-if="!state.delivery_services.length">
+        <div class="flex flex-col items-center justify-center gap-4">
+            <div>Служби доставки не додані</div>
+            <Button label="Додати" size="small" icon="pi pi-plus" class="mr-2" @click="onCreateDeliveryService"/>
+        </div>
+        <DeliveryServiceModal v-if="state.isShowDeliveryServiceModal"
+                              :show="state.isShowDeliveryServiceModal"
+                              :item="state.deliveryServiceItem"
+                              @close="toggleDeliveryServiceModal"
+                              @submit="onSubmitDeliveryService"
+        />
     </div>
 </template>

@@ -21,34 +21,21 @@ class ClientsRepository extends CoreRepository
     final public function getModelById(int $id): ?\Illuminate\Database\Eloquent\Model
     {
         return $this->model::where('id', $id)
-            ->with('addresses', 'orders')
+            ->with('addresses', 'orders.status.group')
             ->first();
     }
 
     final public function getAllWithPaginate(array $data): LengthAwarePaginator
     {
-        $columns = [
-            'id',
-            'full_name',
-            'emails',
-            'phones',
-            'emails',
-            'number_of_orders',
-            'number_of_success_orders',
-            'average_check',
-            'general_check',
-            'last_order_created_at',
-            'created_at'
-        ];
 
-        $model = $this->model::select($columns);
+        $model = $this->model::select($this->getTableColumns());
 
         return $model
             ->orderBy(
                 $data['sort']['column'] ?? 'id',
                 $data['sort']['type'] ?? 'desc'
             )
-            ->paginate($data['perPage'] ?? 15);
+            ->paginate($this->getPagination($data));
     }
 
     final public function create(array $data): \Illuminate\Database\Eloquent\Model
@@ -80,26 +67,18 @@ class ClientsRepository extends CoreRepository
 
     private function fillData(\Illuminate\Database\Eloquent\Model $model, array $data): \Illuminate\Database\Eloquent\Model
     {
+        $fillableData = $data;
+
         if (isset($data['phones'])) {
             $phones = [];
             foreach ($data['phones'] as $phone) {
                 $phones[] = ['number' => preg_replace('/[^0-9]/', '', $phone['number'])];
             }
-            $model->phones = $phones;
+            $fillableData['phones'] = $phones;
         }
 
-        if (isset($data['full_name'])) {
-            $model->full_name = $data['full_name'];
-        }
+        $model->fill($fillableData);
 
-        if (isset($data['comment'])) {
-            $model->comment = $data['comment'];
-        }
-
-        if (isset($data['emails'])) {
-            $model->emails = $data['emails'];
-        }
-        $model->emails = $data['emails'];
         return $model;
     }
 
@@ -110,28 +89,14 @@ class ClientsRepository extends CoreRepository
 
     final public function search(string $query, array $data): LengthAwarePaginator
     {
-        $columns = [
-            'id',
-            'full_name',
-            'emails',
-            'phones',
-            'emails',
-            'number_of_orders',
-            'number_of_success_orders',
-            'average_check',
-            'general_check',
-            'last_order_created_at',
-            'created_at'
-        ];
-
-        return $this->model::select($columns)
+        return $this->model::select($this->getTableColumns())
             ->where('id', 'LIKE', "%$query%")
             ->orWhere('full_name', 'LIKE', "%$query%")
             ->orWhereRaw("phones->>'$[*].number' LIKE ?", ["%$query%"])
             ->orWhereRaw("phones->>'$[*].number' LIKE ?", ["%$query%"])
             ->orWhereRaw("phones->>'$[*].number' LIKE ?", ["%$query%"])
             ->orWhereJsonContains('emails', $query)
-            ->paginate($data['perPage'] ?? 15);
+            ->paginate($this->getPagination($data));
     }
 
     final public function list(): Collection
@@ -146,5 +111,71 @@ class ClientsRepository extends CoreRepository
             $model->addresses()->create($data);
         }
         return $model;
+    }
+
+    final public function updateChecks(int $id): ?\Illuminate\Database\Eloquent\Model
+    {
+        $model = $this->model::where('id', $id)
+            ->with(['orders' => function ($q) {
+                $q->select(['id', 'client_id', 'total_price', 'status_id']);
+                $q->with('status.group');
+            }])
+            ->first();
+
+        if (!$model || empty($model->orders)) {
+            return null;
+        }
+
+        $orders = collect($model->orders);
+        $count = $orders->count();
+        $sum = $orders->sum('total_price');
+
+        $successfulOrders = $orders->filter(function ($order) {
+            return $order->status->group->slug === 'done';
+        });
+
+        $successCount = $successfulOrders->count();
+        $successSum = $successfulOrders->sum('total_price');
+
+        $model->fill([
+            'number_of_orders' => $count,
+            'number_of_success_orders' => $successCount,
+            'general_check' => $sum,
+            'success_general_check' => $successSum,
+            'average_check' => $count ? $sum / $count : 0,
+            'success_average_check' => $successCount ? $successSum / $successCount : 0,
+        ])->save();
+
+        return $model;
+    }
+
+    private function getTableColumns(): array
+    {
+        return [
+            'id',
+            'full_name',
+            'emails',
+            'phones',
+            'emails',
+            'number_of_orders',
+            'number_of_success_orders',
+            'success_average_check',
+            'average_check',
+            'success_general_check',
+            'general_check',
+            'last_order_created_at',
+            'success_last_order_created_at',
+            'created_at'
+        ];
+    }
+
+    private function getPagination(array $data): int
+    {
+        return $data['perPage'] ?? 15;
+    }
+
+    final public function updateClientLastOrder(int $id, string $date): ?int
+    {
+        return $this->model::where('id', $id)->update(['last_order_created_at' => $date]);
     }
 }

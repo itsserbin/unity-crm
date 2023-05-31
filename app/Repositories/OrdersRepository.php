@@ -47,24 +47,17 @@ class OrdersRepository extends CoreRepository
     {
         $model = new $this->model;
         $this->updateStatusesOrderCount(null, $data['status_id']);
-        $model = $this->fillData($model, $data);
+        $model->fill($data);
         $model->save();
 
-        if (count($data['invoices'])) {
-            $model->invoices()->createMany($data['invoices']);
-        }
-
-        if (count($data['costs'])) {
-            $model->costs()->createMany($data['costs']);
-        }
-
-        if (count($data['tracking_codes'])) {
-            $model->trackingCodes()->createMany($data['tracking_codes']);
-        }
-
-        if (count($data['items'])) {
-            $model = $this->calculateSum($model, $data['items']);
-            $model->items()->createMany($data['items']);
+        $this->updateInvoices($model, $data['invoices'] ?? null);
+        $this->updateTrackingCodes($model, $data['tracking_codes'] ?? null);
+        $this->updateCosts($model, $data['costs'] ?? null);
+        $this->updateItems($model, $data['items'] ?? null);
+        if ($model->client_id) {
+            $clientsRepository = new ClientsRepository();
+            $clientsRepository->updateChecks($model->client_id);
+            $clientsRepository->updateClientLastOrder($model->client_id,$model->created_at);
         }
         return $model;
     }
@@ -75,29 +68,64 @@ class OrdersRepository extends CoreRepository
         if ($model->status_id !== $data['status_id']) {
             $this->updateStatusesOrderCount($model->status_id, $data['status_id']);
         }
-        $model = $this->fillData($model, $data);
-
-        if (count($data['invoices'])) {
-            $model->invoices()->delete();
-            $model->invoices()->createMany($data['invoices']);
-        }
-
-        if (count($data['costs'])) {
-            $model->costs()->delete();
-            $model->costs()->createMany($data['costs']);
-        }
-
-        if (count($data['tracking_codes'])) {
-            $model->trackingCodes()->delete();
-            $model->trackingCodes()->createMany($data['tracking_codes']);
-        }
-
-        if (count($data['items'])) {
-            $model = $this->calculateSum($model, $data['items']);
-            $model->items()->delete();
-            $model->items()->createMany($data['items']);
-        }
+        $model->fill($data);
         $model->update();
+
+        $this->updateInvoices($model, $data['invoices'] ?? null);
+        $this->updateTrackingCodes($model, $data['tracking_codes'] ?? null);
+        $this->updateCosts($model, $data['costs'] ?? null);
+        $this->updateItems($model, $data['items'] ?? null);
+
+        if ($model->client_id) {
+            $clientsRepository = new ClientsRepository();
+            $clientsRepository->updateChecks($model->client_id);
+        }
+
+        return $model;
+    }
+
+    private function updateItems($model, $data)
+    {
+        if (isset($data)) {
+            if (count($data)) {
+                $model = $this->calculateSum($model, $data);
+                $model->items()->delete();
+                $model->items()->createMany($data);
+            }
+        }
+        return $model;
+    }
+
+    private function updateCosts($model, $data)
+    {
+        if (isset($data)) {
+            if (count($data)) {
+                $model->costs()->delete();
+                $model->costs()->createMany($data);
+            }
+        }
+        return $model;
+    }
+
+    private function updateInvoices($model, $data)
+    {
+        if (isset($data)) {
+            if (count($data)) {
+                $model->invoices()->delete();
+                $model->invoices()->createMany($data);
+            }
+        }
+        return $model;
+    }
+
+    private function updateTrackingCodes($model, $data)
+    {
+        if (isset($data)) {
+            if (count($data)) {
+                $model->trackingCodes()->delete();
+                $model->trackingCodes()->createMany($data);
+            }
+        }
         return $model;
     }
 
@@ -118,58 +146,28 @@ class OrdersRepository extends CoreRepository
 
         $model->clear_total_price = $model->total_price - $model->trade_price - $costs;
 
+        $model->update();
+
         return $model;
     }
 
     private function updateStatusesOrderCount(int $old = null, int $new = null): int
     {
-        if ($old || $new) {
-            $statusesRepository = new StatusesRepository();
+        if (!$old && !$new) {
+            return 0;
         }
 
+        $statusesRepository = new StatusesRepository();
+
         if ($old) {
-            $prevStatus = $statusesRepository->getModelById($old);
-            --$prevStatus->orders_count;
-            $prevStatus->update();
+            $statusesRepository->getModelById($old)->decrement('orders_count');
         }
 
         if ($new) {
-            $currentStatus = $statusesRepository->getModelById($new);
-            ++$currentStatus->orders_count;
-            $currentStatus->update();
+            $statusesRepository->getModelById($new)->increment('orders_count');
         }
 
         return 1;
-    }
-
-    private function fillData(\Illuminate\Database\Eloquent\Model $model, array $data): \Illuminate\Database\Eloquent\Model
-    {
-
-        $model->source_id = $data['source_id'];
-        $model->status_id = $data['status_id'];
-
-        if (isset($data['client_id'])) {
-            $model->client_id = $data['client_id'];
-        }
-        if (isset($data['manager_id'])) {
-            $model->manager_id = $data['manager_id'];
-        }
-        if (isset($data['delivery_service_id'])) {
-            $model->delivery_service_id = $data['delivery_service_id'];
-        }
-        if (isset($data['delivery_address'])) {
-            $model->delivery_address = $data['delivery_address'];
-        }
-        if (isset($data['tracking_code'])) {
-            $model->tracking_code = $data['tracking_code'];
-        }
-        if (isset($data['comment'])) {
-            $model->comment = $data['comment'];
-        }
-        if (isset($data['discount'])) {
-            $model->discount = $data['discount'];
-        }
-        return $model;
     }
 
     final public function destroy(int $id): int
@@ -246,7 +244,7 @@ class OrdersRepository extends CoreRepository
             'client:id,full_name,phones',
             'manager:id,name',
             'deliveryService:id,title',
-            'items:id,title,order_id',
+            'items:id,title,order_id,sale_price',
             'trackingCodes:id,order_id,code,data'
         ];
     }

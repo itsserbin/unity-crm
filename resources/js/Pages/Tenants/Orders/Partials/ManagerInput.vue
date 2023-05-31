@@ -2,6 +2,7 @@
 import InputLabel from "@/Components/InputLabel.vue";
 import Dropdown from "primevue/dropdown";
 import {onMounted, reactive} from "vue";
+import UsersRepository from "@/Repositories/Tenants/UsersRepository.js";
 
 const props = defineProps(['item', 'users']);
 
@@ -11,12 +12,24 @@ const state = reactive({
 });
 
 onMounted(async () => {
-    state.users = mapData(props.users);
+    if (props.users) {
+        state.users = mapData(props.users);
+    } else {
+        await getUsers();
+    }
     if (props.item.manager_id) {
         props.item.manager_id = {value: props.item.manager_id};
     }
 });
 
+const getUsers = async () => {
+    try {
+        const data = await UsersRepository.list();
+        state.users = mapData(data.result);
+    } catch (e) {
+        console.error(e);
+    }
+}
 const mapData = (data) => {
     return data.map((item) => {
         return {
