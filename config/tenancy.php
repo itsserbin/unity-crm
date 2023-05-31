@@ -17,8 +17,7 @@ return [
      * Only relevant if you're using the domain or subdomain identification middleware.
      */
     'central_domains' => [
-        'ucrm.com.ua',
-        'localhost',
+        '49.12.72.248',
     ],
 
     /**
