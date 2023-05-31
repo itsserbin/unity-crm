@@ -15,20 +15,20 @@ const sizeClass = computed(() => {
 
 <template>
     <div class="flex items-center justify-center">
-        <div class="loader" :class="sizeClass"></div>
+        <div class="app-logo" :class="sizeClass"></div>
     </div>
 </template>
 
-<style>
-.loader {
+<style scoped>
+.app-logo {
     transform: rotateZ(45deg);
     perspective: 1000px;
     border-radius: 50%;
     color: #3F51B5;
 }
 
-.loader:before,
-.loader:after {
+.app-logo:before,
+.app-logo:after {
     content: '';
     display: block;
     position: absolute;
@@ -41,7 +41,7 @@ const sizeClass = computed(() => {
     animation: 6s spin linear infinite;
 }
 
-.loader:after {
+.app-logo:after {
     color: #FF3D00;
     transform: rotateY(70deg);
     animation-delay: .9s;

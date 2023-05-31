@@ -12,7 +12,12 @@ class BaseController extends Controller
         parent::__construct();
     }
 
-    public function returnResponse(array $response, $status_code = 200, array $headers = [], $cookie = []): JsonResponse
+    final public function returnResponse(
+        array $response,
+        int   $status_code = 200,
+        array $headers = [],
+        array $cookie = []
+    ): JsonResponse
     {
         if (empty($cookie)) {
             return response()->json($response, $status_code, $headers);

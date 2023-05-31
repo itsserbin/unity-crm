@@ -1,17 +1,17 @@
 <?php
 
-use App\Http\Controllers\Api\CategoriesController;
-use App\Http\Controllers\Api\ClientsController;
-use App\Http\Controllers\Api\DeliveryServicesController;
-use App\Http\Controllers\Api\ImagesController;
-use App\Http\Controllers\Api\OrdersController;
-use App\Http\Controllers\Api\ProductsController;
-use App\Http\Controllers\Api\SourcesController;
-use App\Http\Controllers\Api\StatusesController;
-use App\Http\Controllers\Api\StatusGroupsController;
-use App\Http\Controllers\Api\TrackingCodesController;
-use App\Http\Controllers\Api\UploadController;
-use App\Http\Controllers\Api\UsersController;
+use App\Http\Controllers\Api\Tenants\CategoriesController;
+use App\Http\Controllers\Api\Tenants\ClientsController;
+use App\Http\Controllers\Api\Tenants\DeliveryServicesController;
+use App\Http\Controllers\Api\Tenants\ImagesController;
+use App\Http\Controllers\Api\Tenants\OrdersController;
+use App\Http\Controllers\Api\Tenants\ProductsController;
+use App\Http\Controllers\Api\Tenants\SourcesController;
+use App\Http\Controllers\Api\Tenants\StatusesController;
+use App\Http\Controllers\Api\Tenants\StatusGroupsController;
+use App\Http\Controllers\Api\Tenants\TrackingCodesController;
+use App\Http\Controllers\Api\Tenants\UploadController;
+use App\Http\Controllers\Api\Tenants\UsersController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 

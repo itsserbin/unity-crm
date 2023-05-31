@@ -48,7 +48,7 @@ class HomeController extends Controller
 
     final public function dashboard(): Response
     {
-        return Inertia::render('Dashboard/Dashboard');
+        return Inertia::render('Tenants/Dashboard/Dashboard');
     }
 
     final public function products(Request $request): Response
@@ -56,7 +56,7 @@ class HomeController extends Controller
         $products = $this->productsRepository->getAllWithPaginate($request->all());
         $categories = $this->categoriesRepository->list();
 
-        return Inertia::render('Products/Index', [
+        return Inertia::render('Tenants/Products/Index', [
             'products' => $products,
             'categories' => $categories
         ]);
@@ -66,7 +66,7 @@ class HomeController extends Controller
     {
         $categories = $this->categoriesRepository->getAllWithPaginate($request->all());
 
-        return Inertia::render('Categories/Index', [
+        return Inertia::render('Tenants/Categories/Index', [
             'categories' => $categories
         ]);
     }
@@ -75,7 +75,7 @@ class HomeController extends Controller
     {
         $images = $this->imagesRepository->getAllWithPaginate($request->all());
 
-        return Inertia::render('Images/Index', [
+        return Inertia::render('Tenants/Images/Index', [
             'images' => $images
         ]);
     }
@@ -84,7 +84,7 @@ class HomeController extends Controller
     {
         $clients = $this->clientsRepository->getAllWithPaginate($request->all());
 
-        return Inertia::render('Clients/Index', [
+        return Inertia::render('Tenants/Clients/Index', [
             'clients' => $clients
         ]);
     }
@@ -99,7 +99,7 @@ class HomeController extends Controller
         $products = $this->productsRepository->list();
         $clients = $this->clientsRepository->list();
 
-        return Inertia::render('Orders/Index', [
+        return Inertia::render('Tenants/Orders/Index', [
             'orders' => $orders,
             'sources' => $sources,
             'statuses' => $statuses,
@@ -114,7 +114,7 @@ class HomeController extends Controller
     {
         $sources = $this->sourcesRepository->getAllWithPaginate($request->all());
 
-        return Inertia::render('Sources/Index', [
+        return Inertia::render('Tenants/Sources/Index', [
             'sources' => $sources
         ]);
     }
@@ -124,7 +124,7 @@ class HomeController extends Controller
         $statuses = $this->statusesRepository->getAllWithPaginate($request->all());
         $statusGroups = $this->statusGroupsRepository->getAllWithPaginate($request->all());
 
-        return Inertia::render('Statuses/Index', [
+        return Inertia::render('Tenants/Statuses/Index', [
             'statuses' => $statuses,
             'statusGroups' => $statusGroups
         ]);
@@ -135,7 +135,7 @@ class HomeController extends Controller
         $deliveryServices = $this->deliveryServicesRepository->getAllWithPaginate($request->all());
         $globalServices = DeliveryServices::state;
 
-        return Inertia::render('DeliveryServices/Index', [
+        return Inertia::render('Tenants/DeliveryServices/Index', [
             'deliveryServices' => $deliveryServices,
             'globalServices' => $globalServices
         ]);

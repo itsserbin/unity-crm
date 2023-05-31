@@ -5,10 +5,67 @@ import Card from 'primevue/card';
 import ApplicationLogo from "@/Components/ApplicationLogo.vue";
 import Heading from "@/Components/Heading.vue";
 import {Link} from "@inertiajs/vue3";
+import {defineAsyncComponent, onMounted, reactive} from "vue";
+import TenantsRepository from "@/Repositories/TenantsRepository.js";
+import {toast} from "vue3-toastify";
 
-defineProps(['tenants']);
+const TenantModal = defineAsyncComponent(() => import('./CreateTenantModal.vue'));
+
+const props = defineProps(['tenants']);
 
 const protocol = import.meta.env.VITE_APP_PROTOCOL;
+
+const state = reactive({
+    data: [],
+    errors: [],
+    isShowModal: false,
+    isLoadingModal: false,
+    modalItem: {}
+});
+
+onMounted(async () => {
+    if (props.tenants) {
+        state.data = props.tenants
+    } else {
+        await fetch();
+    }
+})
+
+const toggleModal = () => state.isShowModal = !state.isShowModal;
+
+const onCreate = () => {
+    state.modalItem = {
+        id: null
+    }
+    toggleModal();
+}
+
+const onSubmit = async () => {
+    state.isLoadingModal = true;
+    try {
+        state.errors = [];
+        const data = await TenantsRepository.create(state.modalItem);
+        if (data.success) {
+            await fetch();
+            toggleModal();
+            toast.success("CRM успішно створена");
+        } else {
+            state.errors = data.data;
+            toast.error("Перевірте корректність даних");
+        }
+    } catch (e) {
+        console.error(e);
+    }
+    state.isLoadingModal = false;
+}
+const fetch = async () => {
+    try {
+        const data = await TenantsRepository.fetch();
+        state.data = data.result;
+    } catch (e) {
+        console.error(e);
+    }
+}
 </script>
 
 <template>
@@ -31,7 +88,7 @@ const protocol = import.meta.env.VITE_APP_PROTOCOL;
             </template>
         </Toolbar>
 
-        <a :href="protocol + tenant.domains[0].domain" v-for="tenant in tenants" target="_blank">
+        <a :href="protocol + tenant.domains[0].domain" v-for="tenant in state.data.data" target="_blank">
             <Card>
                 <template #title>
                     {{ tenant.name }}
@@ -44,9 +101,15 @@ const protocol = import.meta.env.VITE_APP_PROTOCOL;
                         </div>
                         <Button icon="pi pi-angle-right"/>
                     </div>
-
                 </template>
             </Card>
         </a>
+
+        <div class="flex justify-center">
+            <Button icon="pi pi-plus" label="Створити CRM" @click="onCreate"/>
+        </div>
     </div>
+    <TenantModal v-if="state.isShowModal" :show="state.isShowModal"
+                 :item="state.modalItem" @close="toggleModal"
+                 :errors="state.errors" @submit="onSubmit"/>
 </template>
