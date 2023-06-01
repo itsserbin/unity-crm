@@ -16,7 +16,7 @@ return [
      *
      * Only relevant if you're using the domain or subdomain identification middleware.
      */
-    'central_domains' => env('APP_CENTRAL_DOMAINS') ? explode(',', env('APP_CENTRAL_DOMAINS')) : ['localhost', '127.0.0.1'],
+    'central_domains' => [env('APP_CENTRAL_DOMAIN')],
 
     /**
      * Tenancy bootstrappers are executed when tenancy is initialized.
