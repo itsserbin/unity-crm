@@ -20,9 +20,9 @@ use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
 |
 */
 
-//InitializeTenancyByDomain::$onFail = function ($exception, $request, $next) {
-//    return redirect(\route('index'));
-//};
+InitializeTenancyByDomain::$onFail = function ($exception, $request, $next) {
+    return redirect(route('index'));
+};
 
 Route::middleware(['web', InitializeTenancyByDomain::class, PreventAccessFromCentralDomains::class,])->group(function () {
 
