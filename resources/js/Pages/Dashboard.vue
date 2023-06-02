@@ -88,7 +88,7 @@ const fetch = async () => {
             </template>
         </Toolbar>
 
-        <a :href="protocol + tenant.domains[0].domain" v-for="tenant in state.data.data" target="_blank">
+        <Link :href="route('tenant',tenant.id)" v-for="tenant in state.data.data" target="_blank">
             <Card>
                 <template #title>
                     {{ tenant.name }}
@@ -103,7 +103,7 @@ const fetch = async () => {
                     </div>
                 </template>
             </Card>
-        </a>
+        </Link>
 
         <div class="flex justify-center">
             <Button icon="pi pi-plus" label="Створити CRM" @click="onCreate"/>
