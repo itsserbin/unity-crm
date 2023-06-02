@@ -4,18 +4,24 @@ namespace App\Services;
 
 use App\Models\Order;
 use App\Models\TrackingCode;
+use App\Repositories\TrackingCodesRepository;
 use Illuminate\Database\Eloquent\Model;
 
 class NovaPoshtaService
 {
-    private $apiService;
+    private mixed $apiService;
+    private mixed $trackingCodesRepository;
 
     public function __construct()
     {
         $this->apiService = app(ApiService::class);
+        $this->trackingCodesRepository = app(TrackingCodesRepository::class);
     }
 
-    final public function updateTrackingCodes()
+    /**
+     * @throws \JsonException
+     */
+    final public function updateTrackingCodes(): bool
     {
         $orders = Order::select('id')
             ->whereHas('trackingCodes', function ($q) {
@@ -25,7 +31,10 @@ class NovaPoshtaService
                 });
                 $q->where('code', '!=', null);
             })
-            ->with('trackingCodes:code,order_id,id')
+            ->with(['trackingCodes:code,order_id,id' => function ($q) {
+                $q->select(['code', 'order_id', 'id']);
+                $q->with('deliveryServices:status,type,id,api_key');
+            }])
             ->get();
 
 
@@ -33,7 +42,7 @@ class NovaPoshtaService
             foreach ($orders as $order) {
                 if (!empty($order->trackingCodes)) {
                     foreach ($order->trackingCodes as $trackingCode) {
-                        $this->updateItem($trackingCode, $order);
+                        $this->updateItem($trackingCode->code, $order->id, $trackingCode->deliveryServices->api_key);
                     }
                 }
             }
@@ -42,19 +51,24 @@ class NovaPoshtaService
         return 0;
     }
 
-    private function updateItem(Model $trackingCode, Model $order): bool
+    /**
+     * @throws \JsonException
+     */
+    final public function updateItem(string $trackingCode, int $id, string $api = null): bool
     {
-        $trackingModel = TrackingCode::where('code', $trackingCode->code)
-            ->with('deliveryServices:id,type,api_key,configuration,status')
-            ->first();
+        if (!$api) {
+            $api = config('novaposhta.key');
+        }
+
+        $trackingModel = $this->trackingCodesRepository->getModelByCode($trackingCode);
 
         if (!$trackingModel) {
-            $trackingModel = new TrackingCode();
-            $trackingModel->code = $trackingCode->code;
-            $trackingModel->order_id = $order->id;
-            $trackingModel->save();
+            $trackingModel = $this->trackingCodesRepository->create([
+                'code' => $trackingCode,
+                'order_id' => $id
+            ]);
         }
-        $res = $this->apiService->response(env('NOVA_POSHTA_API_URL'), $this->dataParams($trackingCode->code));
+        $res = $this->apiService->response(config('novaposhta.url'), $this->dataParams($trackingCode, $api));
 
         if ($res['result']['success']) {
             $response = $res['result']['data'][0];
@@ -71,6 +85,7 @@ class NovaPoshtaService
                 'WarehouseRecipientAddress' => $response['WarehouseRecipientAddress'],
                 'WarehouseSenderAddress' => $response['WarehouseSenderAddress'],
             ];
+
             $trackingModel->data = $data;
 
             $newStatus = [
@@ -88,10 +103,10 @@ class NovaPoshtaService
         return false;
     }
 
-    private function dataParams(string $tracking_code): array
+    private function dataParams(string $tracking_code, string $api): array
     {
         return [
-            'apiKey' => env('NOVA_POSHTA_API_KEY'),
+            'apiKey' => $api,
             'modelName' => 'TrackingDocument',
             'calledMethod' => 'getStatusDocuments',
             'methodProperties' => [

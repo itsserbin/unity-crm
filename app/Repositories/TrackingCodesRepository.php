@@ -18,6 +18,13 @@ class TrackingCodesRepository extends CoreRepository
         return $this->model::where('id', $id)->with('deliveryServices')->first();
     }
 
+    final public function getModelByCode(string $code): ?\Illuminate\Database\Eloquent\Model
+    {
+        return $this->model::where('code', $code)
+            ->with('deliveryServices:id,type,api_key,configuration,status')
+            ->first();
+    }
+
     final public function create(array $data): \Illuminate\Database\Eloquent\Model
     {
         return $this->coreCreate($this->model, $data);

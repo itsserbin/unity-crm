@@ -3,8 +3,10 @@
 namespace App\Repositories;
 
 use App\Models\Order as Model;
+use App\Services\NovaPoshtaService;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Pagination\LengthAwarePaginator;
+use JsonException;
 
 class OrdersRepository extends CoreRepository
 {
@@ -57,7 +59,7 @@ class OrdersRepository extends CoreRepository
         if ($model->client_id) {
             $clientsRepository = new ClientsRepository();
             $clientsRepository->updateChecks($model->client_id);
-            $clientsRepository->updateClientLastOrder($model->client_id,$model->created_at);
+            $clientsRepository->updateClientLastOrder($model->client_id, $model->created_at);
         }
         return $model;
     }
@@ -77,11 +79,18 @@ class OrdersRepository extends CoreRepository
         $this->updateItems($model, $data['items'] ?? null);
 
         if ($model->client_id) {
-            $clientsRepository = new ClientsRepository();
-            $clientsRepository->updateChecks($model->client_id);
+            (new ClientsRepository())->updateChecks($model->client_id);
         }
 
         return $model;
+    }
+
+    /**
+     * @throws JsonException
+     */
+    final public function updateTrackingCode(string $code, int $order_id): bool
+    {
+        return (new NovaPoshtaService())->updateItem($code, $order_id);
     }
 
     private function updateItems($model, $data)
@@ -118,15 +127,21 @@ class OrdersRepository extends CoreRepository
         return $model;
     }
 
-    private function updateTrackingCodes($model, $data)
+    /**
+     * @throws JsonException
+     */
+    private function updateTrackingCodes(\Illuminate\Database\Eloquent\Model $model, array $data = []): void
     {
         if (isset($data)) {
             if (count($data)) {
                 $model->trackingCodes()->delete();
                 $model->trackingCodes()->createMany($data);
+
+                foreach ($data as $value) {
+                    $this->updateTrackingCode($value['code'], $model->id);
+                }
             }
         }
-        return $model;
     }
 
 
