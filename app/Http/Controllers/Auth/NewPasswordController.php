@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\Tenant;
+use App\Models\User;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -51,6 +53,13 @@ class NewPasswordController extends Controller
                     'remember_token' => Str::random(60),
                 ])->save();
 
+                $tenant = Tenant::where('user_id', $user->id)->first();
+                $tenant->run(function () use ($request, $user) {
+                    User::where('id', $user->id)->update([
+                        'password' => Hash::make($request->password),
+                        'remember_token' => Str::random(60),
+                    ]);
+                });
                 event(new PasswordReset($user));
             }
         );
