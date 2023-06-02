@@ -24,8 +24,8 @@ class AuthenticatedSessionController extends Controller
             $user = User::where('id', $id)->first();
 
             Auth::login($user);
-            $request->session()->regenerate();
-            $request->session()->save();
+//            $request->session()->regenerate();
+//            $request->session()->save();
             return Inertia::location(route('dashboard'));
         } else {
             return Inertia::render('Auth/Login', [

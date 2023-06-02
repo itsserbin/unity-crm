@@ -48,18 +48,20 @@ class NewPasswordController extends Controller
         $status = Password::reset(
             $request->only('email', 'password', 'password_confirmation', 'token'),
             function ($user) use ($request) {
-                $user->forceFill([
+                User::where('id', $user->id)->update([
                     'password' => Hash::make($request->password),
                     'remember_token' => Str::random(60),
-                ])->save();
+                ]);
 
                 $tenant = Tenant::where('user_id', $user->id)->first();
-                $tenant->run(function () use ($request, $user) {
-                    User::where('id', $user->id)->update([
-                        'password' => Hash::make($request->password),
-                        'remember_token' => Str::random(60),
-                    ]);
-                });
+                if ($tenant) {
+                    $tenant->run(function () use ($request, $user) {
+                        User::where('id', $user->id)->update([
+                            'password' => Hash::make($request->password),
+                            'remember_token' => Str::random(60),
+                        ]);
+                    });
+                }
                 event(new PasswordReset($user));
             }
         );
