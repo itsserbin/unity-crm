@@ -6,6 +6,7 @@ import {Head, Link, useForm} from '@inertiajs/vue3';
 import Button from 'primevue/button';
 import InputText from 'primevue/inputtext';
 import InputMask from 'primevue/inputmask';
+import Loader from "@/Components/Loader.vue";
 
 const form = useForm({
     name: '',
@@ -26,10 +27,20 @@ const submit = () => {
 </script>
 
 <template>
-    <GuestLayout>
+    <GuestLayout :isShowHeading="!form.processing">
         <Head title="Реєстрація"/>
 
-        <form @submit.prevent="submit" class="grid grid-cols-1 gap-3">
+        <div v-if="form.processing" class="text-2xl tex-center flex items-center justify-center min-h-[400px]">
+            <div class="text-center flex flex-col justify-center gap-6">
+                <div class="w-full flex justify-center">
+                    <div class="w-24 h-24">
+                        <Loader/>
+                    </div>
+                </div>
+                Зараз я створюю вашу CRM систему, зачейте трохи :)
+            </div>
+        </div>
+        <form v-if="!form.processing" @submit.prevent="submit" class="grid grid-cols-1 gap-3">
             <div>
                 <InputLabel for="name" value="Імʼя"/>
 

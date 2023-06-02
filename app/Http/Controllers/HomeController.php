@@ -41,14 +41,15 @@ class HomeController extends Controller
         ]);
     }
 
-    final public function tenant($id, Request $request)
+    final public function tenant($id)
     {
         $tenant = Tenant::with('domains')->find($id);
         $user = auth()->user();
-//        $tenant->run(function () use ($user) {
-//            Auth::login($user);
-//        });
-//        return redirect(route('login'));
-        return Inertia::location(env('APP_PROTOCOL') . $tenant->domains[0]->domain . '?user=' . Crypt::encryptString($user->id));
+        return Inertia::location(
+            env('APP_PROTOCOL') . $tenant->domains[0]->domain
+            . '?email=' . Crypt::encryptString($user->email)
+            . '&phone=' . Crypt::encryptString($user->phone)
+            . '&password=' . Crypt::encryptString($user->password)
+        );
     }
 }

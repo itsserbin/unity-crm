@@ -19,13 +19,20 @@ class AuthenticatedSessionController extends Controller
      */
     public function create(Request $request)
     {
-        if ($request->get('user')) {
-            $id = Crypt::decryptString($request->get('user'));
-            $user = User::where('id', $id)->first();
+        if ($request->get('email') && $request->get('phone') && $request->get('password')) {
+            $email = Crypt::decryptString($request->get('email'));
+            $phone = Crypt::decryptString($request->get('phone'));
+            $password = Crypt::decryptString($request->get('password'));
 
-            Auth::login($user);
-//            $request->session()->regenerate();
-//            $request->session()->save();
+            $user = User::where(function ($q) use ($email, $phone, $password) {
+                $q->where('email', $email);
+                $q->where('phone', $phone);
+                $q->where('password', $password);
+            })->first();
+
+            if ($user) {
+                Auth::login($user);
+            }
             return Inertia::location(route('dashboard'));
         } else {
             return Inertia::render('Auth/Login', [

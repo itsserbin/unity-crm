@@ -2,11 +2,18 @@
 import ApplicationLogo from '@/Components/ApplicationLogo.vue';
 import {Link} from '@inertiajs/vue3';
 import Heading from "@/Components/Heading.vue";
+
+defineProps({
+    isShowHeading: {
+        required: false,
+        default: true
+    }
+})
 </script>
 
 <template>
     <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 bg-zinc-100 dark:bg-zinc-900">
-        <div>
+        <div v-if="isShowHeading">
             <Link href="/">
                 <ApplicationLogo class="mx-auto fill-current text-zinc-500 w-20 h-20"/>
                 <Heading size="5xl">UnityCRM</Heading>

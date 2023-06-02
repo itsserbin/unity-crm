@@ -12,8 +12,8 @@
     transform: rotateZ(45deg);
     perspective: 1000px;
     border-radius: 50%;
-    width: 48px;
-    height: 48px;
+    width: 100%;
+    height: 100%;
     color: #3F51B5;
 }
 
