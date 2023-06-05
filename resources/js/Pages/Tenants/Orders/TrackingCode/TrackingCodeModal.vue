@@ -69,7 +69,7 @@ if (props.item.delivery_services.type === 'novaposhta') {
 <template>
     <Modal :show="show" @close="emits('close')" max-width="4xl">
         <template #body>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4" v-if="item.data && item.log">
                 <ul>
                     <li v-for="val in data">
                         <strong>{{ val.label }}</strong>
@@ -87,17 +87,15 @@ if (props.item.delivery_services.type === 'novaposhta') {
                     </Card>
                 </div>
             </div>
+            <div v-else class="flex items-center justify-center text-2xl min-h-[300px]">
+                Дані оновлюються, спробуйте трохи пізніше
+            </div>
         </template>
         <template #footer>
-            <Button label="Скасувати"
+            <Button label="Закрити"
                     icon="pi pi-times"
                     @click="emits('close')"
                     text
-            />
-            <Button label="Зберегти"
-                    icon="pi pi-check"
-                    @click="emits('submit')"
-                    autofocus
             />
         </template>
     </Modal>

@@ -2,9 +2,10 @@
 
 namespace App\Repositories;
 
+use App\Jobs\UpdateTrackingCode;
 use App\Models\Order as Model;
-use App\Services\NovaPoshtaService;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Foundation\Bus\PendingDispatch;
 use Illuminate\Pagination\LengthAwarePaginator;
 use JsonException;
 
@@ -85,12 +86,9 @@ class OrdersRepository extends CoreRepository
         return $model;
     }
 
-    /**
-     * @throws JsonException
-     */
-    final public function updateTrackingCode(string $code, int $order_id): bool
+    final public function updateTrackingCode(string $code, int $order_id): PendingDispatch
     {
-        return (new NovaPoshtaService())->updateItem($code, $order_id);
+        return UpdateTrackingCode::dispatch($code, $order_id);
     }
 
     private function updateItems($model, $data)

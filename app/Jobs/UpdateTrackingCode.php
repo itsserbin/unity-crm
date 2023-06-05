@@ -1,74 +1,53 @@
 <?php
 
-namespace App\Services;
+namespace App\Jobs;
 
-use App\Models\Order;
-use App\Models\TrackingCode;
 use App\Repositories\TrackingCodesRepository;
-use Illuminate\Database\Eloquent\Model;
+use App\Services\ApiService;
+use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
 
-class NovaPoshtaService
+class UpdateTrackingCode implements ShouldQueue
 {
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+
     private mixed $apiService;
     private mixed $trackingCodesRepository;
 
-    public function __construct()
+    private string $trackingCode;
+    private int $id;
+    private string $api;
+
+    /**
+     * Create a new job instance.
+     */
+    public function __construct(string $trackingCode, int $id, string $api = null)
     {
+        $this->trackingCode = $trackingCode;
+        $this->id = $id;
+        $this->api = $api ?? config('novaposhta.key');
         $this->apiService = app(ApiService::class);
         $this->trackingCodesRepository = app(TrackingCodesRepository::class);
     }
 
     /**
+     * Execute the job.
      * @throws \JsonException
      */
-    final public function updateTrackingCodes(): bool
+    final public function handle(): bool
     {
-        $orders = Order::select('id')
-            ->whereHas('trackingCodes', function ($q) {
-                $q->whereHas('deliveryServices', function ($q) {
-                    $q->where('status', 1);
-                    $q->where('type', 'novaposhta');
-                });
-                $q->where('code', '!=', null);
-            })
-            ->with(['trackingCodes:code,order_id,id' => function ($q) {
-                $q->select(['code', 'order_id', 'id']);
-                $q->with('deliveryServices:status,type,id,api_key');
-            }])
-            ->get();
-
-
-        if (!empty($orders)) {
-            foreach ($orders as $order) {
-                if (!empty($order->trackingCodes)) {
-                    foreach ($order->trackingCodes as $trackingCode) {
-                        $this->updateItem($trackingCode->code, $order->id, $trackingCode->deliveryServices->api_key);
-                    }
-                }
-            }
-        }
-
-        return 0;
-    }
-
-    /**
-     * @throws \JsonException
-     */
-    final public function updateItem(string $trackingCode, int $id, string $api = null): bool
-    {
-        if (!$api) {
-            $api = config('novaposhta.key');
-        }
-
-        $trackingModel = $this->trackingCodesRepository->getModelByCode($trackingCode);
+        $trackingModel = $this->trackingCodesRepository->getModelByCode($this->trackingCode);
 
         if (!$trackingModel) {
             $trackingModel = $this->trackingCodesRepository->create([
-                'code' => $trackingCode,
-                'order_id' => $id
+                'code' => $this->trackingCode,
+                'order_id' => $this->id
             ]);
         }
-        $res = $this->apiService->response(config('novaposhta.url'), $this->dataParams($trackingCode, $api));
+        $res = $this->apiService->response(config('novaposhta.url'), $this->dataParams($this->trackingCode, $this->api));
 
         if ($res['result']['success']) {
             $response = $res['result']['data'][0];

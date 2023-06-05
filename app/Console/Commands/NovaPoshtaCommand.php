@@ -2,8 +2,9 @@
 
 namespace App\Console\Commands;
 
+use App\Jobs\UpdateTrackingCode;
+use App\Models\Order;
 use App\Models\Tenant;
-use App\Services\NovaPoshtaService;
 use Illuminate\Console\Command;
 
 class NovaPoshtaCommand extends Command
@@ -22,12 +23,9 @@ class NovaPoshtaCommand extends Command
      */
     protected $description = 'Update all tracking codes in orders';
 
-    private mixed $novaPoshtaService;
-
     public function __construct()
     {
         parent::__construct();
-        $this->novaPoshtaService = app(NovaPoshtaService::class);
     }
 
     /**
@@ -36,9 +34,38 @@ class NovaPoshtaCommand extends Command
     final public function handle(): bool
     {
         $tenants = Tenant::all();
+
         foreach ($tenants as $tenant) {
             $tenant->run(function () {
-                return $this->novaPoshtaService->updateTrackingCodes();
+                $orders = Order::select('id')
+                    ->whereHas('trackingCodes', function ($q) {
+                        $q->whereHas('deliveryServices', function ($q) {
+                            $q->where('status', 1);
+                            $q->where('type', 'novaposhta');
+                        });
+                        $q->where('code', '!=', null);
+                    })
+                    ->with([
+                        'trackingCodes' => function ($q) {
+                            $q->select(['code', 'order_id', 'id']);
+                            $q->with('deliveryServices:status,type,id,api_key');
+                        }])
+                    ->get();
+
+
+                if (!empty($orders)) {
+                    foreach ($orders as $order) {
+                        if (!empty($order->trackingCodes)) {
+                            foreach ($order->trackingCodes as $trackingCode) {
+                                UpdateTrackingCode::dispatch(
+                                    $trackingCode->code,
+                                    $order->id,
+                                    $trackingCode->deliveryServices->api_key ?? null
+                                );
+                            }
+                        }
+                    }
+                }
             });
         }
 
