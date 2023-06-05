@@ -160,7 +160,11 @@ const onCreateAddress = async () => {
 </script>
 
 <template>
-    <Loader class="min-h-[100px]" v-if="state.isLoadingClient"></Loader>
+    <div class="flex justify-center w-full" v-if="state.isLoadingClient">
+        <div class="w-16 h-16">
+            <Loader/>
+        </div>
+    </div>
     <div class="grid grid-cols-1 md:grid-cols-6 gap-4" v-if="!state.isLoadingClient">
         <Card class="md:col-span-2">
             <template #content>
@@ -234,7 +238,8 @@ const onCreateAddress = async () => {
                     />
                     <Button @click="switchAddressModal" type="button" icon="pi pi-plus"></Button>
                 </div>
-                <div v-else class="flex text-zinc-800 dark:text-zinc-200 hover:bg-zinc-300 dark:hover:bg-zinc-700 p-2 rounded transition-all w-full">
+                <div v-else
+                     class="flex text-zinc-800 dark:text-zinc-200 hover:bg-zinc-300 dark:hover:bg-zinc-700 p-2 rounded transition-all w-full">
                     <div class="w-full flex items-center">
                         {{ item.delivery_address }}
                     </div>
