@@ -21,7 +21,7 @@ class StatusesController extends BaseController
         $this->statusGroupsRepository = app(StatusGroupsRepository::class);
     }
 
-    final public function statuses(Request $request): Response
+    final public function create(Request $request): Response
     {
         $statuses = $this->statusesRepository->getAllWithPaginate($request->all());
         $statusGroups = $this->statusGroupsRepository->getAllWithPaginate($request->all());
