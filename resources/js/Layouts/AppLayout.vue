@@ -50,7 +50,7 @@ const menu = [
     },
     {
         title: 'Статистика',
-        icon: 'pi pi-database',
+        icon: 'pi pi-chart-line',
         isActive: false,
         child: [
             {
