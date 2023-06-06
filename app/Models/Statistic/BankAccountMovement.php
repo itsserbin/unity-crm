@@ -2,7 +2,6 @@
 
 namespace App\Models\Statistic;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -21,5 +20,10 @@ class BankAccountMovement extends Model
     final public function account(): BelongsTo
     {
         return $this->belongsTo(BankAccount::class, 'account_id');
+    }
+
+    final public function category(): BelongsTo
+    {
+        return $this->belongsTo(MovementCategory::class, 'category_id');
     }
 }

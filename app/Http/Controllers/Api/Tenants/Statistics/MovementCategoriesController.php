@@ -3,19 +3,18 @@
 namespace App\Http\Controllers\Api\Tenants\Statistics;
 
 use App\Http\Controllers\Api\Tenants\BaseController;
-use App\Http\Requests\Tenants\Statistics\BankAccountMovements\CreateMovementRequest;
-use App\Repositories\Statistics\BankAccountMovementsRepository;
+use App\Repositories\Statistics\MovementCategoriesRepository;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
-class BankAccountMovementsController extends BaseController
+class MovementCategoriesController extends BaseController
 {
-    private mixed $bankAccountMovementsRepository;
+    private mixed $movementCategoriesRepository;
 
     public function __construct()
     {
         parent::__construct();
-        $this->bankAccountMovementsRepository = app(BankAccountMovementsRepository::class);
+        $this->movementCategoriesRepository = app(MovementCategoriesRepository::class);
     }
 
     /**
@@ -24,7 +23,7 @@ class BankAccountMovementsController extends BaseController
      */
     final public function index(Request $request): JsonResponse
     {
-        $result = $this->bankAccountMovementsRepository->getAllWithPaginate($request->all());
+        $result = $this->movementCategoriesRepository->getAllWithPaginate($request->all());
 
         return $this->returnResponse([
             'success' => true,
@@ -33,11 +32,12 @@ class BankAccountMovementsController extends BaseController
     }
 
     /**
+     * @param Request $request
      * @return JsonResponse
      */
-    final public function list(): JsonResponse
+    final public function list(Request $request): JsonResponse
     {
-        $result = $this->bankAccountMovementsRepository->list();
+        $result = $this->movementCategoriesRepository->list($request->all());
 
         return $this->returnResponse([
             'success' => true,
@@ -46,25 +46,16 @@ class BankAccountMovementsController extends BaseController
     }
 
     /**
-     * @param CreateMovementRequest $request
+     * @param Request $request
      * @return JsonResponse
      */
-    final public function create(CreateMovementRequest $request): JsonResponse
+    final public function create(Request $request): JsonResponse
     {
-        $result = $this->bankAccountMovementsRepository->create($request->all());
+        $result = $this->movementCategoriesRepository->create($request->all());
 
         return $this->returnResponse([
             'success' => true,
             'result' => $result,
-        ]);
-    }
-
-    final public function massCreate(Request $request): JsonResponse
-    {
-        $this->bankAccountMovementsRepository->massCreate($request->all());
-
-        return $this->returnResponse([
-            'success' => true,
         ]);
     }
 
@@ -74,7 +65,7 @@ class BankAccountMovementsController extends BaseController
      */
     final public function edit(int $id): JsonResponse
     {
-        $result = $this->bankAccountMovementsRepository->getModelById($id);
+        $result = $this->movementCategoriesRepository->getModelById($id);
 
         return $this->returnResponse([
             'success' => true,
@@ -84,12 +75,12 @@ class BankAccountMovementsController extends BaseController
 
     /**
      * @param int $id
-     * @param CreateMovementRequest $request
+     * @param Request $request
      * @return JsonResponse
      */
-    final public function update(int $id, CreateMovementRequest $request): JsonResponse
+    final public function update(int $id, Request $request): JsonResponse
     {
-        $result = $this->bankAccountMovementsRepository->update($id, $request->all());
+        $result = $this->movementCategoriesRepository->update($id, $request->all());
 
         return $this->returnResponse([
             'success' => true,
@@ -103,7 +94,7 @@ class BankAccountMovementsController extends BaseController
      */
     final public function destroy(int $id): JsonResponse
     {
-        $result = $this->bankAccountMovementsRepository->destroy($id);
+        $result = $this->movementCategoriesRepository->destroy($id);
 
         return $this->returnResponse([
             'success' => true,

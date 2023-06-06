@@ -5,6 +5,7 @@ import ModalFooter from '@/Components/Modal/Footer.vue';
 import Dropdown from 'primevue/dropdown';
 import Button from "primevue/button";
 import {ref} from "vue";
+import SelectButton from 'primevue/selectbutton';
 
 const props = defineProps(['item', 'isLoadingModal']);
 const emits = defineEmits(['submit', 'close']);
@@ -52,12 +53,21 @@ const submitLabel = () => {
         return 'Продовжити'
     }
 }
+
+const types = [
+    {
+        label: 'Витрата',
+        value: 0
+    }
+];
 </script>
 
 <template>
     <div class="grid gap-4">
         <div class="block">
-            <InputLabel :required="true">Назва</InputLabel>
+            <InputLabel :required="true">Тип</InputLabel>
+            <SelectButton v-model="value" :options="options" aria-labelledby="basic" />
+
             <InputText type="text"
                        v-model="item.name"
                        class="w-full"
@@ -65,42 +75,6 @@ const submitLabel = () => {
             />
         </div>
 
-        <div class="block" v-if="!item.id">
-            <InputLabel :required="true">Банк</InputLabel>
-            <Dropdown v-model="item.data.bank"
-                      :options="options"
-                      optionLabel="label"
-                      dataKey="value"
-                      class="w-full"
-                      placeholder="Оберіть банк"
-            />
-        </div>
-
-        <div class="block" v-if="item.data.bank && item.data.bank.value === 'monobank'">
-            <InputLabel :required="true">
-                API ключ (<a href="https://api.monobank.ua/" target="_blank">Отримати</a>)
-            </InputLabel>
-            <InputText type="text"
-                       v-model="item.data.api_key"
-                       class="w-full"
-                       placeholder="Вкажіть API ключ"/>
-        </div>
-
-        <div class="block" v-if="accounts.length">
-            <InputLabel :required="true">Рахунок</InputLabel>
-            <Dropdown v-model="item.data.account"
-                      :options="accounts"
-                      optionLabel="label"
-                      dataKey="id"
-                      class="w-full"
-                      placeholder="Оберіть рахунок"
-            >
-                <template #option="slotProps">
-                    <div class="text-sm">{{ slotProps.option.label }}</div>
-                    <div class="text-base">{{ slotProps.option.iban }}</div>
-                </template>
-            </Dropdown>
-        </div>
     </div>
     <ModalFooter>
         <Button label="Скасувати"

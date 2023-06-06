@@ -21,7 +21,7 @@ return new class extends Migration {
             $table->string('movement_id')->nullable();
             $table->dateTime('date');
             $table->float('sum');
-            $table->float('balance');
+            $table->float('balance')->nullable();
             $table->foreignId('category_id')->nullable();
             $table->string('comment')->nullable();
             $table->timestamps();

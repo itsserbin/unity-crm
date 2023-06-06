@@ -7,6 +7,7 @@ use App\Repositories\CoreRepository;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\DB;
 
 class BankAccountMovementsRepository extends CoreRepository
 {
@@ -43,29 +44,39 @@ class BankAccountMovementsRepository extends CoreRepository
                 $data['sort']['column'] ?? 'date',
                 $data['sort']['type'] ?? 'desc'
             )
-            ->with('account')
+            ->with('account', 'category')
             ->paginate($data['perPage'] ?? 15);
     }
 
     final public function create(array $data): \Illuminate\Database\Eloquent\Model
     {
-        return $this->coreCreate($this->model, $data);
+        $model = $this->coreCreate($this->model, $data);
+        $this->calculateBalance($data['date']);
+        return $model;
     }
+
 
     final public function massCreate(array $data): void
     {
         if (!empty($data)) {
-            foreach ($data as $item) {
-                if (!$this->model::where('movement_id', $item['movement_id'])->first()) {
-                    $this->coreCreate($this->model, $item);
-                }
+            $existingMovements = $this->model::whereIn('movement_id', array_column($data, 'movement_id'))->pluck('movement_id')->toArray();
+
+            $dataToInsert = array_filter($data, function ($item) use ($existingMovements) {
+                return !in_array($item['movement_id'], $existingMovements);
+            });
+
+            if (!empty($dataToInsert)) {
+                $this->model::insert($dataToInsert);
+                $this->calculateBalance(min(array_column($dataToInsert, 'date')));
             }
         }
     }
 
     final public function update(int $id, array $data): \Illuminate\Database\Eloquent\Model
     {
-        return $this->coreUpdate($this->model, $id, $data);
+        $model = $this->coreUpdate($this->model, $id, $data);
+        $this->calculateBalance($data['date']);
+        return $model;
     }
 
     final public function destroy(int $id): int
@@ -76,6 +87,31 @@ class BankAccountMovementsRepository extends CoreRepository
     final public function list(): Collection
     {
         return $this->model::select(['id', 'name'])->orderBy('id', 'desc')->get();
+    }
+
+    final public function calculateBalance(string $date): bool
+    {
+        $items = $this->model::where('date', '>=', $date)
+            ->orderBy('date', 'asc')
+            ->get();
+
+        $previous_model = $this->model::where('date', '<', $date)->orderBy('date', 'desc')->first();
+        $previous_balance = $previous_model ? $previous_model->balance : 0;
+
+        $balances = [];
+
+        if (count($items)) {
+            foreach ($items as $item) {
+                $balance = $previous_balance + $item->sum;
+                $previous_balance = $balance;
+                $balances[$item->id] = $balance;
+            }
+
+            $this->model::whereIn('id', array_keys($balances))
+                ->update(['balance' => DB::raw('id IN (' . implode(',', array_keys($balances)) . ')')]);
+        }
+
+        return true;
     }
 
 //    final public function search(string $query, array $data): LengthAwarePaginator

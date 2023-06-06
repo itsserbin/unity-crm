@@ -13,6 +13,7 @@ use App\Http\Controllers\Api\Tenants\Options\StatusesController;
 use App\Http\Controllers\Api\Tenants\Options\StatusGroupsController;
 use App\Http\Controllers\Api\Tenants\Statistics\BankAccountMovementsController;
 use App\Http\Controllers\Api\Tenants\Statistics\BankAccountsController;
+use App\Http\Controllers\Api\Tenants\Statistics\MovementCategoriesController;
 use App\Http\Controllers\Api\Tenants\UploadController;
 use App\Http\Controllers\Api\Tenants\UsersController;
 use Illuminate\Http\Request;
@@ -288,6 +289,26 @@ Route::middleware('auth:sanctum')->group(function () {
 
         Route::get('list', [BankAccountsController::class, 'list'])
             ->name('api.bank-accounts.list');
+    });
+
+    Route::prefix('movement-categories')->group(function () {
+        Route::get('/', [MovementCategoriesController::class, 'index'])
+            ->name('api.movement-categories.index');
+
+        Route::get('edit/{id}', [MovementCategoriesController::class, 'edit'])
+            ->name('api.movement-categories.edit');
+
+        Route::put('update/{id}', [MovementCategoriesController::class, 'update'])
+            ->name('api.movement-categories.update');
+
+        Route::post('create', [MovementCategoriesController::class, 'create'])
+            ->name('api.movement-categories.create');
+
+        Route::delete('/destroy/{id}', [MovementCategoriesController::class, 'destroy'])
+            ->name('api.movement-categories.destroy');
+
+        Route::get('list', [MovementCategoriesController::class, 'list'])
+            ->name('api.movement-categories.list');
     });
 
     Route::prefix('bank-accounts-movements')->group(function () {

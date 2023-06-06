@@ -6,6 +6,8 @@ import Button from 'primevue/button';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import InputText from 'primevue/inputtext';
 import Heading from "@/Components/Heading.vue";
+import DownloadDataButton from './DownloadData/Button.vue'
+import CreateDataButtons from '@/Pages/Tenants/Statistics/BankAccountMovements/CreateData/Buttons.vue'
 
 import BankAccountMovementsRepository from "@/Repositories/Tenants/Statistics/BankAccountMovementsRepository.js";
 import {toast} from 'vue3-toastify';
@@ -13,7 +15,6 @@ import {ref, onMounted, reactive, defineAsyncComponent} from 'vue';
 import {useConfirm} from "@/Components/ConfirmationModal/useConfirm.js";
 
 const Modal = defineAsyncComponent(() => import('./Modal.vue'))
-const DownloadDataModal = defineAsyncComponent(() => import('./DownloadDataModal.vue'))
 
 const props = defineProps(['data']);
 
@@ -24,12 +25,6 @@ const state = reactive({
     isLoadingRefreshButton: false,
     data: {},
     search: null
-});
-
-const downloadDataModal = reactive({
-    isShow: false,
-    item: null,
-    isLoading: false
 });
 
 const lazyParams = ref({
@@ -81,7 +76,6 @@ const fetch = async () => {
 }
 
 const toggleModal = (val) => val ? state.isShowModal = val : state.isShowModal = !state.isShowModal;
-const toggleDownloadModal = (val) => val ? downloadDataModal.isShow = val : downloadDataModal.isShow = !downloadDataModal.isShow;
 const switchLoader = (val) => val ? state.isLoading = val : state.isLoading = !state.isLoading;
 const switchLoaderRefreshButton = (val) => val ? state.isLoadingRefreshButton = val : state.isLoadingRefreshButton = !state.isLoadingRefreshButton;
 
@@ -176,14 +170,6 @@ const refreshData = async () => {
 const formatComment = (val) => {
     return val && val.length > 30 ? val.slice(0, 30) + "..." : val;
 }
-
-const onDownloadData = () => {
-    toggleDownloadModal();
-    downloadDataModal.item = {
-        bank: null,
-        date: null,
-    }
-}
 </script>
 
 <template>
@@ -201,15 +187,11 @@ const onDownloadData = () => {
                         <Heading>Грошові рухи</Heading>
                     </div>
                 </template>
+                <template #center>
+                    <CreateDataButtons @submit="refreshData"/>
+                </template>
                 <template #end>
-                    <Button label="Додати" size="small"
-                            icon="pi pi-plus" class="mr-2"
-                            @click="onCreate"
-                    />
-                    <Button label="Завантажити" size="small"
-                            icon="pi pi-plus" class="mr-2"
-                            @click="onDownloadData"
-                    />
+                    <DownloadDataButton @submit="refreshData"/>
                 </template>
             </Toolbar>
 
@@ -289,12 +271,6 @@ const onDownloadData = () => {
                :isLoadingModal="state.isLoadingModal"
         />
 
-        <DownloadDataModal v-if="downloadDataModal.isShow"
-                           :show="downloadDataModal.isShow"
-                           :item="downloadDataModal.item"
-                           @close="toggleDownloadModal(false)"
-                           @submit="fetch"
-                           :isLoadingModal="downloadDataModal.isLoading"
-        />
+
     </AppLayout>
 </template>

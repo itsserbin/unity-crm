@@ -10,7 +10,20 @@ const emits = defineEmits(['close', 'submit']);
 <template>
     <Modal :show="show" @close="emits('close')">
         <template #body>
-            <Form :item="item" @submit="emits('submit')" @close="emits('close')"/>
+            <Form :item="item"/>
+        </template>
+        <template #footer>
+            <Button label="Скасувати"
+                    icon="pi pi-times"
+                    @click="emits('close')"
+                    text
+            />
+            <Button label="Зберегти"
+                    icon="pi pi-check"
+                    @click="emits('submit')"
+                    autofocus
+                    :loading="isLoadingModal"
+            />
         </template>
     </Modal>
 </template>
