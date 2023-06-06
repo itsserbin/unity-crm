@@ -7,7 +7,7 @@ import StatusGroupsRepository from "@/Repositories/Tenants/Options/StatusGroupsR
 import {toast} from "vue3-toastify";
 import StatusesRepository from "@/Repositories/Tenants/Options/StatusesRepository.js";
 
-const StatusModal = defineAsyncComponent(() => import('@/Pages/Tenants/Statuses/Statuses/Modal.vue'))
+const StatusModal = defineAsyncComponent(() => import('@/Pages/Tenants/Options/Statuses/Statuses/Modal.vue'))
 
 const props = defineProps(['item', 'statuses', 'errors']);
 

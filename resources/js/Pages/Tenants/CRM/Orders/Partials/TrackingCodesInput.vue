@@ -7,7 +7,7 @@ import {onMounted, reactive, defineAsyncComponent} from "vue";
 import DeliveryServicesRepository from "@/Repositories/Tenants/Options/DeliveryServicesRepository.js";
 import {toast} from "vue3-toastify";
 
-const DeliveryServiceModal = defineAsyncComponent(() => import('@/Pages/Tenants/DeliveryServices/Modal.vue'))
+const DeliveryServiceModal = defineAsyncComponent(() => import('@/Pages/Tenants/Options/DeliveryServices/Modal.vue'))
 
 const state = reactive({
     delivery_services: [],

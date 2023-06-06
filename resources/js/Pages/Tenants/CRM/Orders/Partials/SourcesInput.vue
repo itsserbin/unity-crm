@@ -6,7 +6,7 @@ import SourcesRepository from "@/Repositories/Tenants/Options/SourcesRepository.
 import {toast} from "vue3-toastify";
 import {reactive, onMounted, defineAsyncComponent} from "vue";
 
-const SourcesModal = defineAsyncComponent(() => import('@/Pages/Tenants/Sources/Modal.vue'))
+const SourcesModal = defineAsyncComponent(() => import('@/Pages/Tenants/Options/Sources/Modal.vue'))
 
 const props = defineProps(['item', 'sources', 'errors']);
 
