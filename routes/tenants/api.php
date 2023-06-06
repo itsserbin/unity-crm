@@ -1,15 +1,18 @@
 <?php
 
-use App\Http\Controllers\Api\Tenants\CategoriesController;
-use App\Http\Controllers\Api\Tenants\ClientsController;
-use App\Http\Controllers\Api\Tenants\DeliveryServicesController;
-use App\Http\Controllers\Api\Tenants\ImagesController;
-use App\Http\Controllers\Api\Tenants\OrdersController;
-use App\Http\Controllers\Api\Tenants\ProductsController;
-use App\Http\Controllers\Api\Tenants\SourcesController;
-use App\Http\Controllers\Api\Tenants\StatusesController;
-use App\Http\Controllers\Api\Tenants\StatusGroupsController;
-use App\Http\Controllers\Api\Tenants\TrackingCodesController;
+use App\Http\Controllers\Api\Tenants\Catalog\CategoriesController;
+use App\Http\Controllers\Api\Tenants\Catalog\ImagesController;
+use App\Http\Controllers\Api\Tenants\Catalog\ProductsController;
+use App\Http\Controllers\Api\Tenants\CRM\ClientsController;
+use App\Http\Controllers\Api\Tenants\CRM\OrdersController;
+use App\Http\Controllers\Api\Tenants\CRM\TrackingCodesController;
+use App\Http\Controllers\Api\Tenants\MonobankController;
+use App\Http\Controllers\Api\Tenants\Options\DeliveryServicesController;
+use App\Http\Controllers\Api\Tenants\Options\SourcesController;
+use App\Http\Controllers\Api\Tenants\Options\StatusesController;
+use App\Http\Controllers\Api\Tenants\Options\StatusGroupsController;
+use App\Http\Controllers\Api\Tenants\Statistics\BankAccountMovementsController;
+use App\Http\Controllers\Api\Tenants\Statistics\BankAccountsController;
 use App\Http\Controllers\Api\Tenants\UploadController;
 use App\Http\Controllers\Api\Tenants\UsersController;
 use Illuminate\Http\Request;
@@ -267,8 +270,56 @@ Route::middleware('auth:sanctum')->group(function () {
             ->name('api.images.destroy');
     });
 
+    Route::prefix('bank-accounts')->group(function () {
+        Route::get('/', [BankAccountsController::class, 'index'])
+            ->name('api.bank-accounts.index');
+
+        Route::get('edit/{id}', [BankAccountsController::class, 'edit'])
+            ->name('api.bank-accounts.edit');
+
+        Route::put('update/{id}', [BankAccountsController::class, 'update'])
+            ->name('api.bank-accounts.update');
+
+        Route::post('create', [BankAccountsController::class, 'create'])
+            ->name('api.bank-accounts.create');
+
+        Route::delete('/destroy/{id}', [BankAccountsController::class, 'destroy'])
+            ->name('api.bank-accounts.destroy');
+
+        Route::get('list', [BankAccountsController::class, 'list'])
+            ->name('api.bank-accounts.list');
+    });
+
+    Route::prefix('bank-accounts-movements')->group(function () {
+        Route::get('/', [BankAccountMovementsController::class, 'index'])
+            ->name('api.bank-account-movements.index');
+
+        Route::get('edit/{id}', [BankAccountMovementsController::class, 'edit'])
+            ->name('api.bank-account-movements.edit');
+
+        Route::put('update/{id}', [BankAccountMovementsController::class, 'update'])
+            ->name('api.bank-account-movements.update');
+
+        Route::post('create', [BankAccountMovementsController::class, 'create'])
+            ->name('api.bank-account-movements.create');
+
+        Route::post('mass-create', [BankAccountMovementsController::class, 'massCreate'])
+            ->name('api.bank-account-movements.mass-create');
+
+        Route::delete('/destroy/{id}', [BankAccountMovementsController::class, 'destroy'])
+            ->name('api.bank-account-movements.destroy');
+    });
+
     Route::prefix('upload')->group(function () {
         Route::post('product-preview', [UploadController::class, 'uploadProductPreview'])
             ->name('api.upload.product-preview');
+    });
+
+    Route::prefix('monobank')->group(function () {
+        Route::post('client-info/{token}', [MonobankController::class, 'clientInfo'])
+            ->name('api.monobank.client-info');
+
+        Route::post('extract', [MonobankController::class, 'extract'])
+            ->name('api.monobank.extract');
     });
 });

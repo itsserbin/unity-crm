@@ -93,7 +93,7 @@ const maxWidthClass = computed(() => {
                     appear
                 >
                     <div v-show="show"
-                         class="h-auto max-h-full overflow-y-auto my-6 bg-zinc-100 dark:bg-zinc-800 rounded-lg shadow-xl transform transition-all sm:w-full sm:mx-auto"
+                         class="h-auto max-h-full relative overflow-y-auto my-6 bg-zinc-100 dark:bg-zinc-800 rounded-lg shadow-xl transform transition-all sm:w-full sm:mx-auto"
                          :class="maxWidthClass">
                         <div v-if="show">
                             <ModalHead v-if="$slots.head" @close="close">

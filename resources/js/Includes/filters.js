@@ -11,6 +11,9 @@ export default {
     formatDate(value) {
         return moment(value).format('DD.MM.YY');
     },
+    formatTime(value) {
+        return moment(value).format('HH:mm');
+    },
     formatDateTime(value) {
         return moment(value).format('DD.MM.YY HH:mm');
     },

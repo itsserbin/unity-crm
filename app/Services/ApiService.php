@@ -22,7 +22,6 @@ class ApiService
      *  - 'error': the cURL error code
      *  - 'message': the cURL error message
      *
-     * @throws JsonException If $data is not empty and cannot be encoded into a JSON string.
      */
     #[ArrayShape(['success' => "bool", 'result' => "array|mixed"])] final public function response(
         string $url,
@@ -37,7 +36,7 @@ class ApiService
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_CUSTOMREQUEST => $method,
             CURLOPT_HTTPHEADER => $headers,
-            CURLOPT_POSTFIELDS => $data ? json_encode($data, JSON_THROW_ON_ERROR) : null,
+            CURLOPT_POSTFIELDS => $data ? json_encode($data) : null,
         ]);
 
         $response = curl_exec($curl);
@@ -47,7 +46,7 @@ class ApiService
 
         return [
             'success' => $error === 0,
-            'result' => $error === 0 ? json_decode($response, true, 512, JSON_THROW_ON_ERROR) : [
+            'result' => $error === 0 ? json_decode($response) : [
                 'error' => $error,
                 'message' => curl_error($curl)
             ]

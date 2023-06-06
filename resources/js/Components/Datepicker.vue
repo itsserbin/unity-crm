@@ -63,6 +63,9 @@
                         'hover-day': !isCurrentDay(day) && !isSelectedDay(day),
                         'hover-selected-day': !isCurrentDay(day) && isSelectedDay(day),
                         active: isSelectedDay(day),
+                        'within-range': isWithinSelectedRange(day),
+                         'selected-start-day': isSelectedStartDay(day),
+                         'selected-end-day': isSelectedEndDay(day),
                     }"
                     @click="selectDate(day)"
                 >
@@ -103,7 +106,7 @@ import {ref, computed, watch, onMounted} from 'vue';
 
 const props = defineProps({
     modelValue: {
-        type: String,
+        type: [String, Array],
         required: true,
     },
     placeholder: {
@@ -118,6 +121,10 @@ const props = defineProps({
         type: String,
         default: 'HH:mm:ss',
     },
+    rangeMode: {
+        type: Boolean,
+        default: false,
+    },
 });
 
 const emit = defineEmits([
@@ -128,16 +135,73 @@ const isOpened = ref(false);
 const isMonthsOpen = ref(false);
 const isYearsOpen = ref(false);
 const currentDate = new Date();
-const selectedDate = ref(currentDate);
+let selectedDate = ref(null);
 const selectedTime = ref({
     hours: currentDate.getHours(),
     minutes: currentDate.getMinutes(),
     seconds: currentDate.getSeconds(),
 });
+const selectedDates = ref([]);
 
 const switchOpen = () => (isOpened.value = !isOpened.value);
 const switchMonthsOpen = () => (isMonthsOpen.value = !isMonthsOpen.value);
 const switchYearsOpen = () => (isYearsOpen.value = !isYearsOpen.value);
+
+
+// Функція для додавання нової вибраної дати в масив
+function addSelectedDate(date) {
+    selectedDates.value.push(date);
+}
+
+// Функція для видалення вибраної дати з масиву
+function removeSelectedDate(date) {
+    const index = selectedDates.value.findIndex(selectedDate => selectedDate.getTime() === date.getTime());
+    if (index !== -1) {
+        selectedDates.value.splice(index, 1);
+    }
+}
+
+// Функція для перевірки, чи дата вибрана
+function isDateSelected(date) {
+    return selectedDates.value.some(selectedDate => selectedDate.getTime() === date.getTime());
+}
+
+// Функція для обробки кліку на дату
+function handleDateClick(date) {
+    if (isDateSelected(date)) {
+        removeSelectedDate(date);
+    } else {
+        addSelectedDate(date);
+    }
+}
+
+// Функція для підсвічування вибраних дат
+function highlightSelectedDates() {
+    const dates = document.querySelectorAll('.date');
+    dates.forEach(date => {
+        const dateObj = new Date(date.dataset.date);
+        if (isDateSelected(dateObj)) {
+            date.classList.add('selected');
+        } else {
+            date.classList.remove('selected');
+        }
+    });
+}
+
+const isWithinSelectedRange = (day) => {
+    const currentMonthDate = new Date(selectedDates.value[0].getFullYear(), selectedDates.value[0].getMonth(), day);
+    return selectedDates.value[0] <= currentMonthDate && currentMonthDate <= selectedDates.value[1];
+}
+
+const isSelectedStartDay = (day) => {
+    const currentMonthDate = new Date(selectedDates.value[0].getFullYear(), selectedDates.value[0].getMonth(), day);
+    return selectedDates.value[0] && selectedDates.value[0].getTime() === currentMonthDate.getTime();
+}
+
+const isSelectedEndDay = (day) => {
+    const currentMonthDate = new Date(selectedDates.value[1].getFullYear(), selectedDates.value[1].getMonth(), day);
+    return selectedDates.value[1] && selectedDates.value[1].getTime() === currentMonthDate.getTime();
+}
 
 function selectMonth(monthIndex) {
     if (!selectedDate.value) return;
@@ -191,7 +255,7 @@ function generateCurrentMonthDays() {
 
     // Додавання порожніх значень для початкових порожніх днів
     for (let i = 0; i < firstDay; i++) {
-        currentMonthDays.push("");
+        currentMonthDays.push(null);
     }
 
     // Додавання днів місяця
@@ -201,6 +265,8 @@ function generateCurrentMonthDays() {
 
     return currentMonthDays;
 }
+
+
 
 // Форматування вибраної дати в формат YYYY-MM-DD
 function formatSelectedDate(day) {
@@ -243,38 +309,66 @@ function isCurrentDay(day) {
 
 // Перевірка, чи вибрана дата є вибраною датою моделі
 function isSelectedDay(day) {
-    if (!selectedDate.value) return false;
-    const modelDate = new Date(props.modelValue);
-    if (isNaN(modelDate.getTime())) return false;
-    const year = selectedDate.value.getFullYear();
-    const month = selectedDate.value.getMonth();
+    if (!selectedDates.value[0]) return false;
+    const modelDateStart = new Date(props.modelValue[0]);
+    const modelDateEnd = new Date(props.modelValue[1]);
+    if (isNaN(modelDateStart.getTime()) || isNaN(modelDateEnd.getTime())) return false;
+    const yearStart = selectedDates.value[0].getFullYear();
+    const monthStart = selectedDates.value[0].getMonth();
+    const yearEnd = selectedDates.value[1].getFullYear();
+    const monthEnd = selectedDates.value[1].getMonth();
     return (
-        year === modelDate.getFullYear() &&
-        month === modelDate.getMonth() &&
-        day === modelDate.getDate()
+        yearStart === modelDateStart.getFullYear() &&
+        monthStart === modelDateStart.getMonth() &&
+        day === modelDateStart.getDate() &&
+        yearEnd === modelDateEnd.getFullYear() &&
+        monthEnd === modelDateEnd.getMonth() &&
+        day === modelDateEnd.getDate()
     );
 }
 
 // Вибір дати
+let selectingStart = true; // Прапорець, який вказує, чи вибирається дата початку або кінця
+
 function selectDate(day) {
-    if (!selectedDate.value) return;
-    const selectedYear = selectedDate.value.getFullYear();
-    const selectedMonth = selectedDate.value.getMonth();
-    selectedDate.value = new Date(selectedYear, selectedMonth, day);
+    const selectedYear = selectedDates.value[selectingStart ? 0 : 1].getFullYear();
+    const selectedMonth = selectedDates.value[selectingStart ? 0 : 1].getMonth();
 
-    const formattedDate = formatSelectedDate(day);
-    if (props.timePickerEnabled) {
-        if (!props.modelValue) {
-            setDefaultTime();
+    selectedDates.value[selectingStart ? 0 : 1] = new Date(selectedYear, selectedMonth, day);
+
+    if (props.rangeMode) {
+        if (!selectingStart) { // Якщо вибрано кінцеву дату
+            // Перевіряємо, чи вибрана кінцева дата не раніше початкової
+            if (selectedDates.value[1] < selectedDates.value[0]) {
+                // Якщо так, міняємо їх місцями
+                [selectedDates.value[0], selectedDates.value[1]] = [selectedDates.value[1], selectedDates.value[0]];
+            }
+
+            const startFormattedDate = formatSelectedDate(selectedDates.value[0].getDate());
+            const endFormattedDate = formatSelectedDate(selectedDates.value[1].getDate());
+
+            if (!props.timePickerEnabled) {
+                emit('update:modelValue', [startFormattedDate, endFormattedDate]);
+            }
         }
-        const formattedTime = `${selectedTime.value.hours}:${selectedTime.value.minutes}:${selectedTime.value.seconds}`;
-        emit('update:modelValue', `${formattedDate} ${formattedTime}`);
+        selectingStart = !selectingStart; // Змінюємо дату, яку ми вибираємо на наступний клік
     } else {
-        emit('update:modelValue', formattedDate);
-    }
+        const formattedDate = formatSelectedDate(day);
 
-    switchOpen();
+        if (props.timePickerEnabled) {
+            if (!props.modelValue) {
+                setDefaultTime();
+            }
+
+            const formattedTime = `${selectedTime.value.hours}:${selectedTime.value.minutes}:${selectedTime.value.seconds}`;
+            emit('update:modelValue', `${formattedDate} ${formattedTime}`);
+        } else {
+            emit('update:modelValue', formattedDate);
+        }
+        switchOpen();
+    }
 }
+
 
 // Оновлення значення часу
 function updateTimeValue() {
@@ -287,7 +381,11 @@ function updateTimeValue() {
 
 // Оновлення значення моделі
 function updateModelValue(value) {
-    emit('update:modelValue', value);
+    if (props.rangeMode) {
+        emit('update:modelValue', value.split('-'));
+    } else {
+        emit('update:modelValue', value);
+    }
 }
 
 // Поточний місяць та рік
@@ -300,20 +398,25 @@ const selectedMonthLabel = computed(() => {
 // Значення для відображення в полі вводу
 const displayValue = computed(() => {
     if (!props.modelValue) return '';
-    const modelDate = new Date(props.modelValue);
-    if (isNaN(modelDate.getTime())) return '';
-    const year = modelDate.getFullYear();
-    const month = (modelDate.getMonth() + 1).toString().padStart(2, '0');
-    const day = modelDate.getDate().toString().padStart(2, '0');
-    let time = '';
-    if (props.timePickerEnabled) {
-        const timeFormat = props.timeFormat || 'HH:mm:ss';
-        const hours = modelDate.getHours().toString().padStart(2, '0');
-        const minutes = modelDate.getMinutes().toString().padStart(2, '0');
-        const seconds = modelDate.getSeconds().toString().padStart(2, '0');
-        time = ` ${hours}:${minutes}:${seconds}`;
+    if (props.rangeMode) {
+        const modelDateStart = new Date(props.modelValue[0]);
+        const modelDateEnd = new Date(props.modelValue[1]);
+        if (isNaN(modelDateStart.getTime()) || isNaN(modelDateEnd.getTime())) return '';
+        const yearStart = modelDateStart.getFullYear();
+        const monthStart = (modelDateStart.getMonth() + 1).toString().padStart(2, '0');
+        const dayStart = modelDateStart.getDate().toString().padStart(2, '0');
+        const yearEnd = modelDateEnd.getFullYear();
+        const monthEnd = (modelDateEnd.getMonth() + 1).toString().padStart(2, '0');
+        const dayEnd = modelDateEnd.getDate().toString().padStart(2, '0');
+        return `${yearStart}-${monthStart}-${dayStart} - ${yearEnd}-${monthEnd}-${dayEnd}`;
+    } else {
+        const modelDate = new Date(props.modelValue);
+        if (isNaN(modelDate.getTime())) return '';
+        const year = modelDate.getFullYear();
+        const month = (modelDate.getMonth() + 1).toString().padStart(2, '0');
+        const day = modelDate.getDate().toString().padStart(2, '0');
+        return `${year}-${month}-${day}`;
     }
-    return `${year}-${month}-${day}${time}`;
 });
 
 // Встановлення значень за замовчуванням для часу
@@ -343,6 +446,15 @@ watch(
     }
 );
 
+watch(() => selectedDate.value, (newValue, oldValue) => {
+    if(newValue && oldValue) {
+        if(newValue.getMonth() !== oldValue.getMonth() || newValue.getFullYear() !== oldValue.getFullYear()) {
+            highlightSelectedDates();
+        }
+    }
+}, {deep: true});
+
+
 // Встановлення значень за замовчуванням при монтуванні компонента
 onMounted(() => {
     if (!props.modelValue) {
@@ -369,6 +481,18 @@ onMounted(() => {
 
 .relative {
     position: relative;
+}
+
+/* Підсвітка фону для дат в діапазоні */
+.selected-start-day,
+.selected-end-day {
+    background-color: #3f51b5;
+    color: #fff;
+}
+
+.within-range {
+    background-color: #ccc;
+    color: #000;
 }
 
 .popup-content {

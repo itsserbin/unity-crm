@@ -3,7 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Jobs\UpdateTrackingCode;
-use App\Models\Order;
+use App\Models\CRM\Order;
 use App\Models\Tenant;
 use Illuminate\Console\Command;
 

@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:sanctum')->group(function () {
+Route::middleware('auth:sanctum')->prefix('api')->group(function () {
 
     Route::prefix('tenants')->group(function () {
         Route::get('/', [TenantsController::class, 'index'])

@@ -2,7 +2,7 @@
 
 namespace App\Jobs;
 
-use App\Repositories\TrackingCodesRepository;
+use App\Repositories\CRM\TrackingCodesRepository;
 use App\Services\ApiService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -39,7 +39,10 @@ class UpdateTrackingCode implements ShouldQueue
      */
     final public function handle(): bool
     {
-        $trackingModel = $this->trackingCodesRepository->getModelByCode($this->trackingCode);
+        $trackingModel = $this->trackingCodesRepository->getModelByCodeAndOrderId(
+            $this->trackingCode,
+            $this->id
+        );
 
         if (!$trackingModel) {
             $trackingModel = $this->trackingCodesRepository->create([
@@ -47,30 +50,32 @@ class UpdateTrackingCode implements ShouldQueue
                 'order_id' => $this->id
             ]);
         }
+
         $res = $this->apiService->response(config('novaposhta.url'), $this->dataParams($this->trackingCode, $this->api));
 
-        if ($res['result']['success']) {
-            $response = $res['result']['data'][0];
+        if ($res['result']->success) {
+            $response = $res['result']->data[0];
+
             $data = [
-                'ScheduledDeliveryDate' => $response['ScheduledDeliveryDate'],
-                'ActualDeliveryDate' => $response['ActualDeliveryDate'],
-                'DocumentCost' => $response['DocumentCost'],
-                'PaymentMethod' => $response['PaymentMethod'],
-                'CityRecipient' => $response['CityRecipient'],
-                'WarehouseRecipient' => $response['WarehouseRecipient'],
-                'CitySender' => $response['CitySender'],
-                'WarehouseSender' => $response['WarehouseSender'],
-                'DateCreated' => $response['DateCreated'],
-                'WarehouseRecipientAddress' => $response['WarehouseRecipientAddress'],
-                'WarehouseSenderAddress' => $response['WarehouseSenderAddress'],
+                'ScheduledDeliveryDate' => $response->ScheduledDeliveryDate,
+                'ActualDeliveryDate' => $response->ActualDeliveryDate,
+                'DocumentCost' => $response->DocumentCost,
+                'PaymentMethod' => $response->PaymentMethod,
+                'CityRecipient' => $response->CityRecipient,
+                'WarehouseRecipient' => $response->WarehouseRecipient,
+                'CitySender' => $response->CitySender,
+                'WarehouseSender' => $response->WarehouseSender,
+                'DateCreated' => $response->DateCreated,
+                'WarehouseRecipientAddress' => $response->WarehouseRecipientAddress,
+                'WarehouseSenderAddress' => $response->WarehouseSenderAddress,
             ];
 
             $trackingModel->data = $data;
 
             $newStatus = [
-                'code' => $response['StatusCode'],
-                'status' => $response['Status'],
-                'scan_date' => $response['DateScan']
+                'code' => $response->StatusCode,
+                'status' => $response->Status,
+                'scan_date' => $response->DateScan
             ];
             $log = $trackingModel->log;
             if (empty($trackingModel->log) || ($newStatus['code'] !== end($log)['code'] && $newStatus['scan_date'] !== end($log)['scan_date'])) {

@@ -4,8 +4,8 @@ namespace Database\Seeders;
 
 use App\Models\Enums\Statuses;
 use App\Models\Enums\StatusGroups;
-use App\Repositories\StatusesRepository;
-use App\Repositories\StatusGroupsRepository;
+use App\Repositories\Options\StatusesRepository;
+use App\Repositories\Options\StatusGroupsRepository;
 use Illuminate\Database\Seeder;
 
 class StatusesSeeder extends Seeder

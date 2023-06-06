@@ -2,6 +2,7 @@
 import {ref} from "vue";
 import SidebarMenu from '@/Components/Sidebar/SidebarMenu.vue'
 import NavbarComponent from "@/Layouts/NavbarComponent.vue";
+
 const menu = [
     {
         header: 'UnityCRM',
@@ -44,6 +45,21 @@ const menu = [
             {
                 href: route('crm.clients'),
                 title: 'Клієнти'
+            },
+        ]
+    },
+    {
+        title: 'Статистика',
+        icon: 'pi pi-database',
+        isActive: false,
+        child: [
+            {
+                href: route('statistics.bank-accounts'),
+                title: 'Банківські рахунки'
+            },
+            {
+                href: route('statistics.bank-account-movements'),
+                title: 'Грошові рухи'
             },
         ]
     },

@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Api\Tenants;
 
-use App\Repositories\ImagesRepository;
+use App\Repositories\Catalog\ImagesRepository;
 use App\Services\ImageUploadService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
