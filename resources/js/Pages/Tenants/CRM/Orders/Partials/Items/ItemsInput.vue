@@ -41,14 +41,14 @@ const onSubmit = () => {
         count: productModal.item.count,
         comment: productModal.item.comment,
         discount: productModal.item.discount,
-        image: productModal.item.product_id.image,
+        preview_id: productModal.item.product_id.preview_id,
+        preview: productModal.item.product_id.preview,
         sku: productModal.item.product_id.sku,
         title: productModal.item.product_id.title,
         trade_price: productModal.item.product_id.trade_price * productModal.item.count,
         product_price: (productModal.item.product_id.discount_price ? productModal.item.product_id.discount_price : productModal.item.product_id.price) * productModal.item.count,
         sale_price: ((productModal.item.product_id.discount_price ? productModal.item.product_id.discount_price : productModal.item.product_id.price) * productModal.item.count) - productModal.item.discount
     };
-
 
     if (productModal.action === 'edit') {
         props.item.items[productModal.index] = item;

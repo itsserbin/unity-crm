@@ -2,7 +2,9 @@
 
 namespace App\Models\CRM;
 
+use App\Models\Catalog\Image;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class OrderItem extends Model
 {
@@ -10,7 +12,7 @@ class OrderItem extends Model
         'order_id',
         'product_id',
         'additional_sale',
-        'image',
+        'preview_id',
         'sku',
         'title',
         'comment',
@@ -20,4 +22,9 @@ class OrderItem extends Model
         'discount',
         'sale_price',
     ];
+
+    final public function preview(): BelongsTo
+    {
+        return $this->belongsTo(Image::class, 'preview_id');
+    }
 }

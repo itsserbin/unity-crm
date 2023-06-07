@@ -156,7 +156,10 @@ const updateSelected = () => {
                 </div>
             </template>
             <template #end>
-                <Loader v-if="state.isLoadingFiles"/>
+                <div v-if="state.isLoadingFiles" class="flex flex-col items-center">
+                    <Loader class="w-10 h-10"/>
+                    <div class="text-base">Завантаження...</div>
+                </div>
                 <FileUpload v-if="!state.isLoadingFiles"
                             mode="basic"
                             @select="uploadImages"

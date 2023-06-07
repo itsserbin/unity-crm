@@ -58,7 +58,7 @@ const queryParams = () => {
     if (lazyParams.value.filter) {
         data.filter = lazyParams.value.filter;
     }
-    data.page = lazyParams.value.page += 1;
+    data.page = (lazyParams.value.page || 0) + 1;
     return data;
 }
 const fetch = async () => {
@@ -203,18 +203,52 @@ const refreshData = async () => {
                        :rowsPerPageOptions="[15, 50, 100, 500]"
                        paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown"
             >
-                <Column field="id" header="ID" sortable=""></Column>
-                <Column field="name" header="Назва"></Column>
+                <Column field="id" sortable="" style="width:5%;">
+                    <template #header>
+                        <div class="text-center w-full">
+                            ID
+                        </div>
+                    </template>
+                    <template #body="{data}">
+                        <div class="text-center">
+                            {{ data.id }}
+                        </div>
+                    </template>
+                </Column>
+                <Column>
+                    <template #header>
+                        <div class="text-center w-full">
+                            Назва
+                        </div>
+                    </template>
+                    <template #body="{data}">
+                        <div class="text-center">
+                            {{ data.name }}
+                        </div>
+                    </template>
+                </Column>
+                <Column>
+                    <template #header>
+                        <div class="text-center w-full">
+                            Тип
+                        </div>
+                    </template>
+                    <template #body="{data}">
+                        <div class="text-center">
+                            {{ data.data.bank.label }}
+                        </div>
+                    </template>
+                </Column>
                 <Column field="data" header="Дані">
                     <template #body="{data}">
                         <div class="flex flex-col gap-3">
-                            <div>
-                                {{ data.data.name}}
+                            <div v-if="data.data">
+                                {{ data.data.name }}
                             </div>
-                            <div>
+                            <div v-if="data.data.account">
                                 {{ data.data.account.label }}
                             </div>
-                            <div>
+                            <div v-if="data.data.account">
                                 {{ data.data.account.iban }}
                             </div>
                         </div>

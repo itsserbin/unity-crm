@@ -12,7 +12,6 @@ import Vue3Toastify from 'vue3-toastify';
 
 const appName = window.document.getElementsByTagName('title')[0]?.innerText || 'Laravel';
 import ToastService from 'primevue/toastservice';
-import {Link} from "@inertiajs/vue3";
 import isDark from "@/Helpers/isDark.js";
 createInertiaApp({
     title: (title) => `${title} - ${appName}`,

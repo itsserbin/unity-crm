@@ -38,15 +38,29 @@ const onEdit = (e) => {
                 </div>
             </template>
         </Column>
-        <Column field="image">
+        <Column field="preview_id">
             <template #header>
                 <div class="text-center w-full">
                     Зображення
                 </div>
             </template>
             <template #body="{data}">
-                <img :src="data.image ? data.image : '/storage/no_image.jpeg'" :alt="data.title"
-                     class="max-w-[50px] mx-auto">
+                <img v-if="!data.preview_id"
+                     src="/img/no_image.jpeg"
+                     alt="No image"
+                     class="max-w-[50px] mx-auto"
+                     loading="lazy"
+                >
+                <picture v-else>
+                    <source :srcset="route('images',data.preview.data.webp)"
+                            type="image/webp">
+
+                    <img :src="route('images',data.preview.data.jpeg)"
+                         :alt="data.preview.data.alt"
+                         class="object-cover max-w-[50px] mx-auto"
+                         loading="lazy"
+                    >
+                </picture>
             </template>
         </Column>
         <Column field="sku">

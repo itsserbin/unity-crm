@@ -74,7 +74,7 @@ const queryParams = () => {
             return item.code
         });
     }
-    data.page = lazyParams.value.page += 1;
+    data.page = (lazyParams.value.page || 0) + 1;
     return data;
 }
 const fetch = async () => {
@@ -430,9 +430,28 @@ const showTrackingCodeLog = async (id) => {
                                     v-for="item in data.tracking_codes"
                                     :label="item.code"
                                     text
+                                    size="small"
                                     @click="showTrackingCodeLog(item.id)"
                             />
                             <div v-else class="text-center">(Пусто)</div>
+                        </div>
+                    </template>
+                </Column>
+                <Column field="tracking_codes" style="width:20%">
+                    <template #header>
+                        <div class="flex justify-center w-full">
+                            Статусу доставки
+                        </div>
+                    </template>
+                    <template #body="{data}">
+                        <div class="grid grid-cols-1 gap-2">
+                            <Button v-if="data.tracking_codes.length"
+                                    v-for="tracking_code in data.tracking_codes"
+                                    :label="tracking_code.log[(tracking_code.log).length - 1]['status']"
+                                    text
+                                    size="small"
+                                    @click="showTrackingCodeLog(tracking_code.id)"
+                            />
                         </div>
                     </template>
                 </Column>

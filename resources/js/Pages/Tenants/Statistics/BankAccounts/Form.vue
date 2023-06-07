@@ -13,6 +13,14 @@ const options = [
     {
         label: 'Monobank',
         value: 'monobank'
+    },
+    {
+        label: 'Готівка',
+        value: 'cash'
+    },
+    {
+        label: 'Інше',
+        value: 'other'
     }
 ];
 
@@ -20,14 +28,18 @@ const allowSubmit = ref(false);
 const accounts = ref([]);
 
 const onSubmit = async () => {
-    if (allowSubmit.value && props.item.data.api_key && props.item.data.bank && props.item.name && props.item.data.account) {
-        console.log(props.item);
+    if (props.item.data.bank !== 'monobank') {
         emits('submit');
     } else {
-        if (props.item.data.api_key && props.item.data.bank && props.item.name) {
-            await getMonoClientInfo();
+        if (allowSubmit.value && props.item.data.api_key && props.item.data.bank && props.item.name && props.item.data.account) {
+            emits('submit');
+        } else {
+            if (props.item.data.api_key && props.item.data.bank && props.item.name) {
+                await getMonoClientInfo();
+            }
         }
     }
+
 }
 
 const getMonoClientInfo = async () => {

@@ -35,11 +35,26 @@ class OrdersRepository extends CoreRepository
                 $q->select('id', 'full_name', 'phones');
                 $q->with('addresses');
             },
+            'items' => function ($q) {
+                $q->select([
+                    'id',
+                    'title',
+                    'order_id',
+                    'product_price',
+                    'sale_price',
+                    'trade_price',
+                    'discount',
+                    'count',
+                    'preview_id',
+                    'additional_sale',
+                    'product_id',
+                ]);
+                $q->with('preview:id,alt,data');
+            },
             'manager:id,name',
             'costs:title,sum,comment,order_id',
             'deliveryService:id,title',
             'invoices:id,order_id,date,payment_type,sum,comment,status',
-            'items:id,title,order_id,product_price,sale_price,trade_price,discount,count,image,additional_sale,product_id',
             'trackingCodes:id,order_id,code,data,delivery_service_id'
         ];
 
@@ -236,7 +251,6 @@ class OrdersRepository extends CoreRepository
             'manager_id',
             'delivery_service_id',
             'delivery_address',
-            'tracking_code',
             'comment',
             'total_price',
             'trade_price',
@@ -259,7 +273,7 @@ class OrdersRepository extends CoreRepository
             'manager:id,name',
             'deliveryService:id,title',
             'items:id,title,order_id,sale_price',
-            'trackingCodes:id,order_id,code,data'
+            'trackingCodes:id,order_id,code,log'
         ];
     }
 

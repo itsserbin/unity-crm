@@ -49,8 +49,8 @@ const menu = [
         ]
     },
     {
-        title: 'Статистика',
-        icon: 'pi pi-chart-line',
+        title: 'Фінанси',
+        icon: 'pi pi-dollar',
         isActive: false,
         child: [
             {

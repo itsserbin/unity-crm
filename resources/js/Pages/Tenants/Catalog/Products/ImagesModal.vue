@@ -17,6 +17,7 @@ const onSelect = (e) => {
 <template>
     <Modal :show="show" @close="emits('close')" max-width="7xl">
         <template #body>
+            <div class="text-xl text-center pb-4">Оберіть зображення</div>
             <Images :selectable="true" @selected="onSelect"/>
         </template>
 

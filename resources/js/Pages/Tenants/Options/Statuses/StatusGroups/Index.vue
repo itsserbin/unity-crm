@@ -49,7 +49,7 @@ const queryParams = () => {
     if (lazyParams.value.filter) {
         data.filter = lazyParams.value.filter;
     }
-    data.page = lazyParams.value.page += 1;
+    data.page = (lazyParams.value.page || 0) + 1;
     return data;
 }
 const fetch = async () => {

@@ -111,6 +111,6 @@ class ProductsRepository extends CoreRepository
             'preview_id',
             'sku',
             'discount_price',
-        ])->get();
+        ])->with('preview:alt,data,id')->get();
     }
 }
