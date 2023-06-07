@@ -13,7 +13,7 @@ import Vue3Toastify from 'vue3-toastify';
 const appName = window.document.getElementsByTagName('title')[0]?.innerText || 'Laravel';
 import ToastService from 'primevue/toastservice';
 import {Link} from "@inertiajs/vue3";
-
+import isDark from "@/Helpers/isDark.js";
 createInertiaApp({
     title: (title) => `${title} - ${appName}`,
     resolve: (name) => resolvePageComponent(`./Pages/${name}.vue`, import.meta.glob('./Pages/**/*.vue')),
@@ -23,9 +23,11 @@ createInertiaApp({
             .use(ZiggyVue, Ziggy)
             .use(ToastService)
             .use(Vue3Toastify, {
-                autoClose: 3000, pauseOnHover: false, pauseOnFocusLoss: false
+                autoClose: 3000,
+                pauseOnHover: false,
+                pauseOnFocusLoss: false,
+                theme: isDark ? 'dark' : 'light'
             })
-            .component('inertia-link', Link)
             .use(PrimeVue);
 
         app.config.globalProperties.$filters = filters;

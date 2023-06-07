@@ -4,7 +4,6 @@ namespace App\Repositories\Statistics;
 
 use App\Models\Statistic\BankAccountMovement as Model;
 use App\Repositories\CoreRepository;
-use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Cache;
@@ -77,7 +76,9 @@ class BankAccountMovementsRepository extends CoreRepository
     final public function massCreate(array $data): void
     {
         if (!empty($data)) {
-            $existingMovements = $this->model::whereIn('movement_id', array_column($data, 'movement_id'))->pluck('movement_id')->toArray();
+            $existingMovements = $this->model::whereIn(
+                'movement_id', array_column($data, 'movement_id')
+            )->pluck('movement_id')->toArray();
 
             $dataToInsert = array_filter($data, function ($item) use ($existingMovements) {
                 return !in_array($item['movement_id'], $existingMovements);
@@ -100,11 +101,20 @@ class BankAccountMovementsRepository extends CoreRepository
         return $model;
     }
 
-    final public function destroy(int $id): int
+    final public function destroy(int $id): bool
     {
-        $model = $this->coreDestroy($this->model, $id);
-        $this->removeAllCache();
-        return $model;
+        $model = $this->model::where('id', $id)->select('date')->first();
+        if ($model) {
+            $prModel = $this
+                ->model::where('date', '<', $model->date)
+                ->select('date')
+                ->first();
+            $this->coreDestroy($this->model, $id);
+            $this->calculateBalance($prModel->date);
+            $this->removeAllCache();
+            return true;
+        }
+        return false;
     }
 
     final public function list(array $data = []): Collection
@@ -117,7 +127,6 @@ class BankAccountMovementsRepository extends CoreRepository
                 ->orderBy('id', 'desc')
                 ->get();
         });
-
     }
 
     final public function calculateBalance(string $date): bool
@@ -129,21 +138,25 @@ class BankAccountMovementsRepository extends CoreRepository
         $previous_model = $this->model::where('date', '<', $date)->orderBy('date', 'desc')->first();
         $previous_balance = $previous_model ? $previous_model->balance : 0;
 
-        $balances = [];
+        DB::beginTransaction();
 
-        if (count($items)) {
-            foreach ($items as $item) {
-                $balance = $previous_balance + $item->sum;
-                $previous_balance = $balance;
-                $balances[$item->id] = $balance;
+        try {
+            if (count($items)) {
+                foreach ($items as $item) {
+                    $balance = $previous_balance + $item->sum;
+                    $previous_balance = $balance;
+                    $item->balance = $balance;
+                    $item->update();
+                }
             }
-
-            $this->model::whereIn('id', array_keys($balances))
-                ->update(['balance' => DB::raw('id IN (' . implode(',', array_keys($balances)) . ')')]);
+            DB::commit();
+            return true;
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return false;
         }
-
-        return true;
     }
+
 
 //    final public function search(string $query, array $data): LengthAwarePaginator
 //    {

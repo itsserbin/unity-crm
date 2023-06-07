@@ -19,7 +19,7 @@ const emits = defineEmits(['close', 'submit']);
             <Form :item="item" :categories="categories" :errors="errors"/>
         </template>
         <template #footer>
-            <FooterBaseTemplate @cancel="emits('close')" @submit="emits('submit')"/>
+            <FooterBaseTemplate @close="emits('close')" @submit="emits('submit')"/>
         </template>
     </Modal>
 </template>

@@ -177,37 +177,72 @@ const onRowSelect = async (e) => {
                        :rowsPerPageOptions="[15, 50, 100, 500]"
                        paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown"
             >
-                <Column sortable="" field="date" header="Дата">
+                <Column sortable="" field="date">
+                    <template #header>
+                        <div class="text-center w-full">
+                            Дата
+                        </div>
+                    </template>
                     <template #body="{data}">
-                        {{ $filters.formatDate(data.date) }}
-                        <br>
-                        <span class="text-[0.7rem]">
+                        <div class="text-center w-full">
+                            {{ $filters.formatDate(data.date) }}
+                            <br>
+                            <span class="text-[0.7rem]">
                             {{ $filters.formatTime(data.date) }}
                         </span>
+                        </div>
                     </template>
                 </Column>
 
-                <Column field="account_id" header="Рахунок">
+                <Column field="account_id">
+                    <template #header>
+                        <div class="text-center w-full">
+                            Рахунок
+                        </div>
+                    </template>
                     <template #body="{data}">
-                        {{ data.account_id ? data.account.name : '(Пусто)' }}
+                        <div class="text-center">
+                            {{ data.account_id ? data.account.name : '(Пусто)' }}
+                        </div>
                     </template>
                 </Column>
 
-                <Column field="category_id" header="Категорія">
+                <Column field="category_id">
+                    <template #header>
+                        <div class="text-center w-full">
+                            Категорія
+                        </div>
+                    </template>
                     <template #body="{data}">
-                        {{ data.category_id ? data.category.title : '(Пусто)' }}
+                        <div class="text-center">
+                            {{ data.category_id ? data.category.title : '(Пусто)' }}
+                        </div>
                     </template>
                 </Column>
 
-                <Column sortable="" field="sum" header="Сума">
+                <Column sortable="" field="sum">
+                    <template #header>
+                        <div class="text-center w-full">
+                            Сума
+                        </div>
+                    </template>
                     <template #body="{data}">
-                        {{ $filters.formatMoney(data.sum) }}
+                        <div class="text-center">
+                            {{ $filters.formatMoney(data.sum) }}
+                        </div>
                     </template>
                 </Column>
 
-                <Column sortable="" field="balance" header="Залишок">
+                <Column sortable="" field="balance">
+                    <template #header>
+                        <div class="text-center w-full">
+                            Залишок
+                        </div>
+                    </template>
                     <template #body="{data}">
-                        {{ $filters.formatMoney(data.balance) }}
+                        <div class="text-center">
+                            {{ $filters.formatMoney(data.balance) }}
+                        </div>
                     </template>
                 </Column>
 
@@ -218,12 +253,15 @@ const onRowSelect = async (e) => {
                 </Column>
                 <Column>
                     <template #body="{data}">
-                        <Button icon="pi pi-trash"
-                                outlined
-                                rounded
-                                severity="danger"
-                                @click="onDestroy(data.id)"
-                        />
+                        <div class="text-end">
+                            <Button icon="pi pi-trash"
+                                    outlined
+                                    rounded
+                                    severity="danger"
+                                    size="small"
+                                    @click="onDestroy(data.id)"
+                            />
+                        </div>
                     </template>
                 </Column>
             </DataTable>
