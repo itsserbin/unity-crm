@@ -21,7 +21,7 @@ class BankAccountsRepository extends CoreRepository
 
     final public function getModelByAccountId(string $id): ?\Illuminate\Database\Eloquent\Model
     {
-        return $this->model::whereJsonContains('data->account->id',$id)->first();
+        return $this->model::whereJsonContains('data->account->id', $id)->first();
     }
 
 
@@ -31,6 +31,7 @@ class BankAccountsRepository extends CoreRepository
             'id',
             'name',
             'data',
+            'balance',
         ];
 
         $model = $this->model::select($columns);
@@ -60,7 +61,9 @@ class BankAccountsRepository extends CoreRepository
 
     final public function list(): Collection
     {
-        return $this->model::select(['id', 'name','data'])->orderBy('id', 'desc')->get();
+        return $this->model::select(['id', 'name', 'data', 'balance'])
+            ->orderBy('id', 'desc')
+            ->get();
     }
 
 //    final public function search(string $query, array $data): LengthAwarePaginator

@@ -67,7 +67,7 @@ class BankAccountMovementsRepository extends CoreRepository
     final public function create(array $data): \Illuminate\Database\Eloquent\Model
     {
         $model = $this->coreCreate($this->model, $data);
-        $this->calculateBalance($data['date']);
+        $this->calculateBalance($data['date'], $model->account_id);
         $this->removeAllCache();
         return $model;
     }
@@ -86,7 +86,11 @@ class BankAccountMovementsRepository extends CoreRepository
 
             if (!empty($dataToInsert)) {
                 $this->model::insert($dataToInsert);
-                $this->calculateBalance(min(array_column($dataToInsert, 'date')));
+
+                $this->calculateBalance(
+                    min(array_column($dataToInsert, 'date')),
+                    $dataToInsert[0]['account_id']
+                );
             }
 
             $this->removeAllCache();
@@ -96,21 +100,21 @@ class BankAccountMovementsRepository extends CoreRepository
     final public function update(int $id, array $data): \Illuminate\Database\Eloquent\Model
     {
         $model = $this->coreUpdate($this->model, $id, $data);
-        $this->calculateBalance($data['date']);
+        $this->calculateBalance($data['date'], $model->account_id);
         $this->removeAllCache();
         return $model;
     }
 
     final public function destroy(int $id): bool
     {
-        $model = $this->model::where('id', $id)->select('date')->first();
+        $model = $this
+            ->model::where('id', $id)
+            ->select(['date', 'account_id'])
+            ->first();
+
         if ($model) {
-            $prModel = $this
-                ->model::where('date', '<', $model->date)
-                ->select('date')
-                ->first();
             $this->coreDestroy($this->model, $id);
-            $this->calculateBalance($prModel->date);
+            $this->calculateBalance($model->date, $model->account_id);
             $this->removeAllCache();
             return true;
         }
@@ -129,32 +133,49 @@ class BankAccountMovementsRepository extends CoreRepository
         });
     }
 
-    final public function calculateBalance(string $date): bool
+    final public function calculateBalance(string $date, int $accountId): bool
     {
+        $account = (new BankAccountsRepository())->getModelById($accountId);
+
+        if (!$account) {
+            return false;
+        }
+
         $items = $this->model::where('date', '>=', $date)
+            ->where('account_id', $accountId)
             ->orderBy('date', 'asc')
             ->get();
 
-        $previous_model = $this->model::where('date', '<', $date)->orderBy('date', 'desc')->first();
-        $previous_balance = $previous_model ? $previous_model->balance : 0;
+        $dateWithSeconds = date('Y-m-d H:i:s', strtotime($date));
 
-        DB::beginTransaction();
+        $previous_model = $this->model::where('date', '<', $dateWithSeconds)
+            ->where('account_id', $accountId)
+            ->orderBy('date', 'desc')
+            ->first();
 
-        try {
-            if (count($items)) {
-                foreach ($items as $item) {
-                    $balance = $previous_balance + $item->sum;
-                    $previous_balance = $balance;
-                    $item->balance = $balance;
-                    $item->update();
+        $previous_balance = 0;
+
+        if (count($items)) {
+            foreach ($items as $item) {
+                if ($previous_model) {
+                    $balance = $previous_model->balance + $item->sum;
+                } else {
+//                    $previous_model->balance = $previous_model->balance - $item->sum;
+//                    $balance = $previous_model->balance;
+                    $firstItem = $items->first();
+                    $balance = $firstItem->sum < 0
+                        ? $firstItem->balance - $firstItem->sum
+                        : $firstItem->balance + $firstItem->sum;
                 }
+                $previous_balance = $balance;
+                $item->balance = $balance;
+                $item->update();
             }
-            DB::commit();
-            return true;
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return false;
         }
+        $account->balance = $previous_balance;
+        $account->update();
+
+        return true;
     }
 
 

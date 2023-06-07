@@ -10,9 +10,8 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::table('order_items', function (Blueprint $table) {
-            $table->dropColumn('image');
-            $table->foreignId('preview_id')->nullable();
+        Schema::table('bank_accounts', function (Blueprint $table) {
+            $table->float('balance')->default(0);
         });
     }
 
@@ -21,8 +20,8 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        Schema::table('order_items', function (Blueprint $table) {
-            //
+        Schema::table('bank_accounts', function (Blueprint $table) {
+            $table->dropColumn('balance');
         });
     }
 };

@@ -13,10 +13,11 @@ import BankAccountMovementsRepository from "@/Repositories/Tenants/Statistics/Ba
 import {toast} from 'vue3-toastify';
 import {ref, onMounted, reactive, defineAsyncComponent} from 'vue';
 import {useConfirm} from "@/Components/ConfirmationModal/useConfirm.js";
+import BankAccountsRepository from "@/Repositories/Tenants/Statistics/BankAccountsRepository.js";
 
 const UpdateItem = defineAsyncComponent(() => import('./DataEditor/UpdateItem.vue'))
 
-const props = defineProps(['data']);
+const props = defineProps(['data', 'bankAccounts']);
 
 const isShowUpdateItemModal = ref(false);
 const item = ref(null);
@@ -27,6 +28,7 @@ const state = reactive({
     isLoadingModal: false,
     isLoadingRefreshButton: false,
     data: {},
+    banks: [],
     search: null
 });
 
@@ -44,6 +46,11 @@ onMounted(async () => {
         state.data = props.data
     } else {
         await fetch();
+    }
+    if (props.bankAccounts) {
+        state.banks = props.bankAccounts
+    } else {
+        await getBanks();
     }
 });
 
@@ -144,6 +151,15 @@ const onRowSelect = async (e) => {
         console.error(e);
     }
 }
+
+const getBanks = async () => {
+    try {
+        const data = await BankAccountsRepository.list();
+        state.banks = data.result;
+    } catch (e) {
+        console.error(e);
+    }
+}
 </script>
 
 <template>
@@ -164,6 +180,34 @@ const onRowSelect = async (e) => {
                 </template>
                 <template #end>
                     <DownloadDataButton @submit="refreshData"/>
+                </template>
+            </Toolbar>
+
+            <Toolbar class="mb-4">
+                <template #start>
+                    <div class="flex gap-4">
+                        <Button type="button"
+                                size="small"
+                                text raised
+                                class="text-lg"
+                        >
+                            <template #default>
+                                <div class="text-lg">Всі рахунки</div>
+                            </template>
+                        </Button>
+                        <Button v-for="item in state.banks"
+                                type="button"
+                                size="small"
+                                text raised
+                        >
+                            <template #default>
+                                <div class="grid grid-cols-1 w-full">
+                                    <div class="text-lg">{{ item.name }}</div>
+                                    <div>{{ $filters.formatMoney(item.balance) }} грн.</div>
+                                </div>
+                            </template>
+                        </Button>
+                    </div>
                 </template>
             </Toolbar>
 

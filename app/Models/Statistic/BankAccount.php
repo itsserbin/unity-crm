@@ -8,10 +8,15 @@ class BankAccount extends Model
 {
     protected $fillable = [
         'data',
-        'name'
+        'name',
+        'balance',
     ];
 
     protected $casts = [
         'data' => 'array'
+    ];
+
+    protected array $dates = [
+        'date'
     ];
 }
