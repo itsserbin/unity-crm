@@ -10,7 +10,6 @@ const props = defineProps([
     'categories',
     'errors'
 ]);
-
 const emits = defineEmits(['close', 'submit']);
 </script>
 

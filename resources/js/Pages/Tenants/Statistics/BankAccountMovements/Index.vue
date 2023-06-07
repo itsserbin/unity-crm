@@ -7,16 +7,19 @@ import AppLayout from '@/Layouts/AppLayout.vue';
 import InputText from 'primevue/inputtext';
 import Heading from "@/Components/Heading.vue";
 import DownloadDataButton from './DownloadData/Button.vue'
-import CreateDataButtons from '@/Pages/Tenants/Statistics/BankAccountMovements/CreateData/Buttons.vue'
+import CreateDataButtons from '@/Pages/Tenants/Statistics/BankAccountMovements/DataEditor/CreateButtons.vue'
 
 import BankAccountMovementsRepository from "@/Repositories/Tenants/Statistics/BankAccountMovementsRepository.js";
 import {toast} from 'vue3-toastify';
 import {ref, onMounted, reactive, defineAsyncComponent} from 'vue';
 import {useConfirm} from "@/Components/ConfirmationModal/useConfirm.js";
 
-const Modal = defineAsyncComponent(() => import('./Modal.vue'))
+const UpdateItem = defineAsyncComponent(() => import('./DataEditor/UpdateItem.vue'))
 
 const props = defineProps(['data']);
+
+const isShowUpdateItemModal = ref(false);
+const item = ref(null);
 
 const state = reactive({
     isLoading: false,
@@ -35,8 +38,6 @@ const lazyParams = ref({
     sortField: null,
     sortOrder: null,
 });
-
-const item = ref();
 
 onMounted(async () => {
     if (props.data) {
@@ -60,7 +61,7 @@ const queryParams = () => {
     if (lazyParams.value.filter) {
         data.filter = lazyParams.value.filter;
     }
-    data.page = lazyParams.value.page += 1;
+    data.page = (lazyParams.value.page || 0) + 1;
     return data;
 }
 const fetch = async () => {
@@ -75,7 +76,7 @@ const fetch = async () => {
     switchLoader();
 }
 
-const toggleModal = (val) => val ? state.isShowModal = val : state.isShowModal = !state.isShowModal;
+const toggleUpdateItemModal = () => isShowUpdateItemModal.value = !isShowUpdateItemModal.value;
 const switchLoader = (val) => val ? state.isLoading = val : state.isLoading = !state.isLoading;
 const switchLoaderRefreshButton = (val) => val ? state.isLoadingRefreshButton = val : state.isLoadingRefreshButton = !state.isLoadingRefreshButton;
 
@@ -87,53 +88,6 @@ const onPage = async (e) => {
 const onSort = async (e) => {
     lazyParams.value = e;
     await fetch();
-}
-const onRowSelect = (event) => {
-    onEdit(event.data.id);
-};
-
-const onCreate = () => {
-    item.value = {
-        id: null,
-        name: null,
-        data: {},
-    };
-    toggleModal();
-}
-
-const onSubmit = async () => {
-    state.isLoadingModal = true;
-    try {
-        if (item.value.source) {
-            item.value.source = item.value.source.code;
-        }
-
-        item.value.id
-            ? await BankAccountMovementsRepository.update(item.value)
-            : await BankAccountMovementsRepository.create(item.value);
-
-        await fetch();
-        toggleModal();
-        toast.success("Success");
-    } catch (e) {
-        console.error(e);
-        toast.error("Error");
-    }
-    state.isLoadingModal = false;
-}
-
-const onEdit = async (id) => {
-    switchLoader();
-    try {
-        const data = await BankAccountMovementsRepository.edit(id);
-        item.value = data.result;
-        item.value.source = {code: data.result.source};
-        toggleModal();
-    } catch (e) {
-        console.error(e);
-        toast.error("Failed to get data");
-    }
-    switchLoader();
 }
 
 const onDestroy = async (id) => {
@@ -170,6 +124,26 @@ const refreshData = async () => {
 const formatComment = (val) => {
     return val && val.length > 30 ? val.slice(0, 30) + "..." : val;
 }
+
+const onSubmitUpdateItem = async () => {
+    await fetch();
+    toggleUpdateItemModal();
+}
+const onRowSelect = async (e) => {
+    try {
+        const data = await BankAccountMovementsRepository.edit(e.data.id);
+        item.value = data.result;
+        if (item.value.category_id) {
+            item.value.category_id = {value: item.value.category_id};
+        }
+        if (item.value.account_id) {
+            item.value.account_id = {value: item.value.account_id};
+        }
+        toggleUpdateItemModal();
+    } catch (e) {
+        console.error(e);
+    }
+}
 </script>
 
 <template>
@@ -178,10 +152,8 @@ const formatComment = (val) => {
             <Toolbar class="mb-4">
                 <template #start>
                     <div class="flex gap-2 items-center">
-                        <Button icon="pi pi-refresh"
-                                type="button"
-                                size="small"
-                                @click="refreshData"
+                        <Button icon="pi pi-refresh" type="button"
+                                size="small" @click="refreshData"
                                 :loading="state.isLoadingRefreshButton"
                         />
                         <Heading>Грошові рухи</Heading>
@@ -195,20 +167,13 @@ const formatComment = (val) => {
                 </template>
             </Toolbar>
 
-            <DataTable resizableColumns
-                       columnResizeMode="expand"
-                       selectionMode="single"
-                       @rowSelect="onRowSelect"
-                       dataKey="id"
-                       :loading="state.isLoading"
-                       v-if="state.data"
-                       :value="state.data.data"
-                       lazy
-                       paginator
-                       :rows="state.data.per_page"
+            <DataTable resizableColumns columnResizeMode="expand"
+                       selectionMode="single" @rowSelect="onRowSelect"
+                       dataKey="id" :loading="state.isLoading"
+                       v-if="state.data" :value="state.data.data"
+                       lazy paginator :rows="state.data.per_page"
                        :totalRecords="state.data.total"
-                       @page="onPage($event)"
-                       @sort="onSort($event)"
+                       @page="onPage($event)" @sort="onSort($event)"
                        :rowsPerPageOptions="[15, 50, 100, 500]"
                        paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown"
             >
@@ -263,14 +228,11 @@ const formatComment = (val) => {
                 </Column>
             </DataTable>
         </div>
-        <Modal v-if="state.isShowModal"
-               :show="state.isShowModal"
-               :item="item"
-               @close="toggleModal(false)"
-               @submit="onSubmit"
-               :isLoadingModal="state.isLoadingModal"
+        <UpdateItem :show="isShowUpdateItemModal"
+                    v-if="isShowUpdateItemModal"
+                    :item="item"
+                    @close="toggleUpdateItemModal"
+                    @submit="onSubmitUpdateItem"
         />
-
-
     </AppLayout>
 </template>

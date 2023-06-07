@@ -7,10 +7,19 @@ use App\Repositories\CoreRepository;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 class BankAccountMovementsRepository extends CoreRepository
 {
+    private int $cacheTime;
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->cacheTime = 3600;
+    }
+
     protected function getModelClass(): string
     {
         return Model::class;
@@ -37,21 +46,30 @@ class BankAccountMovementsRepository extends CoreRepository
 
     final public function getAllWithPaginate(array $data): LengthAwarePaginator
     {
-        $model = $this->model::select($this->getColumnsForDataTable());
+        $cacheKey = 'getAllWithPaginate_' . serialize($data);
 
-        return $model
-            ->orderBy(
-                $data['sort']['column'] ?? 'date',
-                $data['sort']['type'] ?? 'desc'
-            )
-            ->with('account', 'category')
-            ->paginate($data['perPage'] ?? 15);
+        return Cache::tags(['paginate'])->remember($cacheKey, $this->cacheTime, function () use ($data) {
+            return $this
+                ->model::select($this->getColumnsForDataTable())
+                ->orderBy(
+                    $data['sort']['column'] ?? 'date',
+                    $data['sort']['type'] ?? 'desc'
+                )
+                ->with('account', 'category')
+                ->paginate($data['perPage'] ?? 15);
+        });
+    }
+
+    private function removeAllCache()
+    {
+        return Cache::tags(['list', 'paginate'])->flush();
     }
 
     final public function create(array $data): \Illuminate\Database\Eloquent\Model
     {
         $model = $this->coreCreate($this->model, $data);
         $this->calculateBalance($data['date']);
+        $this->removeAllCache();
         return $model;
     }
 
@@ -69,6 +87,8 @@ class BankAccountMovementsRepository extends CoreRepository
                 $this->model::insert($dataToInsert);
                 $this->calculateBalance(min(array_column($dataToInsert, 'date')));
             }
+
+            $this->removeAllCache();
         }
     }
 
@@ -76,17 +96,28 @@ class BankAccountMovementsRepository extends CoreRepository
     {
         $model = $this->coreUpdate($this->model, $id, $data);
         $this->calculateBalance($data['date']);
+        $this->removeAllCache();
         return $model;
     }
 
     final public function destroy(int $id): int
     {
-        return $this->coreDestroy($this->model, $id);
+        $model = $this->coreDestroy($this->model, $id);
+        $this->removeAllCache();
+        return $model;
     }
 
-    final public function list(): Collection
+    final public function list(array $data = []): Collection
     {
-        return $this->model::select(['id', 'name'])->orderBy('id', 'desc')->get();
+        $cacheKey = 'list_' . serialize($data);
+
+        return Cache::tags(['list'])->remember($cacheKey, $this->cacheTime, function () use ($data) {
+            return $this
+                ->model::select(['id', 'name'])
+                ->orderBy('id', 'desc')
+                ->get();
+        });
+
     }
 
     final public function calculateBalance(string $date): bool
