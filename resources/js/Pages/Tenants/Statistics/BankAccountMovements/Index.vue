@@ -7,11 +7,12 @@ import AppLayout from '@/Layouts/AppLayout.vue';
 import InputText from 'primevue/inputtext';
 import Heading from "@/Components/Heading.vue";
 import DownloadDataButton from './DownloadData/Button.vue'
+import AccountsGridToolbar from './AccountsGrid/Toolbar.vue'
 import CreateDataButtons from '@/Pages/Tenants/Statistics/BankAccountMovements/DataEditor/CreateButtons.vue'
 
 import BankAccountMovementsRepository from "@/Repositories/Tenants/Statistics/BankAccountMovementsRepository.js";
 import {toast} from 'vue3-toastify';
-import {ref, onMounted, reactive, defineAsyncComponent} from 'vue';
+import {ref, onMounted, reactive, defineAsyncComponent, computed} from 'vue';
 import {useConfirm} from "@/Components/ConfirmationModal/useConfirm.js";
 import BankAccountsRepository from "@/Repositories/Tenants/Statistics/BankAccountsRepository.js";
 
@@ -68,9 +69,13 @@ const queryParams = () => {
     if (lazyParams.value.filter) {
         data.filter = lazyParams.value.filter;
     }
+    if (lazyParams.value.account_id) {
+        data.account_id = lazyParams.value.account_id;
+    }
     data.page = (lazyParams.value.page || 0) + 1;
     return data;
 }
+
 const fetch = async () => {
     switchLoader();
     try {
@@ -106,6 +111,7 @@ const onDestroy = async (id) => {
             try {
                 await BankAccountMovementsRepository.destroy(id);
                 await fetch();
+                await getBanks();
                 toast.success('Запис успішно видалено');
             } catch (error) {
                 console.error(error);
@@ -125,6 +131,7 @@ const refreshData = async () => {
         sortOrder: null,
     });
     await fetch();
+    await getBanks();
     switchLoaderRefreshButton();
 }
 
@@ -160,6 +167,21 @@ const getBanks = async () => {
         console.error(e);
     }
 }
+
+const onSelectAccount = async (val) => {
+    switchLoaderRefreshButton();
+    lazyParams.value = ({
+        page: 0,
+        first: 0,
+        rows: 15,
+        sortField: null,
+        sortOrder: null,
+        account_id: val,
+    });
+    await fetch();
+    switchLoaderRefreshButton();
+}
+
 </script>
 
 <template>
@@ -183,33 +205,7 @@ const getBanks = async () => {
                 </template>
             </Toolbar>
 
-            <Toolbar class="mb-4">
-                <template #start>
-                    <div class="flex gap-4">
-                        <Button type="button"
-                                size="small"
-                                text raised
-                                class="text-lg"
-                        >
-                            <template #default>
-                                <div class="text-lg">Всі рахунки</div>
-                            </template>
-                        </Button>
-                        <Button v-for="item in state.banks"
-                                type="button"
-                                size="small"
-                                text raised
-                        >
-                            <template #default>
-                                <div class="grid grid-cols-1 w-full">
-                                    <div class="text-lg">{{ item.name }}</div>
-                                    <div>{{ $filters.formatMoney(item.balance) }} грн.</div>
-                                </div>
-                            </template>
-                        </Button>
-                    </div>
-                </template>
-            </Toolbar>
+            <AccountsGridToolbar @clickButton="onSelectAccount" :banks="state.banks" />
 
             <DataTable resizableColumns columnResizeMode="expand"
                        selectionMode="single" @rowSelect="onRowSelect"

@@ -48,12 +48,16 @@ class BankAccountMovementsRepository extends CoreRepository
         $cacheKey = 'getAllWithPaginate_' . serialize($data);
 
         return Cache::tags(['paginate'])->remember($cacheKey, $this->cacheTime, function () use ($data) {
-            return $this
-                ->model::select($this->getColumnsForDataTable())
-                ->orderBy(
-                    $data['sort']['column'] ?? 'date',
-                    $data['sort']['type'] ?? 'desc'
-                )
+            $model = $this->model::select($this->getColumnsForDataTable());
+
+            if (isset($data['account_id'])) {
+                $model->where('account_id', $data['account_id']);
+            }
+
+            return $model->orderBy(
+                $data['sort']['column'] ?? 'date',
+                $data['sort']['type'] ?? 'desc'
+            )
                 ->with('account', 'category')
                 ->paginate($data['perPage'] ?? 15);
         });
