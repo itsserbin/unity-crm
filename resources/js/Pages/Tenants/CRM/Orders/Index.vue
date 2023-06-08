@@ -263,7 +263,7 @@ const selectStatuses = props.statuses.map((item) => {
 })
 
 const onFilterStatus = async () => {
-    lazyParams.value.page = 1;
+    lazyParams.value.page = 0;
     await fetch();
 }
 
