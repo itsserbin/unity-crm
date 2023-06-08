@@ -141,6 +141,7 @@ const formatComment = (val) => {
 
 const onSubmitUpdateItem = async () => {
     await fetch();
+    await getBanks()
     toggleUpdateItemModal();
 }
 const onRowSelect = async (e) => {

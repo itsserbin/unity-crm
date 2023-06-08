@@ -69,7 +69,6 @@ const onSubmit = async () => {
             toggleModal();
         } else {
             errors.value = data.data;
-            console.log(errors.value);
         }
     } catch (e) {
         console.error(e);

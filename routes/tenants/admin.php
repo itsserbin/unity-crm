@@ -11,6 +11,7 @@ use App\Http\Controllers\Tenants\Options\SourcesController;
 use App\Http\Controllers\Tenants\Options\StatusesController;
 use App\Http\Controllers\Tenants\Statistics\BankAccountMovementsController;
 use App\Http\Controllers\Tenants\Statistics\BankAccountsController;
+use App\Http\Controllers\Tenants\Statistics\MovementCategoriesController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth'])->group(function () {
@@ -42,6 +43,9 @@ Route::middleware(['auth'])->group(function () {
 
         Route::get('bank-account-movements', [BankAccountMovementsController::class, 'create'])
             ->name('statistics.bank-account-movements');
+
+        Route::get('movement-categories', [MovementCategoriesController::class, 'create'])
+            ->name('statistics.movement-categories');
     });
 
     Route::prefix('options')->group(function () {

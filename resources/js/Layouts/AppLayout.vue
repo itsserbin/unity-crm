@@ -55,11 +55,15 @@ const menu = [
         child: [
             {
                 href: route('statistics.bank-accounts'),
-                title: 'Банківські рахунки'
+                title: 'Рахунки'
             },
             {
                 href: route('statistics.bank-account-movements'),
                 title: 'Грошові рухи'
+            },
+            {
+                href: route('statistics.movement-categories'),
+                title: 'Категорії рухів'
             },
         ]
     },

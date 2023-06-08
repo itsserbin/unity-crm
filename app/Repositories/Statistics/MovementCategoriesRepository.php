@@ -32,7 +32,7 @@ class MovementCategoriesRepository extends CoreRepository
     {
         return [
             'id',
-            'name',
+            'title',
             'type',
         ];
     }
@@ -59,6 +59,7 @@ class MovementCategoriesRepository extends CoreRepository
 
     final public function create(array $data): \Illuminate\Database\Eloquent\Model
     {
+        $data['slug'] = cyrToLat($data['title']);
         $model = $this->coreCreate($this->model, $data);
         $this->removeAllCache();
         return $model;
@@ -66,6 +67,7 @@ class MovementCategoriesRepository extends CoreRepository
 
     final public function update(int $id, array $data): \Illuminate\Database\Eloquent\Model
     {
+        $data['slug'] = cyrToLat($data['title']);
         $model = $this->coreUpdate($this->model, $id, $data);
         $this->removeAllCache();
         return $model;

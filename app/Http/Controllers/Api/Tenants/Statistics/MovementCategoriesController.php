@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Tenants\Statistics;
 
 use App\Http\Controllers\Api\Tenants\BaseController;
+use App\Http\Requests\Tenants\Statistics\MovementCategories\MovementCategoriesRequest;
 use App\Repositories\Statistics\MovementCategoriesRepository;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -46,10 +47,10 @@ class MovementCategoriesController extends BaseController
     }
 
     /**
-     * @param Request $request
+     * @param MovementCategoriesRequest $request
      * @return JsonResponse
      */
-    final public function create(Request $request): JsonResponse
+    final public function create(MovementCategoriesRequest $request): JsonResponse
     {
         $result = $this->movementCategoriesRepository->create($request->all());
 
@@ -75,10 +76,10 @@ class MovementCategoriesController extends BaseController
 
     /**
      * @param int $id
-     * @param Request $request
+     * @param MovementCategoriesRequest $request
      * @return JsonResponse
      */
-    final public function update(int $id, Request $request): JsonResponse
+    final public function update(int $id, MovementCategoriesRequest $request): JsonResponse
     {
         $result = $this->movementCategoriesRepository->update($id, $request->all());
 

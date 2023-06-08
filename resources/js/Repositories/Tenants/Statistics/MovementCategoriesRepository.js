@@ -28,7 +28,8 @@ export default {
             const response = await axios.put(route('api.movement-categories.update', item.id), item);
             return response.data;
         } catch (error) {
-            throw new Error(error);
+            console.error(error);
+            return error.response;
         }
     },
     async create(item) {
@@ -36,7 +37,8 @@ export default {
             const response = await axios.post(route('api.movement-categories.create'), item);
             return response.data;
         } catch (error) {
-            throw new Error(error);
+            console.error(error);
+            return error.response;
         }
     },
     async list(val) {
