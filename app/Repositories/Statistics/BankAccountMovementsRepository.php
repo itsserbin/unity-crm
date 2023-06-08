@@ -12,11 +12,15 @@ use Illuminate\Support\Facades\DB;
 class BankAccountMovementsRepository extends CoreRepository
 {
     private int $cacheTime;
+    private string $cacheTagPaginate;
+    private string $cacheTagList;
 
     public function __construct()
     {
         parent::__construct();
         $this->cacheTime = 3600;
+        $this->cacheTagPaginate = self::class . '_getAllWithPaginate';
+        $this->cacheTagList = self::class . '_list';
     }
 
     protected function getModelClass(): string
@@ -45,9 +49,9 @@ class BankAccountMovementsRepository extends CoreRepository
 
     final public function getAllWithPaginate(array $data): LengthAwarePaginator
     {
-        $cacheKey = 'getAllWithPaginate_' . serialize($data);
+        $cacheKey = self::class . '_getAllWithPaginate_' . serialize($data);
 
-        return Cache::tags(['paginate'])->remember($cacheKey, $this->cacheTime, function () use ($data) {
+        return Cache::tags(['paginate', $this->cacheTagPaginate])->remember($cacheKey, $this->cacheTime, function () use ($data) {
             $model = $this->model::select($this->getColumnsForDataTable());
 
             if (isset($data['account_id'])) {
@@ -65,7 +69,7 @@ class BankAccountMovementsRepository extends CoreRepository
 
     private function removeAllCache()
     {
-        return Cache::tags(['list', 'paginate'])->flush();
+        return Cache::tags([$this->cacheTagList, $this->cacheTagPaginate])->flush();
     }
 
     final public function create(array $data): \Illuminate\Database\Eloquent\Model
@@ -127,14 +131,15 @@ class BankAccountMovementsRepository extends CoreRepository
 
     final public function list(array $data = []): Collection
     {
-        $cacheKey = 'list_' . serialize($data);
+        $cacheKey = self::class . '_list_' . serialize($data);
 
-        return Cache::tags(['list'])->remember($cacheKey, $this->cacheTime, function () use ($data) {
-            return $this
-                ->model::select(['id', 'name'])
-                ->orderBy('id', 'desc')
-                ->get();
-        });
+        return Cache::tags(['list', $this->cacheTagList])
+            ->remember($cacheKey, $this->cacheTime, function () use ($data) {
+                return $this
+                    ->model::select(['id', 'name'])
+                    ->orderBy('id', 'desc')
+                    ->get();
+            });
     }
 
     final public function calculateBalance(string $date, int $accountId): bool

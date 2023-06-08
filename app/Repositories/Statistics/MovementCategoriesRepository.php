@@ -11,11 +11,15 @@ use Illuminate\Support\Facades\Cache;
 class MovementCategoriesRepository extends CoreRepository
 {
     private int $cacheTime;
+    private string $cacheTagPaginate;
+    private string $cacheTagList;
 
     public function __construct()
     {
         parent::__construct();
         $this->cacheTime = 3600;
+        $this->cacheTagPaginate = self::class . '_getAllWithPaginate';
+        $this->cacheTagList = self::class . '_list';
     }
 
     protected function getModelClass(): string
@@ -39,22 +43,23 @@ class MovementCategoriesRepository extends CoreRepository
 
     final public function getAllWithPaginate(array $data): LengthAwarePaginator
     {
-        $cacheKey = 'getAllWithPaginate_' . serialize($data);
+        $cacheKey = self::class . '_getAllWithPaginate_' . serialize($data);
 
-        return Cache::tags(['paginate'])->remember($cacheKey, $this->cacheTime, function () use ($data) {
-            return $this
-                ->model::select($this->getColumnsForDataTable())
-                ->orderBy(
-                    $data['sort']['column'] ?? 'id',
-                    $data['sort']['type'] ?? 'desc'
-                )
-                ->paginate($data['perPage'] ?? 15);
-        });
+        return Cache::tags(['paginate', $this->cacheTagPaginate])
+            ->remember($cacheKey, $this->cacheTime, function () use ($data) {
+                return $this
+                    ->model::select($this->getColumnsForDataTable())
+                    ->orderBy(
+                        $data['sort']['column'] ?? 'id',
+                        $data['sort']['type'] ?? 'desc'
+                    )
+                    ->paginate($data['perPage'] ?? 15);
+            });
     }
 
     private function removeAllCache()
     {
-        return Cache::tags(['list', 'paginate'])->flush();
+        return Cache::tags([$this->cacheTagList, $this->cacheTagPaginate])->flush();
     }
 
     final public function create(array $data): \Illuminate\Database\Eloquent\Model
@@ -82,17 +87,18 @@ class MovementCategoriesRepository extends CoreRepository
 
     final public function list(array $data = []): Collection
     {
-        $cacheKey = 'list_' . serialize($data);
+        $cacheKey = self::class . 'list_' . serialize($data);
 
-        return Cache::tags(['list'])->remember($cacheKey, $this->cacheTime, function () use ($data) {
-            $model = $this->model::select(['id', 'title', 'type']);
+        return Cache::tags(['list', $this->cacheTagList])
+            ->remember($cacheKey, $this->cacheTime, function () use ($data) {
+                $model = $this->model::select(['id', 'title', 'type']);
 
-            if (isset($data['type'])) {
-                $model->where('type', $data['type']);
-            }
+                if (isset($data['type'])) {
+                    $model->where('type', $data['type']);
+                }
 
-            return $model->orderBy('id', 'desc')->get();
-        });
+                return $model->orderBy('id', 'desc')->get();
+            });
     }
 
 //    final public function search(string $query, array $data): LengthAwarePaginator
