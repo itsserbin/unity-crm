@@ -85,23 +85,38 @@ class ProfitAndLossRepository extends CoreRepository
     final public function fillModel(\Illuminate\Database\Eloquent\Model $model, string $month): \Illuminate\Database\Eloquent\Model
     {
         $items = $this->bankAccountMovementsRepository->getModelByMonth($month);
-        $model->purchase_cost = $this->ordersRepository->getPriceByMonth($month, 'trade_price') ?: 0;
-        $model->total_revenues = $this->ordersRepository->getPriceByMonth($month) ?: 0;
+        $model['purchase_cost'] = $this->ordersRepository->getPriceByMonth($month, 'trade_price') ?: 0;
+        $model['total_revenues'] = $this->ordersRepository->getPriceByMonth($month) ?: 0;
 
         $isNotEmptyItems = $items->isNotEmpty();
 
-        $model->costs = $isNotEmptyItems
+        $model['costs'] = $isNotEmptyItems
             ? $items->filter(function ($item) {
                 return ($item->category && !collect(['dividends', 'investments', 'return-investment'])->contains($item->category->slug) && $item->sum < 0)
                     || (!$item->category && $item->sum < 0);
             })->sum('sum')
             : 0;
 
-        $model->net_profit = $model->total_revenues + $model->costs - $model->purchase_cost;
-        $model->business_profitability = ($model->total_revenues ? ($model->net_profit / $model->total_revenues) * 100 : 0) ?? 0;
-        $model->investments = $isNotEmptyItems ? $items->where('category.slug', 'investments')->where('sum', '>', 0)->sum('sum') : 0;
-        $model->returned_investments = $isNotEmptyItems ? $items->where('category.slug', 'return-investment')->where('sum', '<', 0)->sum('sum') : 0;
-        $model->dividends = $isNotEmptyItems ? $items->where('category.slug', 'dividends')->where('sum', '<', 0)->sum('sum') : 0;
+        $model['net_profit'] = $model->total_revenues + $model->costs - $model->purchase_cost;
+        $model['business_profitability'] = ($model->total_revenues ? ($model->net_profit / $model->total_revenues) * 100 : 0) ?? 0;
+        $model['investments'] = $isNotEmptyItems
+            ? $items
+                ->where('category.slug', 'investments')
+                ->where('sum', '>', 0)
+                ->sum('sum')
+            : 0;
+        $model['returned_investments'] = $isNotEmptyItems
+            ? $items
+                ->where('category.slug', 'return-investment')
+                ->where('sum', '<', 0)
+                ->sum('sum')
+            : 0;
+        $model['dividends'] = $isNotEmptyItems
+            ? $items
+                ->where('category.slug', 'dividends')
+                ->where('sum', '<', 0)
+                ->sum('sum')
+            : 0;
 
         return $model;
     }

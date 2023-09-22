@@ -1,3 +1,101 @@
+<script>
+import {reactive} from "vue";
+import {Link} from "@inertiajs/vue3";
+
+const getRoute = (v) => route(v);
+
+export default {
+    components: {Link},
+    setup(){
+        let previousActive = null;
+
+        const items = reactive([
+            {
+                header: 'UnityCRM',
+                hiddenOnCollapse: true
+            },
+            {
+                href: '/',
+                title: 'Dashboard',
+                icon: 'pi pi-bars',
+                isActive: false,
+            },
+            {
+                title: 'Каталог',
+                icon: 'pi pi-th-large',
+                isActive: false,
+                child: [
+                    {
+                        href: getRoute('catalog.products'),
+                        title: 'Товари'
+                    },
+                    {
+                        href: getRoute('catalog.categories'),
+                        title: 'Категорії'
+                    },
+                    {
+                        href: getRoute('catalog.images'),
+                        title: 'Зображення'
+                    }
+                ]
+            },
+            {
+                title: 'CRM',
+                icon: 'pi pi-database',
+                isActive: false,
+                child: [
+                    {
+                        href: getRoute('crm.orders'),
+                        title: 'Замовлення'
+                    },
+                    {
+                        href: getRoute('crm.clients'),
+                        title: 'Клієнти'
+                    },
+                ]
+            },
+            {
+                title: 'Налаштування',
+                icon: 'pi pi-cog',
+                isActive: false,
+                child: [
+                    {
+                        href: getRoute('options.sources'),
+                        title: 'Джерела'
+                    },
+                    {
+                        href: getRoute('options.statuses'),
+                        title: 'Статуси'
+                    },
+                    {
+                        href: getRoute('options.delivery-services'),
+                        title: 'Служби доставки'
+                    }
+                ]
+            }
+        ]);
+
+        const handleClick = (item) => {
+            if (previousActive === item) {
+                item.isActive = !item.isActive;
+                previousActive = null;
+            } else {
+                if (previousActive) {
+                    previousActive.isActive = false;
+                }
+                item.isActive = true;
+                previousActive = item;
+            }
+        };
+
+        return {
+            handleClick,
+            items
+        };
+    }
+}
+</script>
+
 <template>
     <div class="md:hidden z-50 bg-white dark:bg-zinc-900 fixed bottom-0 w-full flex justify-around items-center p-3 shadow-lg">
         <div
@@ -7,7 +105,7 @@
             @click="handleClick(item)"
         >
             <i :class="item.icon"></i>
-            <Link :href="item.href" v-if="!item.child">
+            <Link :href="item.href || ''" v-if="!item.child">
                 <p
                     class="text-sm text-center dark:text-white transition-all duration-500 ease-in-out"
                     :class="{ 'text-blue-500': item.isActive, 'font-bold': item.isActive }"
@@ -41,91 +139,6 @@
     </div>
 </template>
 
-<script setup>
-import {reactive} from "vue";
-import {Link} from "@inertiajs/vue3";
-
-let previousActive = null;
-
-const items = reactive([
-    {
-        header: 'UnityCRM',
-        hiddenOnCollapse: true
-    },
-    {
-        href: '/',
-        title: 'Dashboard',
-        icon: 'pi pi-bars',
-        isActive: false,
-    },
-    {
-        title: 'Каталог',
-        icon: 'pi pi-th-large',
-        isActive: false,
-        child: [
-            {
-                href: route('catalog.products'),
-                title: 'Товари'
-            },
-            {
-                href: route('catalog.categories'),
-                title: 'Категорії'
-            },
-            {
-                href: route('catalog.images'),
-                title: 'Зображення'
-            }
-        ]
-    },
-    {
-        title: 'CRM',
-        icon: 'pi pi-database',
-        isActive: false,
-        child: [
-            {
-                href: route('crm.orders'),
-                title: 'Замовлення'
-            },
-            {
-                href: route('crm.clients'),
-                title: 'Клієнти'
-            },
-        ]
-    },
-    {
-        title: 'Налаштування',
-        icon: 'pi pi-cog',
-        isActive: false,
-        child: [
-            {
-                href: route('options.sources'),
-                title: 'Джерела'
-            },
-            {
-                href: route('options.statuses'),
-                title: 'Статуси'
-            },
-            {
-                href: route('options.delivery-services'),
-                title: 'Служби доставки'
-            }
-        ]
-    }
-]);
-
-const handleClick = (item) => {
-    if (previousActive === item) {
-        item.isActive = !item.isActive;
-        previousActive = null;
-    } else {
-        if (previousActive) {
-            previousActive.isActive = false;
-        }
-        item.isActive = true;
-        previousActive = item;
-    }
-};
-</script>
 
 <style scoped>
 .bounce-enter-active {

@@ -16,5 +16,14 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class ProfitAndLoss extends Model
 {
-
+    protected $fillable = [
+        'costs',
+        'purchase_cost',
+        'total_revenues',
+        'net_profit',
+        'business_profitability',
+        'investments',
+        'returned_investments',
+        'dividends',
+    ];
 }

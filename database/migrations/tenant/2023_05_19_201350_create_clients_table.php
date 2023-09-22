@@ -14,7 +14,7 @@ return new class extends Migration {
             $table->id();
             $table->json('phones');
             $table->json('emails');
-            $table->string('full_name');
+            $table->string('full_name')->nullable();
             $table->text('comment')->nullable();
 
             $table->integer('number_of_orders')->default(0);

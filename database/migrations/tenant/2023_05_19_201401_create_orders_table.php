@@ -12,7 +12,7 @@ return new class extends Migration {
     {
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('source_id');
+            $table->foreignId('source_id')->nullable();
             $table->foreignId('status_id');
             $table->foreignId('client_id')->nullable();
             $table->foreignId('manager_id')->nullable();

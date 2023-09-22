@@ -28,7 +28,7 @@ class ClientCreateRequest extends FormRequest
             'phones' => 'array',
             'phones.*' => 'string', // Всі значення в масиві phones мають бути строками
             'emails' => 'array',
-            'emails.*' => 'string', // Всі значення в масиві emails мають бути строками
+            'emails.*' => 'string|nullable', // Всі значення в масиві emails мають бути строками
         ];
     }
 

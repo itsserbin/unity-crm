@@ -9,6 +9,7 @@
 
 <script>
 import {Link} from "@inertiajs/vue3";
+import {router} from "@inertiajs/vue3";
 
 export default {
     name: "SidebarMenuLink",
@@ -22,7 +23,8 @@ export default {
     components: {Link},
     computed: {
         isHyperLink() {
-            return !this.item.href || this.item.external || !this.$router;
+            return !this.item.href || this.item.external || !router;
+            // return !this.item.href || this.item.external || !this.$router;
         },
     },
 };
