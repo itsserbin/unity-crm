@@ -3,14 +3,14 @@ import Modal from "@/Components/Modal/Modal.vue";
 import Form from "./Form.vue";
 import Button from "primevue/button";
 
-defineProps(['item', 'show', 'isLoadingModal']);
+defineProps(['item', 'show', 'isLoadingModal','errors']);
 const emits = defineEmits(['close', 'submit']);
 </script>
 
 <template>
     <Modal :show="show" @close="emits('close')" maxWidth="3xl">
         <template #body>
-            <Form :item="item"/>
+            <Form :item="item" :errors="errors"/>
         </template>
         <template #footer>
             <Button label="Скасувати"

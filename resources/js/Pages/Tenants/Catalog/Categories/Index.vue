@@ -22,6 +22,7 @@ const state = reactive({
     isLoadingModal: false,
     isLoadingRefreshButton: false,
     data: {},
+    errors: [],
     search: null
 });
 
@@ -37,6 +38,7 @@ const lazyParams = ref({
 const item = ref();
 
 onMounted(async () => state.data = props.categories);
+
 const queryParams = () => {
     let data = {};
     if (lazyParams.value.rows) {
@@ -54,6 +56,7 @@ const queryParams = () => {
     data.page = (lazyParams.value.page || 0) + 1;
     return data;
 }
+
 const fetch = async () => {
     switchLoader();
     try {
@@ -96,14 +99,20 @@ const onCreate = () => {
 
 const onSubmit = async () => {
     state.isLoadingModal = true;
+    state.errors = [];
     try {
-        item.value.id
+        const data = item.value.id
             ? await CategoriesRepository.update(item.value)
             : await CategoriesRepository.create(item.value);
 
-        await fetch();
-        toggleModal();
-        toast.success("Success");
+        if (data.success) {
+            await fetch();
+            toggleModal();
+            toast.success("Success");
+        } else {
+            state.errors = data.data;
+            toast.error("Error");
+        }
     } catch (e) {
         console.error(e);
         toast.error("Error");
@@ -267,9 +276,10 @@ const refreshData = async () => {
         <Modal v-if="state.isShowModal"
                :show="state.isShowModal"
                :item="item"
+               :errors="state.errors"
+               :isLoadingModal="state.isLoadingModal"
                @close="toggleModal(false)"
                @submit="onSubmit"
-               :isLoadingModal="state.isLoadingModal"
         />
     </AppLayout>
 </template>

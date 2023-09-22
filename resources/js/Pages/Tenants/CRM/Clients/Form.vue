@@ -5,13 +5,13 @@ import GeneralForm from "@/Pages/Tenants/CRM/Clients/Partials/GeneralForm.vue";
 import AddressesForm from "@/Pages/Tenants/CRM/Clients/Partials/AddressesForm.vue";
 import OrdersForm from "@/Pages/Tenants/CRM/Clients/Partials/OrdersForm.vue";
 
-defineProps(['item']);
+defineProps(['item','errors']);
 </script>
 
 <template>
     <TabView class="w-full min-h-[300px]">
         <TabPanel header="Загальне">
-            <GeneralForm :item="item"/>
+            <GeneralForm :item="item" :errors="errors"/>
         </TabPanel>
         <TabPanel header="Адреси">
             <AddressesForm :item="item"/>

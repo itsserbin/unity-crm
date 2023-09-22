@@ -26,10 +26,8 @@ class ClientsController extends BaseController
         ]);
     }
 
-//    final public function create(Request $request): JsonResponse
     final public function create(ClientCreateRequest $request): JsonResponse
     {
-//        dd(gettype($request->get('phones')[0]));
         return $this->returnResponse([
             'success' => true,
             'result' => $this->clientsRepository->create($request->all()),

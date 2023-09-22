@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Tenants\Catalog;
 
 use App\Http\Controllers\Api\Tenants\BaseController;
+use App\Http\Requests\Tenants\Catalog\ProductRequest;
 use App\Repositories\Catalog\ProductsRepository;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -18,7 +19,7 @@ class ProductsController extends BaseController
     }
 
     /**
-     * The index function is used to retrieve all products from the database
+     * @comment The index function is used to retrieve all products from the database
      * and return them as a paginated response.
      *
      * @param Request $request
@@ -35,13 +36,13 @@ class ProductsController extends BaseController
     }
 
     /**
-     * The create function is used to create a new product in the database
+     * @comment The create function is used to create a new product in the database
      * using data from the provided request.
      *
-     * @param Request $request
+     * @param ProductRequest $request
      * @return JsonResponse
      */
-    final public function create(Request $request): JsonResponse
+    final public function create(ProductRequest $request): JsonResponse
     {
         $result = $this->productsRepository->create($request->all());
 
@@ -52,14 +53,14 @@ class ProductsController extends BaseController
     }
 
     /**
-     * The update function is used to update a product in the database
+     * @comment The update function is used to update a product in the database
      * using data from the provided request.
      *
      * @param int $id
-     * @param Request $request
+     * @param ProductRequest $request
      * @return JsonResponse
      */
-    final public function update(int $id, Request $request): JsonResponse
+    final public function update(int $id, ProductRequest $request): JsonResponse
     {
         $result = $this->productsRepository->update($id, $request->all());
 
@@ -70,7 +71,7 @@ class ProductsController extends BaseController
     }
 
     /**
-     * The destroy function is used to delete a product from the database
+     * @comment The destroy function is used to delete a product from the database
      * using the provided product id.
      *
      * @param int $id
@@ -87,7 +88,7 @@ class ProductsController extends BaseController
     }
 
     /**
-     * The edit function is used to retrieve a specific product from the database
+     * @comment The edit function is used to retrieve a specific product from the database
      * using the provided product id.
      *
      * @param int $id
@@ -104,7 +105,7 @@ class ProductsController extends BaseController
     }
 
     /**
-     * The list function is used to retrieve a list of products from the database.
+     * @comment The list function is used to retrieve a list of products from the database.
      *
      * @return JsonResponse
      */
@@ -119,7 +120,7 @@ class ProductsController extends BaseController
     }
 
     /**
-     * The search function is used to search for products in the database
+     * @comment The search function is used to search for products in the database
      * using the provided search keyword.
      *
      * @param string $search

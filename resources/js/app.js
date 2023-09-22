@@ -9,10 +9,9 @@ import {ZiggyVue} from '../../vendor/tightenco/ziggy/dist/vue.m';
 
 import PrimeVue from 'primevue/config';
 import Vue3Toastify from 'vue3-toastify';
+import isDark from "@/Helpers/isDark.js";
 
 const appName = window.document.getElementsByTagName('title')[0]?.innerText || 'Laravel';
-import ToastService from 'primevue/toastservice';
-import isDark from "@/Helpers/isDark.js";
 createInertiaApp({
     title: (title) => `${title} - ${appName}`,
     resolve: (name) => resolvePageComponent(`./Pages/${name}.vue`, import.meta.glob('./Pages/**/*.vue')),
@@ -20,7 +19,6 @@ createInertiaApp({
         const app = createApp({render: () => h(App, props)})
             .use(plugin)
             .use(ZiggyVue, Ziggy)
-            .use(ToastService)
             .use(Vue3Toastify, {
                 autoClose: 3000,
                 pauseOnHover: false,

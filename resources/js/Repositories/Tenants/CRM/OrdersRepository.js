@@ -28,7 +28,8 @@ export default {
             const response = await axios.put(route('api.orders.update', id), item);
             return response.data;
         } catch (error) {
-            throw new Error(error);
+            console.error(error);
+            return error.response;
         }
     },
     async create(item) {

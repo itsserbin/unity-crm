@@ -22,6 +22,7 @@ const state = reactive({
     isLoadingModal: false,
     isLoadingRefreshButton: false,
     data: {},
+    errors: [],
     search: null
 });
 
@@ -99,14 +100,20 @@ const onCreate = () => {
 
 const onSubmit = async () => {
     state.isLoadingModal = true;
+    state.errors = [];
     try {
-        item.value.id
+        const data = item.value.id
             ? await ClientsRepository.update(item.value)
             : await ClientsRepository.create(item.value);
 
-        await fetch();
-        toggleModal();
-        toast.success("Success");
+        if (data.success) {
+            await fetch();
+            toggleModal();
+            toast.success("Success");
+        } else {
+            state.errors = data.data;
+            toast.error("Error");
+        }
     } catch (e) {
         console.error(e);
         toast.error("Error");
@@ -332,7 +339,9 @@ const refreshData = async () => {
                         </div>
                     </template>
                     <template #body="{data}">
-                        <div class="text-center">{{ $filters.formatDateTime(data.last_order_created_at) }}</div>
+                        <div class="text-center">
+                            {{ data.last_order_created_at ? $filters.formatDateTime(data.last_order_created_at) : '-' }}
+                        </div>
                     </template>
                 </Column>
                 <Column>
@@ -355,9 +364,10 @@ const refreshData = async () => {
         <Modal v-if="state.isShowModal"
                :show="state.isShowModal"
                :item="item"
-               @close="toggleModal(false)"
-               @submit="onSubmit"
                :isLoadingModal="state.isLoadingModal"
+               :errors="state.errors"
+               @submit="onSubmit"
+               @close="toggleModal(false)"
         />
     </AppLayout>
 </template>

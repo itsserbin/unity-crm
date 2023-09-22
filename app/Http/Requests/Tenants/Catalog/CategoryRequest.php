@@ -1,12 +1,13 @@
 <?php
 
-namespace App\Http\Requests\Tenants\CRM;
+namespace App\Http\Requests\Tenants\Catalog;
 
-use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Contracts\Validation\Validator;
+use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
-class ClientCreateRequest extends FormRequest
+class CategoryRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -19,21 +20,17 @@ class ClientCreateRequest extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * @return array<string, ValidationRule|array|string>
      */
     final public function rules(): array
     {
         return [
-            'full_name' => 'string|nullable',
-            'phones' => 'array',
-            'phones.*' => 'string', // Всі значення в масиві phones мають бути строками
-            'emails' => 'array|nullable',
-            'emails.*' => 'string|nullable', // Всі значення в масиві emails мають бути строками
+            'title' => 'required|string'
         ];
     }
 
     /**
-     * Format errors
+     * @comment Format errors
      *
      * @param Validator $validator
      */

@@ -23,6 +23,7 @@ const state = reactive({
     isLoadingModal: false,
     isLoadingRefreshButton: false,
     data: {},
+    errors: [],
     search: null
 });
 
@@ -56,6 +57,7 @@ const queryParams = () => {
     data.page = (lazyParams.value.page || 0) + 1;
     return data;
 }
+
 const fetch = async () => {
     switchLoader();
     try {
@@ -112,6 +114,7 @@ const filterItems = [
         value: 0
     }
 ];
+
 const onPage = async (e) => {
     lazyParams.value = e;
     await fetch();
@@ -121,6 +124,7 @@ const onSort = async (e) => {
     lazyParams.value = e;
     await fetch();
 }
+
 const onRowSelect = (event) => {
     onEdit(event.data.id);
 };
@@ -133,6 +137,7 @@ const onFilter = async (val) => {
     } : null;
     await fetch();
 }
+
 const onCreate = () => {
     item.value = {
         id: null,
@@ -151,6 +156,7 @@ const onCreate = () => {
 
 const onSubmit = async () => {
     state.isLoadingModal = true;
+    state.errors = [];
     try {
         if (item.value.availability) {
             item.value.availability = item.value.availability.value;
@@ -161,13 +167,18 @@ const onSubmit = async () => {
             });
         }
 
-        item.value.id
+        const data = item.value.id
             ? await ProductsRepository.update(item.value)
             : await ProductsRepository.create(item.value);
 
-        await fetch();
-        toggleModal();
-        toast.success("Success");
+        if (data.success) {
+            await fetch();
+            toggleModal();
+            toast.success("Success");
+        } else {
+            state.errors = data.data;
+            toast.error("Error");
+        }
     } catch (e) {
         console.error(e);
         toast.error("Error");
@@ -374,11 +385,12 @@ const refreshData = async () => {
         </div>
         <Modal v-if="state.isShowModal"
                :show="state.isShowModal"
-               @close="toggleModal(false)"
                :isLoadingModal="state.isLoadingModal"
                :item="item"
-               @submit="onSubmit"
                :categories="categories"
+               :errors="state.errors"
+               @close="toggleModal(false)"
+               @submit="onSubmit"
         />
     </AppLayout>
 </template>

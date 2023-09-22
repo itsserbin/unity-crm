@@ -4,8 +4,8 @@ import InputLabel from '@/Components/InputLabel.vue';
 import Button from "primevue/button";
 import InputMask from 'primevue/inputmask';
 import Textarea from 'primevue/textarea';
-
-const props = defineProps(['item']);
+import InputErrors from "@/Components/InputErrors.vue";
+const props = defineProps(['item','errors']);
 
 const addPhone = () => props.item.phones.push('');
 const addEmail = () => props.item.emails.push('');
@@ -16,7 +16,7 @@ const removeEmail = (i) => props.item.emails.splice(i, 1);
 <template>
     <div class="grid grid-cols-1 gap-4">
         <div class="block">
-            <InputLabel :required="true">Повне імʼя</InputLabel>
+            <InputLabel>Повне імʼя</InputLabel>
             <InputText v-model="item.full_name"
                        class="w-full"
                        placeholder="Вкажіть повне імʼя клієнта"
@@ -26,33 +26,33 @@ const removeEmail = (i) => props.item.emails.splice(i, 1);
 
         <div class="block">
             <InputLabel :required="true">Телефон</InputLabel>
-            <div class="flex gap-2"
-                 :class="{'mb-2':item.phones.length > 1}"
-                 v-for="(phone,i) in item.phones"
-            >
-                <InputMask
-                    v-model="item.phones[i]"
-                    class="w-full"
-                    placeholder="+38 ("
-                    mask="+38 (999) 999-99-99"
-                    type="tel"
-                />
-                <template v-if="i === 0">
-                    <Button icon="pi pi-plus"
-                            type="button"
-                            size="small"
-                            @click="addPhone"
+            <div :class="{'mb-2':item.phones.length > 1}" v-for="(phone,i) in item.phones">
+                <div class="w-full flex gap-2">
+                    <InputMask
+                        v-model="item.phones[i]"
+                        class="w-full"
+                        placeholder="+38 ("
+                        mask="+38 (999) 999-99-99"
+                        type="tel"
+                    />
+                    <template v-if="i === 0">
+                        <Button icon="pi pi-plus"
+                                type="button"
+                                size="small"
+                                @click="addPhone"
 
-                    />
-                </template>
-                <template v-if="i !== 0">
-                    <Button icon="pi pi-trash"
-                            type="button"
-                            size="small"
-                            @click="removePhone(i)"
-                            severity="secondary"
-                    />
-                </template>
+                        />
+                    </template>
+                    <template v-if="i !== 0">
+                        <Button icon="pi pi-trash"
+                                type="button"
+                                size="small"
+                                @click="removePhone(i)"
+                                severity="secondary"
+                        />
+                    </template>
+                </div>
+                <InputErrors :errors="errors['phones.' + i]" v-if="errors['phones.' + i]"/>
             </div>
         </div>
 

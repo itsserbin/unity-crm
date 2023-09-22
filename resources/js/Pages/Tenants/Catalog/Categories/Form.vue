@@ -6,10 +6,11 @@ import Textarea from 'primevue/textarea';
 import FileUpload from 'primevue/fileupload';
 import {defineAsyncComponent, reactive} from "vue";
 import Button from "primevue/button";
+import InputErrors from "@/Components/InputErrors.vue";
 
 const ImagesModal = defineAsyncComponent(() => import('./ImagesModal.vue'))
 
-const props = defineProps(['item']);
+const props = defineProps(['item','errors']);
 
 const state = reactive({
     isShowImagesModal: false
@@ -40,21 +41,22 @@ const onUpload = (e) => {
                 <div class="block">
                     <InputLabel :required="true">Назва</InputLabel>
                     <InputText type="text" v-model="item.title" class="w-full"
-                               placeholder="Вкажіть назву категорії"/>
+                               placeholder="Вкажіть назву"/>
+                    <InputErrors :errors="errors.title" v-if="errors.title"/>
                 </div>
 
                 <div class="block">
                     <InputLabel>Опис</InputLabel>
                     <Textarea v-model="item.description" rows="6" class="w-full"
-                              placeholder="Вкажіть опис категорії"/>
+                              placeholder="Вкажіть опис"/>
                 </div>
             </div>
             <div class="md:col-span-3">
                 <div v-if="!item.preview" class="w-full h-full flex items-center justify-center">
-                    <Button label="Обрати зображення категорії" @click="toggleImagesModal"/>
+                    <Button label="Обрати зображення" @click="toggleImagesModal"/>
                 </div>
                 <div class="relative" v-if="item.preview">
-                    <InputLabel>Зображення категорії</InputLabel>
+                    <InputLabel>Зображення</InputLabel>
                     <Button icon="pi pi-times" link class="absolute right-0" @click="onDestroyPreview"/>
                     <picture>
                         <source :srcset="route('images',item.preview.data.webp)"

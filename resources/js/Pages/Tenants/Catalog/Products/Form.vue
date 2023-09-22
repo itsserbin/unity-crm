@@ -10,10 +10,16 @@ import Card from 'primevue/card';
 import {defineAsyncComponent, onMounted, reactive} from "vue";
 import CategoriesRepository from "@/Repositories/Tenants/Catalog/CategoriesRepository.js";
 import {toast} from "vue3-toastify";
+import InputErrors from "@/Components/InputErrors.vue";
 
 const ImagesModal = defineAsyncComponent(() => import('./ImagesModal.vue'))
 
-const props = defineProps(['item', 'categories']);
+const props = defineProps([
+    'item',
+    'categories',
+    'errors'
+]);
+console.log(props.errors)
 
 const state = reactive({
     categories: [],
@@ -84,7 +90,7 @@ const onDestroyPreview = () => {
     <div class="grid gap-4">
         <Card>
             <template #content>
-                <div class="grid grid-cols-1 md grid-cols-12 gap-4">
+                <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
                     <div class="md:col-span-9">
                         <div class="grid grid-cols-1 gap-4">
                             <div class="block">
@@ -96,9 +102,10 @@ const onDestroyPreview = () => {
                                           placeholder="Оберіть статус"
                                           class="w-full"
                                 />
+                                <InputErrors :errors="errors.availability" v-if="errors.availability"/>
                             </div>
                             <div class="block">
-                                <InputLabel :required="true">Категорії</InputLabel>
+                                <InputLabel>Категорії</InputLabel>
                                 <MultiSelect v-model="item.categories"
                                              :options="state.categories"
                                              optionLabel="label"
@@ -112,6 +119,7 @@ const onDestroyPreview = () => {
                                 <InputLabel :required="true">Назва товару</InputLabel>
                                 <InputText type="text" v-model="item.title" class="w-full"
                                            placeholder="Вкажіть назву товара"/>
+                                <InputErrors :errors="errors.title" v-if="errors.title"/>
                             </div>
                         </div>
                     </div>
@@ -165,6 +173,7 @@ const onDestroyPreview = () => {
                         <InputLabel :required="true">Ціна продажу</InputLabel>
                         <InputText type="number" v-model="item.price"
                                    placeholder="грн" class="w-full"/>
+                        <InputErrors :errors="errors.price" v-if="errors.price"/>
                     </div>
                     <div class="block">
                         <InputLabel>Ціна продажу зі знижкою</InputLabel>

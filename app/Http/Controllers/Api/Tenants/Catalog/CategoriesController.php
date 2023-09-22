@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Tenants\Catalog;
 
 use App\Http\Controllers\Api\Tenants\BaseController;
+use App\Http\Requests\Tenants\Catalog\CategoryRequest;
 use App\Repositories\Catalog\CategoriesRepository;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -45,10 +46,10 @@ class CategoriesController extends BaseController
     }
 
     /**
-     * @param Request $request
+     * @param CategoryRequest $request
      * @return JsonResponse
      */
-    final public function create(Request $request): JsonResponse
+    final public function create(CategoryRequest $request): JsonResponse
     {
         $result = $this->categoriesRepository->create($request->all());
 
@@ -74,10 +75,10 @@ class CategoriesController extends BaseController
 
     /**
      * @param int $id
-     * @param Request $request
+     * @param CategoryRequest $request
      * @return JsonResponse
      */
-    final public function update(int $id, Request $request): JsonResponse
+    final public function update(int $id, CategoryRequest $request): JsonResponse
     {
         $result = $this->categoriesRepository->update($id, $request->all());
 

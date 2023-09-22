@@ -130,8 +130,9 @@ const onCreate = () => {
     toggleModal();
 }
 const onSubmit = async () => {
+    state.errors = [];
+    state.isLoadingModal = true;
     try {
-        state.isLoadingModal = true;
         const {
             tracking_codes,
             source_id,
@@ -175,9 +176,8 @@ const onSubmit = async () => {
     } catch (e) {
         console.error(e);
         toast.error("Error");
-    } finally {
-        state.isLoadingModal = false;
     }
+    state.isLoadingModal = false;
 };
 
 const onEdit = async (id) => {
