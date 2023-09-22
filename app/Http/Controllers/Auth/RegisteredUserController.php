@@ -7,6 +7,8 @@ use App\Http\Requests\Auth\RegisterRequest;
 use App\Models\Tenant;
 use App\Models\User;
 use Carbon\Carbon;
+use Database\Seeders\AccountsSeeder;
+use Database\Seeders\MovementCategoriesSeeder;
 use Database\Seeders\StatusesSeeder;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Support\Facades\Auth;
@@ -62,8 +64,9 @@ class RegisteredUserController extends Controller
                 'email' => $request->email,
                 'password' => $password,
             ]);
-            $seeder = new StatusesSeeder();
-            $seeder->run();
+            (new StatusesSeeder())->run();
+            (new MovementCategoriesSeeder())->run();
+            (new AccountsSeeder())->run();
         });
 
         Auth::login($user);

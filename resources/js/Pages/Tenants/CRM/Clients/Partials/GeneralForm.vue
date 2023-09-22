@@ -7,8 +7,8 @@ import Textarea from 'primevue/textarea';
 
 const props = defineProps(['item']);
 
-const addPhone = () => props.item.phones.push({number: null});
-const addEmail = () => props.item.emails.push({address: null});
+const addPhone = () => props.item.phones.push('');
+const addEmail = () => props.item.emails.push('');
 const removePhone = (i) => props.item.phones.splice(i, 1);
 const removeEmail = (i) => props.item.emails.splice(i, 1);
 </script>
@@ -26,55 +26,65 @@ const removeEmail = (i) => props.item.emails.splice(i, 1);
 
         <div class="block">
             <InputLabel :required="true">Телефон</InputLabel>
-            <div class="flex gap-2" v-for="(phone,i) in item.phones" :class="{'mb-2':item.phones.length > 1}">
+            <div class="flex gap-2"
+                 :class="{'mb-2':item.phones.length > 1}"
+                 v-for="(phone,i) in item.phones"
+            >
                 <InputMask
-                    v-model="phone.number"
+                    v-model="item.phones[i]"
                     class="w-full"
                     placeholder="+38 ("
                     mask="+38 (999) 999-99-99"
                     type="tel"
                 />
-                <Button icon="pi pi-plus"
-                        type="button"
-                        size="small"
-                        @click="addPhone"
-                        v-if="i === 0"
-                />
-                <Button icon="pi pi-trash"
-                        type="button"
-                        size="small"
-                        v-if="i !== 0"
-                        @click="removePhone(i)"
-                        severity="secondary"
-                />
+                <template v-if="i === 0">
+                    <Button icon="pi pi-plus"
+                            type="button"
+                            size="small"
+                            @click="addPhone"
+
+                    />
+                </template>
+                <template v-if="i !== 0">
+                    <Button icon="pi pi-trash"
+                            type="button"
+                            size="small"
+                            @click="removePhone(i)"
+                            severity="secondary"
+                    />
+                </template>
             </div>
         </div>
 
         <div class="block">
             <InputLabel>Email</InputLabel>
             <div class="flex gap-2"
-                 v-for="(email,i) in item.emails"
                  :class="{'mb-2':item.emails.length > 1}"
+                 v-for="(email, i) in item.emails"
             >
                 <InputText
-                    v-model="email.address"
+                    v-model="item.emails[i]"
                     class="w-full"
                     placeholder="example@domain.com"
                     type="email"
                 />
-                <Button icon="pi pi-plus"
+                <template v-if="i === 0">
+                    <Button
+                        icon="pi pi-plus"
                         type="button"
                         size="small"
                         @click="addEmail"
-                        v-if="i === 0"
-                />
-                <Button icon="pi pi-trash"
+                    />
+                </template>
+                <template v-else>
+                    <Button
+                        icon="pi pi-trash"
                         type="button"
                         size="small"
-                        v-if="i !== 0"
                         @click="removeEmail(i)"
                         severity="secondary"
-                />
+                    />
+                </template>
             </div>
         </div>
         <div class="block">

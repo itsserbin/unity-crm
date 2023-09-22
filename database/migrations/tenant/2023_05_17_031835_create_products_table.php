@@ -15,9 +15,9 @@ return new class extends Migration {
             $table->integer('availability');
             $table->string('title');
             $table->text('description')->nullable();
-            $table->float('trade_price')->nullable();
-            $table->float('price');
-            $table->float('discount_price')->nullable();
+            $table->decimal('trade_price')->nullable();
+            $table->decimal('price');
+            $table->decimal('discount_price')->nullable();
             $table->foreignId('preview_id')->nullable();
             $table->string('sku')->nullable();
             $table->timestamps();

@@ -19,6 +19,11 @@ class StatusesRepository extends CoreRepository
         return $this->coreFind($this->model, $id);
     }
 
+    final public function getByColumn(string $column, mixed $value): ?\Illuminate\Database\Eloquent\Model
+    {
+        return $this->model::where($column, $value)->first();
+    }
+
     final public function getModelByTitleAndGroupSlug(string $title, string $slug): ?\Illuminate\Database\Eloquent\Model
     {
         return $this->model::where(function ($q) use ($title, $slug) {

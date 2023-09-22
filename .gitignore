@@ -6,9 +6,13 @@
 /public/storage
 /storage/*.key
 /vendor
+
 .env
 .env.backup
 .env.production
+.env.testing
+.env.tenants.testing
+
 .phpunit.result.cache
 Homestead.json
 Homestead.yaml
@@ -18,3 +22,8 @@ yarn-error.log
 /.fleet
 /.idea
 /.vscode
+
+_ide_helper.php
+_ide_helper_models.php
+.phpstorm.meta.php
+.docker-compose 2.yml.icloud

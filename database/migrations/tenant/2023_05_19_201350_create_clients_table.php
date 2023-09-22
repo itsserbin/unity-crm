@@ -21,10 +21,10 @@ return new class extends Migration {
             $table->integer('number_of_success_orders')->default(0);
 
             $table->integer('success_average_check')->default(0);
-            $table->integer('average_check')->default(0);
+            $table->decimal('average_check')->default(0);
 
             $table->integer('success_general_check')->default(0);
-            $table->integer('general_check')->default(0);
+            $table->decimal('general_check')->default(0);
 
             $table->dateTime('last_order_created_at')->nullable();
             $table->dateTime('success_last_order_created_at')->nullable();

@@ -6,6 +6,7 @@ use App\Models\CRM\Client as Model;
 use App\Repositories\CoreRepository;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\DB;
 
 class ClientsRepository extends CoreRepository
 {
@@ -17,6 +18,17 @@ class ClientsRepository extends CoreRepository
     protected function getModelClass(): string
     {
         return Model::class;
+    }
+
+    public function findByColumn(string $column, string $value)
+    {
+        if ($column === 'phones') {
+            return DB::table('clients')
+                ->whereJsonContains('phones', $value)
+                ->first();
+        } else {
+            return $this->model::where($column, $value)->first();
+        }
     }
 
     final public function getModelById(int $id): ?\Illuminate\Database\Eloquent\Model
@@ -73,7 +85,7 @@ class ClientsRepository extends CoreRepository
         if (isset($data['phones'])) {
             $phones = [];
             foreach ($data['phones'] as $phone) {
-                $phones[] = ['number' => preg_replace('/[^0-9]/', '', $phone['number'])];
+                $phones[] = preg_replace('/[^0-9]/', '', $phone);
             }
             $fillableData['phones'] = $phones;
         }
@@ -93,9 +105,7 @@ class ClientsRepository extends CoreRepository
         return $this->model::select($this->getTableColumns())
             ->where('id', 'LIKE', "%$query%")
             ->orWhere('full_name', 'LIKE', "%$query%")
-            ->orWhereRaw("phones->>'$[*].number' LIKE ?", ["%$query%"])
-            ->orWhereRaw("phones->>'$[*].number' LIKE ?", ["%$query%"])
-            ->orWhereRaw("phones->>'$[*].number' LIKE ?", ["%$query%"])
+            ->orWhereRaw("jsonb_array_elements_text(phones)-> LIKE ?", ["%$query%"])
             ->orWhereJsonContains('emails', $query)
             ->paginate($this->getPagination($data));
     }

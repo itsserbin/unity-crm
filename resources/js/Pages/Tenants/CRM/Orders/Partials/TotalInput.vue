@@ -1,4 +1,6 @@
 <script setup>
+import Card from "primevue/card";
+
 const props = defineProps(['item']);
 
 const totalPrice = () => {
@@ -17,50 +19,48 @@ const totalProductDiscountPrice = () => {
 const totalTradePrice = () => {
     return props.item.items.reduce((accumulator, currentValue) => accumulator + currentValue.trade_price, 0);
 }
+
+const items = [
+    {
+        title: ' Сума за товари:',
+        value: totalPrice()
+    },
+    {
+        title: ' Ціна закупки:',
+        value: totalTradePrice()
+    },
+    {
+        title: ' Знижка на замовлення:',
+        value: props.item.discount
+    },
+    {
+        title: ' Знижка на товари:',
+        value: totalProductDiscountPrice()
+    },
+    {
+        title: ' Витрати на замовлення:',
+        value: costs()
+    },
+    {
+        title: ' Чистий прибуток:',
+        value: totalPrice() - totalTradePrice() - costs()
+    },
+];
 </script>
 
 <template>
-    <table class="w-full">
-        <tr>
-            <td class="py-2 text-start md:text-end">Сума за товари:</td>
-            <td class="py-2 text-lg font-bold">
-                {{ $filters.formatMoney(totalPrice()) }} грн.
-            </td>
-        </tr>
-
-        <tr>
-            <td class="py-2 text-start md:text-end">Ціна закупки:</td>
-            <td class="py-2 text-lg font-bold">
-                {{ $filters.formatMoney(totalTradePrice()) }} грн.
-            </td>
-        </tr>
-
-        <tr>
-            <td class="py-2 text-start md:text-end">Знижка на замовлення:</td>
-            <td class="py-2 text-lg font-bold flex items-center">
-                {{ $filters.formatMoney(item.discount) }} грн.
-            </td>
-        </tr>
-
-        <tr>
-            <td class="py-2 text-start md:text-end">Знижка на товари:</td>
-            <td class="py-2 text-lg font-bold">
-                {{ $filters.formatMoney(totalProductDiscountPrice()) }} грн.
-            </td>
-        </tr>
-
-        <tr>
-            <td class="py-2 text-start md:text-end">Витрати на замовлення:</td>
-            <td class="py-2 text-lg font-bold">
-                {{ $filters.formatMoney(costs()) }} грн.
-            </td>
-        </tr>
-
-        <tr>
-            <td class="py-2 text-start md:text-end">Чистий прибуток:</td>
-            <td class="py-2 text-lg font-bold">
-                {{ $filters.formatMoney(totalPrice() - totalTradePrice() - costs()) }} грн.
-            </td>
-        </tr>
-    </table>
+    <div class="grid grid-cols-2 md:grid-cols-6 gap-2">
+        <Card v-for="item in items">
+            <template #subtitle>
+                <div class="text-center">
+                    {{ item.title }}
+                </div>
+            </template>
+            <template #content>
+                <div class="text-center">
+                    {{ $filters.formatMoney(item.value) }} грн.
+                </div>
+            </template>
+        </Card>
+    </div>
 </template>

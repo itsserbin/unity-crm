@@ -2,12 +2,28 @@
 
 namespace App\Models\Catalog;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 
+/**
+ * App\Models\Catalog\Product
+ *
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Catalog\Category> $categories
+ * @property-read int|null $categories_count
+ * @property-read \App\Models\Catalog\Image|null $preview
+ * @method static \Illuminate\Database\Eloquent\Builder|Product newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Product newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Product query()
+ * @method static \Database\Factories\Catalog\ProductFactory factory($count = null, $state = [])
+ * @mixin \Eloquent
+ * @mixin IdeHelperProduct
+ */
 class Product extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
         'availability',
         'title',

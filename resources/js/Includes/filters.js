@@ -8,6 +8,9 @@ export default {
     formatPhone(value) {
         return `+${value.substr(0, 2)} (${value.substr(2, 3)}) ${value.substr(5, 3)}-${value.substr(8, 2)}-${value.substr(10, 2)}`;
     },
+    formatMonth(value) {
+        return moment(value).format('MM.YYYY');
+    },
     formatDate(value) {
         return moment(value).format('DD.MM.YY');
     },

@@ -3,7 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Enums\MovementCategories;
-use App\Models\Statistic\MovementCategory;
+use App\Models\Finance\MovementCategory;
 use Illuminate\Database\Seeder;
 
 class MovementCategoriesSeeder extends Seeder

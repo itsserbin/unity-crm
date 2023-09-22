@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Api\Tenants;
 
-use App\Models\Statistic\BankAccount;
+use App\Models\Finance\BankAccount;
 use App\Services\MonobankService;
 use Illuminate\Http\Request;
 

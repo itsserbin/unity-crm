@@ -6,12 +6,16 @@ use App\Http\Controllers\Tenants\Catalog\ProductsController;
 use App\Http\Controllers\Tenants\CRM\ClientsController;
 use App\Http\Controllers\Tenants\CRM\OrdersController;
 use App\Http\Controllers\Tenants\DashboardController;
+use App\Http\Controllers\Tenants\Finance\AccountsController;
 use App\Http\Controllers\Tenants\Options\DeliveryServicesController;
 use App\Http\Controllers\Tenants\Options\SourcesController;
 use App\Http\Controllers\Tenants\Options\StatusesController;
-use App\Http\Controllers\Tenants\Statistics\BankAccountMovementsController;
-use App\Http\Controllers\Tenants\Statistics\BankAccountsController;
-use App\Http\Controllers\Tenants\Statistics\MovementCategoriesController;
+use App\Http\Controllers\Tenants\Finance\BankAccountMovementsController;
+use App\Http\Controllers\Tenants\Finance\BankAccountsController;
+use App\Http\Controllers\Tenants\Finance\CashFlowController;
+use App\Http\Controllers\Tenants\Finance\MovementCategoriesController;
+use App\Http\Controllers\Tenants\Finance\ProfitAndLossController;
+use App\Http\Controllers\Tenants\ProfileController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth'])->group(function () {
@@ -37,15 +41,24 @@ Route::middleware(['auth'])->group(function () {
             ->name('crm.orders');
     });
 
-    Route::prefix('statistics')->group(function () {
+    Route::prefix('finance')->group(function () {
         Route::get('bank-accounts', [BankAccountsController::class, 'create'])
-            ->name('statistics.bank-accounts');
+            ->name('finance.bank-accounts');
 
         Route::get('bank-account-movements', [BankAccountMovementsController::class, 'create'])
-            ->name('statistics.bank-account-movements');
+            ->name('finance.bank-account-movements');
 
         Route::get('movement-categories', [MovementCategoriesController::class, 'create'])
-            ->name('statistics.movement-categories');
+            ->name('finance.movement-categories');
+
+        Route::get('profit-and-loss', [ProfitAndLossController::class, 'create'])
+            ->name('finance.profit-and-loss');
+
+        Route::get('cash-flow', [CashFlowController::class, 'create'])
+            ->name('finance.cash-flow');
+
+        Route::get('accounts', [AccountsController::class, 'create'])
+            ->name('finance.accounts');
     });
 
     Route::prefix('options')->group(function () {
@@ -57,5 +70,16 @@ Route::middleware(['auth'])->group(function () {
 
         Route::get('delivery-services', [DeliveryServicesController::class, 'create'])
             ->name('options.delivery-services');
+    });
+
+    Route::prefix('profile')->group(function () {
+        Route::get('/', [ProfileController::class, 'edit'])
+            ->name('profile.edit');
+
+        Route::patch('/', [ProfileController::class, 'update'])
+            ->name('profile.update');
+
+        Route::delete('/', [ProfileController::class, 'destroy'])
+            ->name('profile.destroy');
     });
 });

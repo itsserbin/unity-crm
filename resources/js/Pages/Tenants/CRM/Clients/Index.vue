@@ -37,6 +37,7 @@ const lazyParams = ref({
 const item = ref();
 
 onMounted(async () => state.data = props.clients);
+
 const queryParams = () => {
     let data = {};
     if (lazyParams.value.rows) {
@@ -86,8 +87,8 @@ const onRowSelect = (event) => {
 const onCreate = () => {
     item.value = {
         id: null,
-        phones: [{number: null}],
-        emails: [{address: null}],
+        phones: [''],
+        emails: [''],
         full_name: null,
         comment: null,
         addresses: [],
@@ -245,7 +246,7 @@ const refreshData = async () => {
                     <template #body="{data}">
                         <div class="text-center">
                             <div v-for="phone in data.phones" v-if="data.phones.length">
-                                <a :href="'tel:' + phone.number">{{ $filters.formatPhone(phone.number) }}</a>
+                                <a :href="'tel:' + phone">{{ $filters.formatPhone(phone) }}</a>
                             </div>
                             <div v-else>Не вказано</div>
                         </div>
@@ -257,8 +258,8 @@ const refreshData = async () => {
                     </template>
                     <template #body="{data}">
                         <div class="text-center">
-                            <div v-for="email in data.emails" v-if="data.emails.some((i) => i.address !== null)">
-                                <a :href="'mailto:' + email.address">{{ email.address }}</a>
+                            <div v-for="email in data.emails" v-if="data.emails.length">
+                                <a :href="'mailto:' + email">{{ email }}</a>
                             </div>
                             <div v-else>Не вказано</div>
                         </div>

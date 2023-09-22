@@ -23,7 +23,9 @@ class TrackingCodesController extends BaseController
      */
     final public function index(Request $request): JsonResponse
     {
-        $result = $this->trackingCodesRepository->getAllWithPaginate($request->all());
+        $result = $this
+            ->trackingCodesRepository
+            ->getAllWithPaginate($request->all());
 
         return $this->returnResponse([
             'success' => true,

@@ -1,9 +1,9 @@
 <script setup>
 import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
-import PrimaryButton from '@/Components/PrimaryButton.vue';
-import TextInput from '@/Components/TextInput.vue';
-import { Link, useForm, usePage } from '@inertiajs/vue3';
+import {Link, useForm, usePage} from '@inertiajs/vue3';
+import Button from "primevue/button";
+import InputText from "primevue/inputtext";
 
 defineProps({
     mustVerifyEmail: {
@@ -25,18 +25,18 @@ const form = useForm({
 <template>
     <section>
         <header>
-            <h2 class="text-lg font-medium text-zinc-900 dark:text-zinc-100">Profile Information</h2>
+            <h2 class="text-lg font-medium text-zinc-900 dark:text-zinc-100">Особиста інформація</h2>
 
             <p class="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
-                Update your account's profile information and email address.
+                Оновіть дані профілю та електронну адресу свого облікового запису.
             </p>
         </header>
 
         <form @submit.prevent="form.patch(route('profile.update'))" class="mt-6 space-y-6">
             <div>
-                <InputLabel for="name" value="Name" />
+                <InputLabel for="name" value="Ім'я"/>
 
-                <TextInput
+                <InputText
                     id="name"
                     type="text"
                     class="mt-1 block w-full"
@@ -46,13 +46,13 @@ const form = useForm({
                     autocomplete="name"
                 />
 
-                <InputError class="mt-2" :message="form.errors.name" />
+                <InputError class="mt-2" :message="form.errors.name"/>
             </div>
 
             <div>
-                <InputLabel for="email" value="Email" />
+                <InputLabel for="email" value="Email"/>
 
-                <TextInput
+                <InputText
                     id="email"
                     type="email"
                     class="mt-1 block w-full"
@@ -61,19 +61,19 @@ const form = useForm({
                     autocomplete="username"
                 />
 
-                <InputError class="mt-2" :message="form.errors.email" />
+                <InputError class="mt-2" :message="form.errors.email"/>
             </div>
 
             <div v-if="mustVerifyEmail && user.email_verified_at === null">
                 <p class="text-sm mt-2 text-zinc-800 dark:text-zinc-200">
-                    Your email address is unverified.
+                    Ваша електронна адреса не підтверджена.
                     <Link
                         :href="route('verification.send')"
                         method="post"
                         as="button"
                         class="underline text-sm text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-zinc-800"
                     >
-                        Click here to re-send the verification email.
+                        Натисніть тут, щоб повторно надіслати електронний лист для підтвердження.
                     </Link>
                 </p>
 
@@ -81,15 +81,15 @@ const form = useForm({
                     v-show="status === 'verification-link-sent'"
                     class="mt-2 font-medium text-sm text-green-600 dark:text-green-400"
                 >
-                    A new verification link has been sent to your email address.
+                    На вашу електронну адресу надіслано нове посилання для підтвердження.
                 </div>
             </div>
 
             <div class="flex items-center gap-4">
-                <PrimaryButton :disabled="form.processing">Save</PrimaryButton>
+                <Button type="submit" :disabled="form.processing">Зберегти</Button>
 
                 <Transition enter-from-class="opacity-0" leave-to-class="opacity-0" class="transition ease-in-out">
-                    <p v-if="form.recentlySuccessful" class="text-sm text-zinc-600 dark:text-zinc-400">Saved.</p>
+                    <p v-if="form.recentlySuccessful" class="text-sm text-zinc-600 dark:text-zinc-400">Збережено</p>
                 </Transition>
             </div>
         </form>

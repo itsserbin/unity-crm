@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Tenants\CRM;
 
 use App\Http\Controllers\Api\Tenants\BaseController;
+use App\Http\Requests\Tenants\CRM\ClientCreateRequest;
 use App\Repositories\CRM\ClientsRepository;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -25,7 +26,7 @@ class ClientsController extends BaseController
         ]);
     }
 
-    final public function create(Request $request): JsonResponse
+    final public function create(ClientCreateRequest $request): JsonResponse
     {
         return $this->returnResponse([
             'success' => true,

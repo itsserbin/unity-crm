@@ -72,15 +72,11 @@ defineProps([
 
         <Card>
             <template #content>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div class="block">
-                        <CommentInput :item="item"/>
-                    </div>
-                    <div class="block">
-                        <TotalInput :item="item"/>
-                    </div>
-                </div>
+                <CommentInput :item="item"/>
             </template>
         </Card>
+
+
+        <TotalInput :item="item"/>
     </div>
 </template>

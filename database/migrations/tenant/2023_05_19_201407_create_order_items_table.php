@@ -12,11 +12,12 @@ return new class extends Migration {
     {
         Schema::create('order_items', function (Blueprint $table) {
             $table->id();
+
             $table->foreignId('order_id')
-                ->nullable()
                 ->references('id')
                 ->on('orders')
                 ->onDelete('cascade');
+
             $table->foreignId('product_id')->nullable();
             $table->foreignId('preview_id')->nullable();
 
@@ -25,10 +26,10 @@ return new class extends Migration {
             $table->string('title')->nullable();
             $table->text('comment')->nullable();
             $table->integer('count')->default(1);
-            $table->float('trade_price')->nullable();
-            $table->float('product_price')->nullable();
-            $table->float('discount')->nullable();
-            $table->float('sale_price')->nullable();
+            $table->decimal('trade_price')->nullable();
+            $table->decimal('product_price')->nullable();
+            $table->decimal('discount')->nullable();
+            $table->decimal('sale_price')->nullable();
             $table->timestamps();
         });
     }

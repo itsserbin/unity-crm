@@ -6,6 +6,16 @@ use App\Models\Catalog\Image;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * App\Models\CRM\OrderItem
+ *
+ * @property-read Image|null $preview
+ * @method static \Illuminate\Database\Eloquent\Builder|OrderItem newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|OrderItem newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|OrderItem query()
+ * @mixin \Eloquent
+ * @mixin IdeHelperOrderItem
+ */
 class OrderItem extends Model
 {
     protected $fillable = [

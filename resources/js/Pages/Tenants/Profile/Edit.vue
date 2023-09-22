@@ -1,9 +1,11 @@
 <script setup>
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
+import AppLayout from '@/Layouts/AppLayout.vue';
 import DeleteUserForm from './Partials/DeleteUserForm.vue';
 import UpdatePasswordForm from './Partials/UpdatePasswordForm.vue';
 import UpdateProfileInformationForm from './Partials/UpdateProfileInformationForm.vue';
-import { Head } from '@inertiajs/vue3';
+import AccessTokenForm from './Partials/AccessTokenForm.vue';
+import {Head} from '@inertiajs/vue3';
+import Card from "primevue/card";
 
 defineProps({
     mustVerifyEmail: {
@@ -12,35 +14,43 @@ defineProps({
     status: {
         type: String,
     },
+    tokens: Array,
 });
 </script>
 
 <template>
-    <Head title="Profile" />
+    <Head title="Profile"/>
 
-    <AuthenticatedLayout>
-        <template #header>
-            <h2 class="font-semibold text-xl text-zinc-800 dark:text-zinc-200 leading-tight">Profile</h2>
-        </template>
+    <AppLayout>
+        <div class="grid grid-cols-1 gap-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-4">
+                <Card>
+                    <template #content>
+                        <UpdateProfileInformationForm :must-verify-email="mustVerifyEmail" :status="status"/>
+                    </template>
+                </Card>
 
-        <div class="py-12">
-            <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
-                <div class="p-4 sm:p-8 bg-white dark:bg-zinc-800 shadow sm:rounded-lg">
-                    <UpdateProfileInformationForm
-                        :must-verify-email="mustVerifyEmail"
-                        :status="status"
-                        class="max-w-xl"
-                    />
-                </div>
+                <Card>
+                    <template #content>
+                        <UpdatePasswordForm/>
+                    </template>
+                </Card>
+            </div>
 
-                <div class="p-4 sm:p-8 bg-white dark:bg-zinc-800 shadow sm:rounded-lg">
-                    <UpdatePasswordForm class="max-w-xl" />
-                </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Card>
+                    <template #content>
+                        <AccessTokenForm :tokens="tokens"/>
+                    </template>
+                </Card>
 
-                <div class="p-4 sm:p-8 bg-white dark:bg-zinc-800 shadow sm:rounded-lg">
-                    <DeleteUserForm class="max-w-xl" />
-                </div>
+                <Card>
+                    <template #content>
+                        <DeleteUserForm/>
+                    </template>
+                </Card>
             </div>
         </div>
-    </AuthenticatedLayout>
+
+    </AppLayout>
 </template>

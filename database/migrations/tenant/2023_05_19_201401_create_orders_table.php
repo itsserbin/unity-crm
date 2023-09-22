@@ -19,12 +19,13 @@ return new class extends Migration {
             $table->foreignId('delivery_service_id')->nullable();
             $table->string('delivery_address')->nullable();
             $table->string('tracking_code')->nullable();
-            $table->text('comment')->nullable();
+            $table->text('manager_comment')->nullable();
+            $table->text('client_comment')->nullable();
 
-            $table->integer('total_price')->nullable();
-            $table->integer('trade_price')->nullable();
-            $table->integer('clear_total_price')->nullable();
-            $table->integer('discount')->nullable();
+            $table->decimal('total_price')->nullable();
+            $table->decimal('trade_price')->nullable();
+            $table->decimal('clear_total_price')->nullable();
+            $table->decimal('discount')->nullable();
             $table->timestamps();
         });
     }

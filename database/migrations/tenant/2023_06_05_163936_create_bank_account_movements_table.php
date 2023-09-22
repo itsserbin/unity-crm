@@ -15,13 +15,13 @@ return new class extends Migration {
 
             $table->foreignId('account_id')
                 ->references('id')
-                ->on('bank_accounts')
+                ->on('accounts')
                 ->onDelete('cascade');
 
             $table->string('movement_id')->nullable();
             $table->dateTime('date');
-            $table->float('sum');
-            $table->float('balance')->nullable();
+            $table->decimal('sum');
+            $table->decimal('balance')->nullable();
             $table->foreignId('category_id')->nullable();
             $table->string('comment')->nullable();
             $table->timestamps();

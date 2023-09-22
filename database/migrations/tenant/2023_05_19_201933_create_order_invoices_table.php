@@ -19,7 +19,7 @@ return new class extends Migration {
                 ->onDelete('cascade');
             $table->dateTime('date');
             $table->string('payment_type');
-            $table->float('sum');
+            $table->decimal('sum');
             $table->text('comment')->nullable();
             $table->integer('status')->default(-1);
             $table->timestamps();

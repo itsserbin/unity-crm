@@ -6,14 +6,18 @@ use App\Http\Controllers\Api\Tenants\Catalog\ProductsController;
 use App\Http\Controllers\Api\Tenants\CRM\ClientsController;
 use App\Http\Controllers\Api\Tenants\CRM\OrdersController;
 use App\Http\Controllers\Api\Tenants\CRM\TrackingCodesController;
+use App\Http\Controllers\Api\Tenants\Finance\AccountsController;
 use App\Http\Controllers\Api\Tenants\MonobankController;
 use App\Http\Controllers\Api\Tenants\Options\DeliveryServicesController;
 use App\Http\Controllers\Api\Tenants\Options\SourcesController;
 use App\Http\Controllers\Api\Tenants\Options\StatusesController;
 use App\Http\Controllers\Api\Tenants\Options\StatusGroupsController;
-use App\Http\Controllers\Api\Tenants\Statistics\BankAccountMovementsController;
-use App\Http\Controllers\Api\Tenants\Statistics\BankAccountsController;
-use App\Http\Controllers\Api\Tenants\Statistics\MovementCategoriesController;
+use App\Http\Controllers\Api\Tenants\Finance\BankAccountMovementsController;
+use App\Http\Controllers\Api\Tenants\Finance\BankAccountsController;
+use App\Http\Controllers\Api\Tenants\Finance\CashFlowController;
+use App\Http\Controllers\Api\Tenants\Finance\MovementCategoriesController;
+use App\Http\Controllers\Api\Tenants\Finance\ProfitAndLossController;
+use App\Http\Controllers\Api\Tenants\ProfileController;
 use App\Http\Controllers\Api\Tenants\UploadController;
 use App\Http\Controllers\Api\Tenants\UsersController;
 use Illuminate\Http\Request;
@@ -30,11 +34,30 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
-});
+//Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+//    return $request->user();
+//});
 
 Route::middleware('auth:sanctum')->group(function () {
+    Route::prefix('user')->group(function () {
+        Route::prefix('tokens')->group(function () {
+            Route::get('list', [ProfileController::class, 'getAllUserTokens'])
+                ->name('api.user.tokens.list');
+
+            Route::get('edit/{id}', [ProfileController::class, 'getTokenById'])
+                ->name('api.user.tokens.edit');
+
+            Route::put('update/{id}', [ProfileController::class, 'updateToken'])
+                ->name('api.user.tokens.update');
+
+            Route::post('create', [ProfileController::class, 'createToken'])
+                ->name('api.user.tokens.create');
+
+            Route::delete('destroy/{id}', [ProfileController::class, 'destroyTokenById'])
+                ->name('api.user.tokens.destroy');
+        });
+    });
+
     Route::prefix('products')->group(function () {
         Route::get('/', [ProductsController::class, 'index'])
             ->name('api.products.index');
@@ -271,6 +294,26 @@ Route::middleware('auth:sanctum')->group(function () {
             ->name('api.images.destroy');
     });
 
+    Route::prefix('accounts')->group(function () {
+        Route::get('/', [AccountsController::class, 'index'])
+            ->name('api.accounts.index');
+
+        Route::get('edit/{id}', [AccountsController::class, 'edit'])
+            ->name('api.accounts.edit');
+
+        Route::put('update/{id}', [AccountsController::class, 'update'])
+            ->name('api.accounts.update');
+
+        Route::post('create', [AccountsController::class, 'create'])
+            ->name('api.accounts.create');
+
+        Route::delete('/destroy/{id}', [AccountsController::class, 'destroy'])
+            ->name('api.accounts.destroy');
+
+        Route::get('list', [AccountsController::class, 'list'])
+            ->name('api.accounts.list');
+    });
+
     Route::prefix('bank-accounts')->group(function () {
         Route::get('/', [BankAccountsController::class, 'index'])
             ->name('api.bank-accounts.index');
@@ -330,6 +373,12 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::delete('/destroy/{id}', [BankAccountMovementsController::class, 'destroy'])
             ->name('api.bank-account-movements.destroy');
     });
+
+    Route::get('profit-and-loss', [ProfitAndLossController::class, 'index'])
+        ->name('api.profit-and-loss.index');
+
+    Route::get('cash-flow', [CashFlowController::class, 'index'])
+        ->name('api.cash-flow.index');
 
     Route::prefix('upload')->group(function () {
         Route::post('product-preview', [UploadController::class, 'uploadProductPreview'])

@@ -166,15 +166,21 @@ class OrdersRepository extends CoreRepository
         }, 0);
 
         $model->total_price = array_reduce($items, function ($carry, $item) {
-                return $carry + $item['sale_price'];
+                if (isset($item['sale_price'])) {
+                    return $carry + $item['sale_price'];
+                }
+                return $carry;
             }, 0) - $model->discount;
 
         $model->trade_price = array_reduce($items, function ($carry, $item) {
-            return $carry + $item['trade_price'];
+            if (isset($item['trade_price'])) {
+                return $carry + $item['trade_price'];
+            }
+            return $carry;
         }, 0);
 
         $model->clear_total_price = $model->total_price - $model->trade_price - $costs;
-
+;
         $model->update();
 
         return $model;
@@ -280,5 +286,19 @@ class OrdersRepository extends CoreRepository
     private function getPagination(array $data): int
     {
         return $data['perPage'] ?? 15;
+    }
+
+    final public function getPriceByMonth(string $month, string $column = 'total_price'): float
+    {
+        $startOfMonth = date('Y-m-01', strtotime($month));
+        $endOfMonth = date('Y-m-t', strtotime($month));
+
+        $orders = $this->model::whereHas('status', function ($q) {
+            $q->where('group_slug', 'new');
+        })
+            ->whereBetween('created_at', [$startOfMonth, $endOfMonth])
+            ->get();
+
+        return $orders->sum($column);
     }
 }

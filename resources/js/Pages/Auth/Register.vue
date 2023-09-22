@@ -7,6 +7,7 @@ import Button from 'primevue/button';
 import InputText from 'primevue/inputtext';
 import InputMask from 'primevue/inputmask';
 import Loader from "@/Components/Loader.vue";
+import ApplicationLogo from "@/Components/ApplicationLogo.vue";
 
 const form = useForm({
     name: '',
@@ -33,9 +34,7 @@ const submit = () => {
         <div v-if="form.processing" class="text-2xl tex-center flex items-center justify-center min-h-[400px]">
             <div class="text-center flex flex-col justify-center gap-6">
                 <div class="w-full flex justify-center">
-                    <div class="w-24 h-24">
-                        <Loader/>
-                    </div>
+                    <ApplicationLogo class="mx-auto fill-current text-zinc-500 w-20 h-20"/>
                 </div>
                 Зараз я створюю вашу CRM систему, зачейте трохи :)
             </div>

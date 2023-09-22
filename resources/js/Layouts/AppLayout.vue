@@ -54,16 +54,39 @@ const menu = [
         isActive: false,
         child: [
             {
-                href: route('statistics.bank-accounts'),
+                href: route('finance.movement-categories'),
+                title: 'Категорії рухів'
+            },
+            {
+                href: route('finance.bank-accounts'),
+                title: 'Банківські акаунти'
+            },
+            {
+                href: route('finance.accounts'),
                 title: 'Рахунки'
             },
             {
-                href: route('statistics.bank-account-movements'),
+                href: route('finance.bank-account-movements'),
                 title: 'Грошові рухи'
             },
             {
-                href: route('statistics.movement-categories'),
-                title: 'Категорії рухів'
+                href: route('finance.profit-and-loss'),
+                title: 'P&L'
+            },
+            {
+                href: route('finance.cash-flow'),
+                title: 'CashFlow'
+            },
+        ]
+    },
+    {
+        title: 'Статистика',
+        icon: 'pi pi-chart-line',
+        isActive: false,
+        child: [
+            {
+                href: route('finance.bank-account-movements'),
+                title: 'В розробці'
             },
         ]
     },
@@ -85,6 +108,11 @@ const menu = [
                 title: 'Служби доставки'
             }
         ]
+    },
+    {
+        href: route('profile.edit'),
+        title: 'Акаунт',
+        icon: 'pi pi-user'
     },
     {
         href: route('logout'),

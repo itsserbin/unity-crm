@@ -18,7 +18,7 @@ return new class extends Migration {
                 ->on('orders')
                 ->onDelete('cascade');
             $table->string('title');
-            $table->float('sum');
+            $table->decimal('sum');
             $table->text('comment')->nullable();
             $table->timestamps();
         });

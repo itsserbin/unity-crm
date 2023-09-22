@@ -1,10 +1,12 @@
 <script setup>
-import DangerButton from '@/Components/DangerButton.vue';
+// import DangerButton from '@/Components/DangerButton.vue';
 import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import Modal from '@/Components/Modal.vue';
-import SecondaryButton from '@/Components/SecondaryButton.vue';
-import TextInput from '@/Components/TextInput.vue';
+// import SecondaryButton from '@/Components/SecondaryButton.vue';
+// import TextInput from '@/Components/TextInput.vue';
+import InputText from "primevue/inputtext";
+import Button from "primevue/button";
 import { useForm } from '@inertiajs/vue3';
 import { nextTick, ref } from 'vue';
 
@@ -40,37 +42,37 @@ const closeModal = () => {
 <template>
     <section class="space-y-6">
         <header>
-            <h2 class="text-lg font-medium text-zinc-900 dark:text-zinc-100">Delete Account</h2>
+            <h2 class="text-lg font-medium text-zinc-900 dark:text-zinc-100">Видалити аккаунт</h2>
 
             <p class="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
-                Once your account is deleted, all of its resources and data will be permanently deleted. Before deleting
-                your account, please download any data or information that you wish to retain.
+                Після видалення вашого облікового запису всі його ресурси та дані буде остаточно видалено. Перед видаленням
+                свого облікового запису, завантажте будь-які дані чи інформацію, які ви бажаєте зберегти.
             </p>
         </header>
 
-        <DangerButton @click="confirmUserDeletion">Delete Account</DangerButton>
+        <Button severity="danger" @click="confirmUserDeletion">Видалити аккаунт</Button>
 
         <Modal :show="confirmingUserDeletion" @close="closeModal">
             <div class="p-6">
                 <h2 class="text-lg font-medium text-zinc-900 dark:text-zinc-100">
-                    Are you sure you want to delete your account?
+                    Ви впевнені, що хочете видалити свій обліковий запис?
                 </h2>
 
                 <p class="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
-                    Once your account is deleted, all of its resources and data will be permanently deleted. Please
-                    enter your password to confirm you would like to permanently delete your account.
+                    Після видалення вашого облікового запису всі його ресурси та дані буде остаточно видалено. Будь ласка
+                    введіть свій пароль, щоб підтвердити, що ви хочете остаточно видалити свій обліковий запис.
                 </p>
 
                 <div class="mt-6">
-                    <InputLabel for="password" value="Password" class="sr-only" />
+                    <InputLabel for="password" value="Пароль" class="sr-only" />
 
-                    <TextInput
+                    <InputText
                         id="password"
                         ref="passwordInput"
                         v-model="form.password"
                         type="password"
-                        class="mt-1 block w-3/4"
-                        placeholder="Password"
+                        class="w-full"
+                        placeholder="Ваш пароль"
                         @keyup.enter="deleteUser"
                     />
 
@@ -78,16 +80,17 @@ const closeModal = () => {
                 </div>
 
                 <div class="mt-6 flex justify-end">
-                    <SecondaryButton @click="closeModal"> Cancel </SecondaryButton>
+                    <Button link @click="closeModal">Скасувати</Button>
 
-                    <DangerButton
+                    <Button
+                        severity="danger"
                         class="ml-3"
                         :class="{ 'opacity-25': form.processing }"
                         :disabled="form.processing"
                         @click="deleteUser"
                     >
-                        Delete Account
-                    </DangerButton>
+                        Видалити акаунт
+                    </Button>
                 </div>
             </div>
         </Modal>

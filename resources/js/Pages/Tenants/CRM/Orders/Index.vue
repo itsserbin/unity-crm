@@ -114,7 +114,8 @@ const onCreate = () => {
         status_id: null,
         client_id: null,
         manager_id: null,
-        comment: null,
+        manager_comment: null,
+        client_comment: null,
         discount: null,
         tracking_codes: [
             {
@@ -158,7 +159,11 @@ const onSubmit = async () => {
             }),
             ...rest
         };
-        const data = id ? await OrdersRepository.update(id, updatedItem) : await OrdersRepository.create(updatedItem);
+
+        const data = id
+            ? await OrdersRepository.update(id, updatedItem)
+            : await OrdersRepository.create(updatedItem);
+
         if (data.success) {
             await fetch();
             toggleModal();

@@ -1,10 +1,10 @@
 <script setup>
 import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
-import PrimaryButton from '@/Components/PrimaryButton.vue';
-import TextInput from '@/Components/TextInput.vue';
-import { useForm } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import {useForm} from '@inertiajs/vue3';
+import {ref} from 'vue';
+import InputText from "primevue/inputtext";
+import Button from "primevue/button";
 
 const passwordInput = ref(null);
 const currentPasswordInput = ref(null);
@@ -36,18 +36,18 @@ const updatePassword = () => {
 <template>
     <section>
         <header>
-            <h2 class="text-lg font-medium text-zinc-900 dark:text-zinc-100">Update Password</h2>
+            <h2 class="text-lg font-medium text-zinc-900 dark:text-zinc-100">Оновити пароль</h2>
 
             <p class="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
-                Ensure your account is using a long, random password to stay secure.
+                Переконайтеся, що ваш обліковий запис використовує довгий довільний пароль, щоб залишатися в безпеці.
             </p>
         </header>
 
         <form @submit.prevent="updatePassword" class="mt-6 space-y-6">
             <div>
-                <InputLabel for="current_password" value="Current Password" />
+                <InputLabel for="current_password" value="Поточний пароль"/>
 
-                <TextInput
+                <InputText
                     id="current_password"
                     ref="currentPasswordInput"
                     v-model="form.current_password"
@@ -56,13 +56,13 @@ const updatePassword = () => {
                     autocomplete="current-password"
                 />
 
-                <InputError :message="form.errors.current_password" class="mt-2" />
+                <InputError :message="form.errors.current_password" class="mt-2"/>
             </div>
 
             <div>
-                <InputLabel for="password" value="New Password" />
+                <InputLabel for="password" value="Новий пароль"/>
 
-                <TextInput
+                <InputText
                     id="password"
                     ref="passwordInput"
                     v-model="form.password"
@@ -71,13 +71,13 @@ const updatePassword = () => {
                     autocomplete="new-password"
                 />
 
-                <InputError :message="form.errors.password" class="mt-2" />
+                <InputError :message="form.errors.password" class="mt-2"/>
             </div>
 
             <div>
-                <InputLabel for="password_confirmation" value="Confirm Password" />
+                <InputLabel for="password_confirmation" value="Підтвердьте пароль"/>
 
-                <TextInput
+                <InputText
                     id="password_confirmation"
                     v-model="form.password_confirmation"
                     type="password"
@@ -85,14 +85,14 @@ const updatePassword = () => {
                     autocomplete="new-password"
                 />
 
-                <InputError :message="form.errors.password_confirmation" class="mt-2" />
+                <InputError :message="form.errors.password_confirmation" class="mt-2"/>
             </div>
 
             <div class="flex items-center gap-4">
-                <PrimaryButton :disabled="form.processing">Save</PrimaryButton>
+                <Button :disabled="form.processing">Зберегти</Button>
 
                 <Transition enter-from-class="opacity-0" leave-to-class="opacity-0" class="transition ease-in-out">
-                    <p v-if="form.recentlySuccessful" class="text-sm text-zinc-600 dark:text-zinc-400">Saved.</p>
+                    <p v-if="form.recentlySuccessful" class="text-sm text-zinc-600 dark:text-zinc-400">Збережено</p>
                 </Transition>
             </div>
         </form>

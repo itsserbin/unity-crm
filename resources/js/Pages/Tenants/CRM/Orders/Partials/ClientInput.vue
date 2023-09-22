@@ -23,8 +23,8 @@ const state = reactive({
 const clientModal = reactive({
     isShow: false,
     item: {
-        phones: [{number: null}],
-        emails: [{address: null}],
+        phones: [''],
+        emails: [''],
         full_name: null,
         comment: null,
         addresses: [],

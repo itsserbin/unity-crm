@@ -19,6 +19,11 @@ class ProductsRepository extends CoreRepository
         return $this->model::where('id', $id)->with('categories:id,title', 'preview')->first();
     }
 
+    final public function findByColumn(string $column, mixed $value)
+    {
+        return $this->model::where($column, $value)->first();
+    }
+
     final public function getAllWithPaginate(array $data): LengthAwarePaginator
     {
         $columns = [

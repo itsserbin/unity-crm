@@ -2,11 +2,28 @@
 
 namespace App\Models\CRM;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+/**
+ * App\Models\CRM\Client
+ *
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CRM\ClientDeliveryAddress> $addresses
+ * @property-read int|null $addresses_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CRM\Order> $orders
+ * @property-read int|null $orders_count
+ * @method static \Illuminate\Database\Eloquent\Builder|Client newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Client newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Client query()
+ * @method static \Database\Factories\CRM\ClientFactory factory($count = null, $state = [])
+ * @mixin \Eloquent
+ * @mixin IdeHelperClient
+ */
 class Client extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
         'phones',
         'emails',

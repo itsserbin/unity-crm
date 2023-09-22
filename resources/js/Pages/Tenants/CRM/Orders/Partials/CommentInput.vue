@@ -7,11 +7,16 @@ defineProps(['item']);
 </script>
 
 <template>
-    <InputLabel>Коментар до замовлення</InputLabel>
-    <Textarea v-model="item.comment" class="w-full" rows="6"
-              placeholder="Вкажіть коментар"/>
-
-    <InputLabel>Знижка на замовлення</InputLabel>
-    <TextInput v-model="item.discount" class="w-full" type="number"
-               placeholder="Сума в грн"/>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="block">
+            <InputLabel>Коментар клієнта</InputLabel>
+            <Textarea v-model="item.client_comment" class="w-full" rows="6"
+                      placeholder="Введіть коментар"/>
+        </div>
+        <div class="block">
+            <InputLabel>Коментар менеджера</InputLabel>
+            <Textarea v-model="item.manager_comment" class="w-full" rows="6"
+                      placeholder="Введіть коментар"/>
+        </div>
+    </div>
 </template>
