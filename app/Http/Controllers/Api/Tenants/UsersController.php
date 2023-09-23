@@ -33,9 +33,9 @@ class UsersController extends BaseController
     /**
      * @return JsonResponse
      */
-    final public function list(): JsonResponse
+    final public function list(Request $request): JsonResponse
     {
-        $result = $this->usersRepository->list();
+        $result = $this->usersRepository->list($request->all());
 
         return $this->returnResponse([
             'success' => true,

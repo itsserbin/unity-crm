@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Tenants\Options;
 
 use App\Http\Controllers\Tenants\BaseController;
+use App\Models\Enums\Sources;
 use App\Repositories\Options\SourcesRepository;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -21,9 +22,11 @@ class SourcesController extends BaseController
     final public function create(Request $request): Response
     {
         $sources = $this->sourcesRepository->getAllWithPaginate($request->all());
+        $sourceTypes = Sources::state;
 
         return Inertia::render('Tenants/Options/Sources/Index', [
-            'sources' => $sources
+            'sources' => $sources,
+            'sourceTypes' => $sourceTypes
         ]);
     }
 }

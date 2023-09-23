@@ -51,4 +51,25 @@ abstract class CoreRepository
     {
         return $model::where('slug', $slug)->first();
     }
+
+    final public function coreGetModelByColumn(
+        Model  $model,
+        string $column,
+        mixed  $value,
+        string $method = 'first',
+        array  $select = []
+    ): Model|array|\Illuminate\Database\Eloquent\Collection|\Illuminate\Support\Collection|null
+    {
+        $model = $model::where($column, $value);
+
+        if (count($select)) {
+            $model->select($select);
+        }
+
+        if ($method === 'get') {
+            return $model->get();
+        } else {
+            return $model->first();
+        }
+    }
 }

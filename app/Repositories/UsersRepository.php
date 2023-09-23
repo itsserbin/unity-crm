@@ -52,10 +52,30 @@ class UsersRepository extends CoreRepository
         return $this->coreDestroy($this->model, $id);
     }
 
-    final public function list(): Collection
+    final public function list(array $data = []): Collection
     {
-        return $this->model::select([
-            'id', 'email', 'phone'
-        ])->orderBy('id', 'desc')->get();
+        $model = $this->model::select($this->getTableColumns());
+
+        if (isset($data['query'])) {
+            $query = htmlspecialchars($data['query'], ENT_QUOTES, 'UTF-8');
+            $model->where(function ($queryBuilder) use ($query) {
+                $queryBuilder->where('id', 'ilike', "%$query%")
+                    ->orWhere('name', 'ilike', "%$query%")
+                    ->orWhere('email', 'ilike', "%$query%")
+                    ->orWhere('phone', 'ilike', "%$query%");
+            });
+        }
+
+        return $model->limit($data['limit'] ?? 15)->get();
+    }
+
+    private function getTableColumns(): array
+    {
+        return [
+            'id',
+            'name',
+            'email',
+            'phone',
+        ];
     }
 }

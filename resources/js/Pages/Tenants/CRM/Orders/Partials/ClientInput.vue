@@ -9,8 +9,13 @@ import {defineAsyncComponent, onMounted, reactive} from "vue";
 import ClientsRepository from "@/Repositories/Tenants/CRM/ClientsRepository.js";
 import {toast} from "vue3-toastify";
 
-const ClientModal = defineAsyncComponent(() => import('@/Pages/Tenants/CRM/Clients/Modal.vue'))
-const AddressesModal = defineAsyncComponent(() => import('@/Pages/Tenants/CRM/Clients/Partials/AddressesModal.vue'))
+const ClientModal = defineAsyncComponent(
+    () => import('@/Pages/Tenants/CRM/Clients/Modal.vue')
+);
+
+const AddressesModal = defineAsyncComponent(
+    () => import('@/Pages/Tenants/CRM/Clients/Partials/AddressesModal.vue')
+);
 
 const props = defineProps(['item', 'clients']);
 
@@ -29,7 +34,8 @@ const clientModal = reactive({
         comment: null,
         addresses: [],
         orders: []
-    }
+    },
+    errors: []
 });
 
 const addressModal = reactive({
@@ -51,7 +57,7 @@ onMounted(async () => {
     }
 });
 
-const switchClientModal = (val) => val ? clientModal.isShow = val : clientModal.isShow = !clientModal.isShow;
+const switchClientModal = () => clientModal.isShow = !clientModal.isShow;
 const switchAddressModal = (val) => val ? addressModal.isShow = val : addressModal.isShow = !addressModal.isShow;
 
 const getClients = async () => {
@@ -69,9 +75,7 @@ const getClients = async () => {
 const mapData = (data) => {
     return data.map((item) => {
         return {
-            label: item.full_name + ' ' + item.phones.map(function (phone) {
-                return phone.number;
-            }).join(','),
+            label: item.full_name + ' ' + item.phones.map((phone) => phone).join(','),
             name: item.full_name,
             phones: item.phones,
             emails: item.emails,
@@ -111,18 +115,19 @@ const removeDeliveryAddress = () => {
 }
 
 const onCreateClient = async () => {
+    clientModal.errors = [];
     try {
         await ClientsRepository.create(clientModal.item);
         clientModal.item = {
-            phones: [{number: null}],
-            emails: [{address: null}],
+            phones: [''],
+            emails: [''],
             full_name: null,
             comment: null,
             addresses: [],
             orders: []
         };
         await getClients();
-        switchClientModal(false);
+        switchClientModal();
     } catch (e) {
         console.error(e);
         toast.error("Failed to create client");
@@ -181,38 +186,49 @@ const onCreateAddress = async () => {
                               @change="onChangeClient"
                     >
                         <template #option="slotProps">
-                            <div class="text-base">{{ slotProps.option.name }}</div>
-                            <div class="text-sm text-zinc-800 dark:text-zinc-200"
-                                 v-for="phone in slotProps.option.phones">
-                                {{ phone.number }}
+                            <div class="flex gap-x-2 items-center" v-if="slotProps.option.name">
+                                <i class="pi pi-user"></i>
+                                <div class="text-xl">{{ slotProps.option.name }}</div>
                             </div>
-                            <div class="text-sm text-zinc-800 dark:text-zinc-200"
+                            <div class="flex gap-x-2 items-center"
+                                 v-for="phone in slotProps.option.phones"
+                                 v-if="slotProps.option.phones.length"
+                            >
+                                <i class="pi pi-phone"></i>
+                                <div class="text-sm text-zinc-800 dark:text-zinc-200">
+                                    {{ phone }}
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-x-2"
                                  v-for="email in slotProps.option.emails"
-                                 v-if="slotProps.option.emails.length">
-                                {{ email.address }}
+                                 v-if="(slotProps.option.emails.length === 1 && slotProps.option.emails[0] !== null)"
+                            >
+                                <i class="pi pi-inbox"></i>
+                                <div class="text-sm text-zinc-800 dark:text-zinc-200">
+                                    {{ email }}
+                                </div>
                             </div>
                         </template>
                     </Dropdown>
                     <Button @click="switchClientModal" type="button" icon="pi pi-plus"></Button>
                 </div>
                 <div v-if="state.client && item.client_id"
-
                      class="flex p-2 text-zinc-800 dark:text-zinc-200 hover:bg-zinc-300 dark:hover:bg-zinc-700 rounded transition-all">
                     <div class="flex flex-col w-full">
                         <div class="text-lg">
-                            <i class="pi pi-user"></i>
+                            <i class="pi pi-user" style="font-size: 0.7rem"></i>
                             {{ state.client.full_name }}
                         </div>
                         <div class="text-sm" v-for="phone in state.client.phones">
-                            <div v-if="phone.number">
-                                <i class="pi pi-phone"></i>
-                                {{ phone.number }}
+                            <div v-if="phone">
+                                <i class="pi pi-phone" style="font-size: 0.7rem"></i>
+                                {{ phone }}
                             </div>
                         </div>
                         <div class="text-sm" v-for="email in state.client.emails">
-                            <div v-if="email.address">
-                                <i class="pi pi-at"></i>
-                                {{ email.address }}
+                            <div v-if="email">
+                                <i class="pi pi-at" style="font-size: 0.7rem"></i>
+                                {{ email }}
                             </div>
                         </div>
                     </div>
@@ -252,7 +268,7 @@ const onCreateAddress = async () => {
             </template>
         </Card>
     </div>
-    <ClientModal v-if="clientModal.isShow"
+    <ClientModal v-if="clientModal.isShow" :errors="clientModal.errors"
                  :show="clientModal.isShow" :item="clientModal.item"
                  @close="switchClientModal" @submit="onCreateClient"/>
 

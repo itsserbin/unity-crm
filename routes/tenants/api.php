@@ -39,24 +39,6 @@ use Illuminate\Support\Facades\Route;
 //});
 
 Route::middleware('auth:sanctum')->group(function () {
-    Route::prefix('user')->group(function () {
-        Route::prefix('tokens')->group(function () {
-            Route::get('list', [ProfileController::class, 'getAllUserTokens'])
-                ->name('api.user.tokens.list');
-
-            Route::get('edit/{id}', [ProfileController::class, 'getTokenById'])
-                ->name('api.user.tokens.edit');
-
-            Route::put('update/{id}', [ProfileController::class, 'updateToken'])
-                ->name('api.user.tokens.update');
-
-            Route::post('create', [ProfileController::class, 'createToken'])
-                ->name('api.user.tokens.create');
-
-            Route::delete('destroy/{id}', [ProfileController::class, 'destroyTokenById'])
-                ->name('api.user.tokens.destroy');
-        });
-    });
 
     Route::prefix('products')->group(function () {
         Route::get('/', [ProductsController::class, 'index'])
@@ -261,6 +243,23 @@ Route::middleware('auth:sanctum')->group(function () {
 
         Route::delete('/destroy/{id}', [UsersController::class, 'destroy'])
             ->name('api.users.destroy');
+
+        Route::prefix('tokens')->group(function () {
+            Route::get('list', [ProfileController::class, 'getAllUserTokens'])
+                ->name('api.user.tokens.list');
+
+            Route::get('edit/{id}', [ProfileController::class, 'getTokenById'])
+                ->name('api.user.tokens.edit');
+
+            Route::put('update/{id}', [ProfileController::class, 'updateToken'])
+                ->name('api.user.tokens.update');
+
+            Route::post('create', [ProfileController::class, 'createToken'])
+                ->name('api.user.tokens.create');
+
+            Route::delete('destroy/{id}', [ProfileController::class, 'destroyTokenById'])
+                ->name('api.user.tokens.destroy');
+        });
     });
 
     Route::prefix('tracking-codes')->group(function () {

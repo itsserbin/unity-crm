@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Tenants\Options;
 
 use App\Http\Controllers\Api\Tenants\BaseController;
+use App\Http\Requests\Tenants\Options\SourcesRequest;
 use App\Repositories\Options\SourcesRepository;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -45,10 +46,10 @@ class SourcesController extends BaseController
     }
 
     /**
-     * @param Request $request
+     * @param SourcesRequest $request
      * @return JsonResponse
      */
-    final public function create(Request $request): JsonResponse
+    final public function create(SourcesRequest $request): JsonResponse
     {
         $result = $this->sourcesRepository->create($request->all());
 
@@ -74,10 +75,10 @@ class SourcesController extends BaseController
 
     /**
      * @param int $id
-     * @param Request $request
+     * @param SourcesRequest $request
      * @return JsonResponse
      */
-    final public function update(int $id, Request $request): JsonResponse
+    final public function update(int $id, SourcesRequest $request): JsonResponse
     {
         $result = $this->sourcesRepository->update($id, $request->all());
 

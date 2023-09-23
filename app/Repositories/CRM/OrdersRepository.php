@@ -51,7 +51,7 @@ class OrdersRepository extends CoreRepository
                 ]);
                 $q->with('preview:id,alt,data');
             },
-            'manager:id,name',
+            'manager:id,name,phone,email',
             'costs:title,sum,comment,order_id',
             'deliveryService:id,title',
             'invoices:id,order_id,date,payment_type,sum,comment,status',
@@ -223,6 +223,8 @@ class OrdersRepository extends CoreRepository
 
     final public function search(string $query, array $data): LengthAwarePaginator
     {
+        $query = htmlspecialchars($query, ENT_QUOTES, 'UTF-8');
+
         $model = $this->model::select($this->getTableColumns())
             ->where('id', 'LIKE', "%$query%")
             ->orWhereHas('client', function ($q) use ($query) {
@@ -257,7 +259,8 @@ class OrdersRepository extends CoreRepository
             'manager_id',
             'delivery_service_id',
             'delivery_address',
-            'comment',
+            'client_comment',
+            'manager_comment',
             'total_price',
             'trade_price',
             'clear_total_price',

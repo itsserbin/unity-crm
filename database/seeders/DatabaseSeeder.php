@@ -14,5 +14,6 @@ class DatabaseSeeder extends Seeder
         $this->call(StatusesSeeder::class);
         $this->call(MovementCategoriesSeeder::class);
         $this->call(AccountsSeeder::class);
+        $this->call(SourcesSeeder::class);
     }
 }

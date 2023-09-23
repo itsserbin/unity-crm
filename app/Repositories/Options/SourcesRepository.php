@@ -19,6 +19,11 @@ class SourcesRepository extends CoreRepository
         return $this->coreFind($this->model, $id);
     }
 
+    final public function getModelByColumn(string $column, mixed $value)
+    {
+        return $this->coreGetModelByColumn($this->model, $column, $value);
+    }
+
     final public function getAllWithPaginate(array $data): LengthAwarePaginator
     {
         $columns = [

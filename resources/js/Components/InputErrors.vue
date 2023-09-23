@@ -4,6 +4,6 @@ defineProps(['errors']);
 
 <template>
     <small v-if="errors" class="p-error" v-for="error in errors">
-        {{ error }}
+        {{ error }}&nbsp;
     </small>
 </template>

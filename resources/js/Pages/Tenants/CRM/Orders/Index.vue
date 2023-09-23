@@ -147,7 +147,7 @@ const onSubmit = async () => {
             ...(source_id && {source_id: source_id.value}),
             ...(status_id && {status_id: status_id.code}),
             ...(client_id && {client_id: client_id.value}),
-            ...(manager_id && {manager_id: manager_id.value}),
+            ...(manager_id && {manager_id: manager_id.id}),
             ...(tracking_codes.length && tracking_codes[0].code && {
                 tracking_codes: tracking_codes.map((item) => {
                     if (item.delivery_service_id) {
@@ -185,7 +185,12 @@ const onEdit = async (id) => {
     try {
         const data = await OrdersRepository.edit(id);
         item.value = data.result;
-        item.value.source = {code: data.result.source};
+        if (item.value.source) {
+            item.value.source = {code: data.result.source};
+        }
+        if (item.value.manager_id) {
+            item.value.manager_id = {id: data.result.manager_id};
+        }
         if (!item.value.tracking_codes.length) {
             item.value.tracking_codes.push({
                 code: null,
@@ -417,7 +422,7 @@ const showTrackingCodeLog = async (id) => {
                         <div class="text-center">
                             <div v-if="data.client && data.client.phones.length"
                                  v-for="phone in data.client.phones">
-                                {{ $filters.formatPhone(phone.number) }}
+                                {{ $filters.formatPhone(phone) }}
                             </div>
                             <div v-else>(Пусто)</div>
                         </div>

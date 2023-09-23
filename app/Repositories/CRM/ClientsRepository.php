@@ -102,6 +102,8 @@ class ClientsRepository extends CoreRepository
 
     final public function search(string $query, array $data): LengthAwarePaginator
     {
+        $query = htmlspecialchars($query, ENT_QUOTES, 'UTF-8');
+
         return $this->model::select($this->getTableColumns())
             ->where('id', 'LIKE', "%$query%")
             ->orWhere('full_name', 'LIKE', "%$query%")

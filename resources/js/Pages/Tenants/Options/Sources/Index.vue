@@ -12,9 +12,14 @@ import {toast} from 'vue3-toastify';
 import {ref, onMounted, reactive, defineAsyncComponent} from 'vue';
 import {useConfirm} from "@/Components/ConfirmationModal/useConfirm.js";
 
-const Modal = defineAsyncComponent(() => import('./Modal.vue'))
+const Modal = defineAsyncComponent(
+    () => import('./Modal.vue')
+);
 
-const props = defineProps(['sources']);
+const props = defineProps([
+    'sources',
+    'sourceTypes'
+]);
 
 const state = reactive({
     isLoading: false,
@@ -22,6 +27,7 @@ const state = reactive({
     isLoadingModal: false,
     isLoadingRefreshButton: false,
     data: {},
+    errors: [],
     search: null
 });
 
@@ -95,18 +101,24 @@ const onCreate = () => {
 
 const onSubmit = async () => {
     state.isLoadingModal = true;
+    state.errors = [];
     try {
         if (item.value.source) {
             item.value.source = item.value.source.code;
         }
 
-        item.value.id
+        const data = item.value.id
             ? await SourcesRepository.update(item.value)
             : await SourcesRepository.create(item.value);
 
-        await fetch();
-        toggleModal();
-        toast.success("Success");
+        if (data.success) {
+            await fetch();
+            toggleModal();
+            toast.success("Success");
+        } else {
+            state.errors = data.data;
+            toast.error("Error");
+        }
     } catch (e) {
         console.error(e);
         toast.error("Error");
@@ -245,11 +257,13 @@ const refreshData = async () => {
             </DataTable>
         </div>
         <Modal v-if="state.isShowModal"
-               :show="state.isShowModal"
                :item="item"
-               @close="toggleModal(false)"
-               @submit="onSubmit"
+               :errors="state.errors"
+               :sourceTypes="sourceTypes"
+               :show="state.isShowModal"
                :isLoadingModal="state.isLoadingModal"
+               @submit="onSubmit"
+               @close="toggleModal(false)"
         />
     </AppLayout>
 </template>
