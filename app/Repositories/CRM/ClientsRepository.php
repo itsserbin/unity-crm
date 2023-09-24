@@ -23,8 +23,8 @@ class ClientsRepository extends CoreRepository
     public function findByColumn(string $column, string $value)
     {
         if ($column === 'phones') {
-            return DB::table('clients')
-                ->whereJsonContains('phones', $value)
+            return $this
+                ->model::whereJsonContains('phones', $value)
                 ->first();
         } else {
             return $this->model::where($column, $value)->first();
