@@ -80,4 +80,9 @@ class StatusesRepository extends CoreRepository
     {
         return $this->model::where('id', $id)->update(['published' => $value]);
     }
+
+    final public function getAll()
+    {
+        return $this->model::all();
+    }
 }

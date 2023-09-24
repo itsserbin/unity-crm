@@ -12,7 +12,7 @@ return new class extends Migration {
     {
         Schema::create('order_statistics', function (Blueprint $table) {
             $table->id();
-            $table->date('date')->unique();
+            $table->date('date');
             $table->foreignId('status_id')
                 ->references('id')
                 ->on('statuses')

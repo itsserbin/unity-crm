@@ -6,9 +6,10 @@ use App\Jobs\UpdateTrackingCode;
 use App\Models\CRM\Order as Model;
 use App\Repositories\CoreRepository;
 use App\Repositories\Options\StatusesRepository;
+use App\Repositories\Statistics\OrderStatisticsRepository;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Bus\PendingDispatch;
-use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use JsonException;
 
 class OrdersRepository extends CoreRepository
@@ -66,10 +67,10 @@ class OrdersRepository extends CoreRepository
     final public function create(array $data): \Illuminate\Database\Eloquent\Model
     {
         $model = new $this->model;
-        $this->updateStatusesOrderCount(null, $data['status_id']);
         $model->fill($data);
         $model->save();
 
+        $this->updateStatusesOrderCount($model['created_at'], null, $data['status_id']);
         $this->updateInvoices($model, $data['invoices'] ?? []);
         $this->updateTrackingCodes($model, $data['tracking_codes'] ?? []);
         $this->updateCosts($model, $data['costs'] ?? []);
@@ -85,12 +86,13 @@ class OrdersRepository extends CoreRepository
     final public function update(int $id, array $data): \Illuminate\Database\Eloquent\Model
     {
         $model = $this->model::where('id', $id)->with('items')->first();
-        if ($model->status_id !== $data['status_id']) {
-            $this->updateStatusesOrderCount($model->status_id, $data['status_id']);
-        }
+        $currentStatus = $model['status_id'];
         $model->fill($data);
         $model->update();
 
+        if ($currentStatus !== $data['status_id']) {
+            $this->updateStatusesOrderCount($model['created_at'], $currentStatus, $data['status_id']);
+        }
         $this->updateInvoices($model, $data['invoices'] ?? []);
         $this->updateTrackingCodes($model, $data['tracking_codes'] ?? []);
         $this->updateCosts($model, $data['costs'] ?? []);
@@ -179,27 +181,39 @@ class OrdersRepository extends CoreRepository
             return $carry;
         }, 0);
 
-        $model->clear_total_price = $model->total_price - $model->trade_price - $costs;
-;
+        $model->clear_total_price = $model->total_price - $model->trade_price - $costs;;
         $model->update();
 
         return $model;
     }
 
-    private function updateStatusesOrderCount(int $old = null, int $new = null): int
+    private function updateStatusesOrderCount(string $created_at, int $old = null, int $new = null): int
     {
         if (!$old && !$new) {
             return 0;
         }
 
         $statusesRepository = new StatusesRepository();
+        $orderStatisticsRepository = new OrderStatisticsRepository();
 
         if ($old) {
-            $statusesRepository->getModelById($old)->decrement('orders_count');
+            $statusesRepository
+                ->getModelById($old)
+                ->decrement('orders_count');
+
+            $orderStatisticsRepository
+                ->getModelByStatusAndDate($created_at, $old)
+                ->decrement('count');
         }
 
         if ($new) {
-            $statusesRepository->getModelById($new)->increment('orders_count');
+            $statusesRepository
+                ->getModelById($new)
+                ->increment('orders_count');
+
+            $orderStatisticsRepository
+                ->getModelByStatusAndDate($created_at, $new)
+                ->increment('count');
         }
 
         return 1;
@@ -207,7 +221,12 @@ class OrdersRepository extends CoreRepository
 
     final public function destroy(int $id): int
     {
-        return $this->model::where('id', $id)->delete();
+        $model = $this->model::where('id', $id)->first();
+        if ($model) {
+            $this->updateStatusesOrderCount($model['created_at'], $model['status_id']);
+            return $model->delete();
+        }
+        return 0;
     }
 
     final public function getAllWithPaginate(array $data): LengthAwarePaginator
@@ -303,5 +322,16 @@ class OrdersRepository extends CoreRepository
             ->get();
 
         return $orders->sum($column);
+    }
+
+    final public function countOrderByDate(string $date, int $status_id = null)
+    {
+        $model = $this->model::whereDate('created_at', $date);
+
+        if ($status_id) {
+            $model->where('status_id', $status_id);
+        }
+
+        return $model->count();
     }
 }
