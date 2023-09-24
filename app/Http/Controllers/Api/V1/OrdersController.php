@@ -118,10 +118,10 @@ class OrdersController extends BaseController
 
                 if (!$product) {
                     $productData = [
-                        'sku' => $item['sku'],
+                        'sku' => $item['sku'] ?? null,
                         'price' => $item['price'],
-                        'discount_price' => $item['discount_price'],
-                        'title' => $item['title'],
+                        'discount_price' => $item['discount_price'] ?? null,
+                        'title' => $item['title'] ?? 'Не вказано',
                     ];
 
                     $product = $this->productsRepository->create($productData);
