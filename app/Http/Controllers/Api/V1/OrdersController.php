@@ -41,7 +41,6 @@ class OrdersController extends BaseController
     final public function create(Request $request): JsonResponse
     {
         $params = $request->json()->all();
-        var_dump($params);
 
         $client = $this->createOrUpdateClient($params);
 
@@ -83,17 +82,15 @@ class OrdersController extends BaseController
 
                 $client = $this->clientsRepository->create($clientData);
             } else {
-                $updateData = [];
-
                 if (isset($params['client']['name'])) {
-                    $updateData['full_name'] = $params['client']['name'];
+                    $client['full_name'] = $params['client']['name'];
                 }
 
                 if (isset($params['client']['email'])) {
-                    $updateData['emails'] = [$params['client']['email']];
+                    $client['emails'] = [$params['client']['email']];
                 }
 
-                $client->update($updateData);
+                $client->update();
             }
 
             return $client;
