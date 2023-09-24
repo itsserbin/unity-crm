@@ -39,11 +39,13 @@ class UsersRepository extends CoreRepository
 
     final public function create(array $data): \Illuminate\Database\Eloquent\Model
     {
+        $data['phone'] = preg_replace('/[^0-9]/', '', $data['phone']);
         return $this->coreCreate($this->model, $data);
     }
 
     final public function update(int $id, array $data): \Illuminate\Database\Eloquent\Model
     {
+        $data['phone'] = preg_replace('/[^0-9]/', '', $data['phone']);
         return $this->coreUpdate($this->model, $id, $data);
     }
 

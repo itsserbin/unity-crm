@@ -37,9 +37,10 @@ class RegisteredUserController extends Controller
     final public function store(RegisterRequest $request)
     {
         $password = Hash::make($request->password);
+        $phone = preg_replace('/[^0-9]/', '', $request->phone);
         $user = new User();
         $user->name = $request->name;
-        $user->phone = $request->phone;
+        $user->phone = $phone;
         $user->email = $request->email;
         $user->plan = 'free';
         $user->subscription_expiration = Carbon::now()->addDays(30)->toDateTimeString();
@@ -58,10 +59,10 @@ class RegisteredUserController extends Controller
             'domain' => $domain
         ]);
 
-        $tenant->run(function () use ($request, $password) {
+        $tenant->run(function () use ($request, $password, $phone) {
             User::create([
                 'name' => $request->name,
-                'phone' => $request->phone,
+                'phone' => $phone,
                 'email' => $request->email,
                 'password' => $password,
             ]);

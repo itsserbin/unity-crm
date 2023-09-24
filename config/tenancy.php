@@ -48,7 +48,7 @@ return [
          * Tenant database names are created like this:
          * prefix + tenant_id + suffix.
          */
-        'prefix' => 'test_tenant_',
+        'prefix' => env('APP_ENV') === 'local' ? 'test_tenant_' : 'unity_tenant_',
         'suffix' => '',
 
         /**

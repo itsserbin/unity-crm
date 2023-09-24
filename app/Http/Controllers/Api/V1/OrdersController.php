@@ -12,6 +12,7 @@ use App\Repositories\CRM\OrdersRepository;
 use App\Repositories\Options\SourcesRepository;
 use App\Repositories\Options\StatusesRepository;
 use App\Repositories\TenantsRepository;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -68,7 +69,7 @@ class OrdersController extends BaseController
         ]);
     }
 
-    private function createOrUpdateClient($params)
+    private function createOrUpdateClient(array $params): Model|null
     {
         if (isset($params['client'])) {
             $client = $this->clientsRepository->findByColumn('phones', $params['client']['phone']);
@@ -76,7 +77,7 @@ class OrdersController extends BaseController
             if (!$client) {
                 $clientData = [
                     'full_name' => $params['client']['name'] ?? 'Не вказано',
-                    'phones' => [$params['client']['phone']],
+                    'phones' => [preg_replace('/[^0-9]/', '', $params['client']['phone'])],
                     'emails' => isset($params['client']['email']) ? [$params['client']['email']] : []
                 ];
 
@@ -99,7 +100,7 @@ class OrdersController extends BaseController
         return null;
     }
 
-    private function processProducts($params)
+    private function processProducts(array $params): array
     {
         $items = [];
 
