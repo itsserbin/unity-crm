@@ -60,14 +60,18 @@ class ProductsRepository extends CoreRepository
     final public function create(array $data): \Illuminate\Database\Eloquent\Model
     {
         $model = $this->coreCreate($this->model, $data);
-        $model->categories()->sync($data['categories']);
+        if (isset($data['categories'])) {
+            $model->categories()->sync($data['categories']);
+        }
         return $model;
     }
 
     final public function update(int $id, array $data): \Illuminate\Database\Eloquent\Model
     {
         $model = $this->coreUpdate($this->model, $id, $data);
-        $model->categories()->sync($data['categories']);
+        if (isset($data['categories'])) {
+            $model->categories()->sync($data['categories']);
+        }
         return $this->coreUpdate($this->model, $id, $data);
     }
 //    private function syncCategories($model, $categories): bool
