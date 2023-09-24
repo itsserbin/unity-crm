@@ -213,8 +213,8 @@ const refreshData = async () => {
             >
                 <Column field="type" header="Тип">
                     <template #body="{data}">
-                        <Button :label="data.type === 1 ? 'Надходження' : 'Витрата'"
-                                :severity="data.type === 1 ? 'success' : 'danger'"
+                        <Button :label="data.type === true ? 'Надходження' : 'Витрата'"
+                                :severity="data.type === true ? 'success' : 'danger'"
                                 type="button"
                         />
                     </template>
