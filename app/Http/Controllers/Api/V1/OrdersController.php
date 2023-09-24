@@ -89,7 +89,7 @@ class OrdersController extends BaseController
                 if (isset($params['client']['email'])) {
                     $client['emails'] = [$params['client']['email']];
                 }
-
+var_dump($client);
                 $client->update();
             }
 
