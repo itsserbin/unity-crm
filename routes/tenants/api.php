@@ -38,7 +38,7 @@ use Illuminate\Support\Facades\Route;
 //    return $request->user();
 //});
 
-Route::middleware('auth:sanctum')->group(function () {
+Route::middleware('auth:sanctum')->prefix('api')->group(function () {
 
     Route::prefix('products')->group(function () {
         Route::get('/', [ProductsController::class, 'index'])
