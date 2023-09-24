@@ -40,17 +40,8 @@ class OrdersController extends BaseController
      */
     final public function create(Request $request): JsonResponse
     {
-        $token = $request->bearerToken();
-        dd($orderData);
-
-        if (!$token) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Апі токен не знайдено'
-            ], 401);
-        }
-
         $params = $request->all();
+        dd($params);
 
         $client = $this->createOrUpdateClient($params);
 
