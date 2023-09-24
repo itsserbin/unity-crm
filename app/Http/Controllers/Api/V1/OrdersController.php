@@ -40,7 +40,7 @@ class OrdersController extends BaseController
      */
     final public function create(Request $request): JsonResponse
     {
-        $params = json_decode($request->all());
+        $params = json_decode($request->all()[0]);
         var_dump($params);
 
         $client = $this->createOrUpdateClient($params);
