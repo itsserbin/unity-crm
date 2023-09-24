@@ -41,6 +41,7 @@ class OrdersController extends BaseController
     final public function create(Request $request): JsonResponse
     {
         $token = $request->bearerToken();
+        dd($orderData);
 
         if (!$token) {
             return response()->json([
@@ -68,7 +69,6 @@ class OrdersController extends BaseController
             'items' => $items
         ];
 
-        dd($orderData);
 
         $this->ordersRepository->create($orderData);
 
