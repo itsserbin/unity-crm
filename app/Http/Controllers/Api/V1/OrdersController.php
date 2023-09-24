@@ -119,6 +119,7 @@ class OrdersController extends BaseController
                         'price' => $item['price'],
                         'discount_price' => $item['discount_price'] ?? null,
                         'title' => $item['title'] ?? 'Не вказано',
+                        'availability' => 1
                     ];
 
                     $product = $this->productsRepository->create($productData);
@@ -128,7 +129,6 @@ class OrdersController extends BaseController
                     'sale_price' => $item['discount_price'] ?? $item['price'],
                     'sku' => $item['sku'],
                     'title' => $item['title'],
-                    'availability' => 1
                 ];
             }
         }
