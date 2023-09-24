@@ -391,11 +391,13 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('extract', [MonobankController::class, 'extract'])
             ->name('api.monobank.extract');
     });
-});
 
-Route::prefix('v1')->group(function () {
-    Route::prefix('orders')->group(function () {
-        Route::post( 'create', [OrdersController::class, 'create'])
-            ->name('api.v1.orders.create');
+    Route::prefix('v1')->group(function () {
+        Route::prefix('orders')->group(function () {
+            Route::post('create', [OrdersController::class, 'create'])
+                ->name('api.v1.orders.create');
+        });
     });
 });
+
+
