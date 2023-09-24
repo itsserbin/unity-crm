@@ -33,11 +33,4 @@ Route::middleware('auth:sanctum')->prefix('api')->group(function () {
         Route::delete('destroy/{id}', [TenantsController::class, 'destroy'])
             ->name('api.tenants.destroy');
     });
-
-    Route::prefix('v1')->group(function () {
-        Route::prefix('orders')->group(function () {
-            Route::post( 'create', [OrdersController::class, 'create'])
-                ->name('api.v1.orders.create');
-        });
-    });
 });
