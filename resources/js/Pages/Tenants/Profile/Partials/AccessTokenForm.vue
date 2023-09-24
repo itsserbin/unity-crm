@@ -143,8 +143,21 @@ const onSubmit = async () => {
         </header>
 
         <DataTable :value="state.data" @rowSelect="onEdit" selectionMode="single">
-            <Column header="Назва" field="name"/>
-            <Column header="Токен" field="token"/>
+            <Column header="Назва" field="name">
+                <template #body="{data}">
+                    {{ data.name }}
+                </template>
+            </Column>
+            <Column header="Дата створення" field="created_at">
+                <template #body="{data}">
+                    {{ data.created_at ? $filters.formatDateTime(data.created_at) : '-' }}
+                </template>
+            </Column>
+            <Column header="Дійсний до" field="expires_at">
+                <template #body="{data}">
+                    {{ data.expires_at ? $filters.formatDateTime(data.expires_at) : '-' }}
+                </template>
+            </Column>
             <Column>
                 <template #body="{data}">
                     <Button icon="pi pi-trash"

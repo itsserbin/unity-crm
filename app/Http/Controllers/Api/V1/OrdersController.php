@@ -68,6 +68,8 @@ class OrdersController extends BaseController
             'items' => $items
         ];
 
+        dd($orderData);
+
         $this->ordersRepository->create($orderData);
 
         return response()->json([

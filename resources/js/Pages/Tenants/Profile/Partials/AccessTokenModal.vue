@@ -20,14 +20,6 @@ const emits = defineEmits(['close', 'submit']);
                                type="text"
                     />
                 </div>
-
-                <div class="block" v-if="item.token">
-                    <InputLabel>Токен</InputLabel>
-                    <InputText v-model="item.token"
-                              class="w-full"
-                              disabled
-                    />
-                </div>
             </div>
         </template>
         <template #footer>
