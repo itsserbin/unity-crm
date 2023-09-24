@@ -9,6 +9,7 @@ use App\Models\User;
 use Carbon\Carbon;
 use Database\Seeders\AccountsSeeder;
 use Database\Seeders\MovementCategoriesSeeder;
+use Database\Seeders\SourcesSeeder;
 use Database\Seeders\StatusesSeeder;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Support\Facades\Auth;
@@ -67,6 +68,7 @@ class RegisteredUserController extends Controller
             (new StatusesSeeder())->run();
             (new MovementCategoriesSeeder())->run();
             (new AccountsSeeder())->run();
+            (new SourcesSeeder())->run();
         });
 
         Auth::login($user);
