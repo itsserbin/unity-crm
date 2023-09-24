@@ -9,6 +9,10 @@ const props = defineProps({
         type: Boolean,
         default: true
     },
+    maxWidth: {
+        type: String,
+        default: 'sm'
+    },
     showConfirm: {
         type: Boolean,
         default: true
@@ -50,7 +54,7 @@ const handleAccept = () => {
 </script>
 
 <template>
-    <Modal :show="show" maxWidth="sm" @close="handleClose">
+    <Modal :show="show" :maxWidth="maxWidth" @close="handleClose">
         <template #head v-if="header">
             {{ header }}
         </template>

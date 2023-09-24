@@ -8,6 +8,8 @@ import UsersRepository from "@/Repositories/Tenants/UsersRepository.js";
 import {usePage} from '@inertiajs/vue3';
 import {toast} from "vue3-toastify";
 import {onMounted, reactive} from "vue";
+import {useConfirm} from "@/Components/ConfirmationModal/useConfirm.js";
+import ClientsRepository from "@/Repositories/Tenants/CRM/ClientsRepository.js";
 
 const props = defineProps(['tokens']);
 const user = usePage().props.auth.user;
@@ -87,13 +89,39 @@ const onSubmit = async () => {
     try {
         if (state.modalAction === 0) {
             await UsersRepository.tokens.update(state.item);
-            await fetch();
-            toggleModal();
         }
         if (state.modalAction === 1) {
-            await UsersRepository.tokens.create(state.item);
-            await fetch();
-            toggleModal();
+            const data = await UsersRepository.tokens.create(state.item);
+            await useConfirm({
+                maxWidth: 'xl',
+                textConfirmButton: 'Ok',
+                textRejectButton: 'Скопійувати',
+                message: 'Збережіть токен у надійному місці, після закриття цього вікна він не буде доступний\n' +
+                    data.result,
+                header: 'API токен спішно створено',
+                icon: 'pi pi-exclamation-triangle',
+                accept: async () => {
+                    try {
+                        await fetch();
+                        toggleModal();
+                    } catch (error) {
+                        console.error(error);
+                        toast.error('Виникла помилка');
+                        toggleModal();
+                    }
+                },
+                reject: async () => {
+                    try {
+                        await navigator.clipboard.writeText(data.result);
+                        toast.success('Токен скопійовано');
+                        toggleModal();
+                    } catch (e) {
+                        console.error(error);
+                        toast.error('Виникла помилка');
+                        toggleModal();
+                    }
+                }
+            });
         }
     } catch (e) {
         console.error(e);

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Tenants;
 
 use Inertia\Inertia;
 use Inertia\Response;
+use Illuminate\Http\Request;
 
 class DashboardController extends BaseController
 {
@@ -12,7 +13,7 @@ class DashboardController extends BaseController
         parent::__construct();
     }
 
-    final public function create(): Response
+    final public function create(Request $request): Response
     {
         return Inertia::render('Tenants/Dashboard/Dashboard');
     }
