@@ -41,7 +41,7 @@ class OrdersController extends BaseController
     final public function create(Request $request): JsonResponse
     {
         $params = $request->all();
-        dd($params);
+        dump($params);
 
         $client = $this->createOrUpdateClient($params);
 
