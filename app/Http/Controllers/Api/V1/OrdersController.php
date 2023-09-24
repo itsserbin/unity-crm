@@ -89,7 +89,7 @@ class OrdersController extends BaseController
                 if (isset($params['client']['email'])) {
                     $client['emails'] = [$params['client']['email']];
                 }
-var_dump($client);
+
                 $client->update();
             }
 
@@ -128,6 +128,7 @@ var_dump($client);
                     'sale_price' => $item['discount_price'] ?? $item['price'],
                     'sku' => $item['sku'],
                     'title' => $item['title'],
+                    'availability' => 1
                 ];
             }
         }
