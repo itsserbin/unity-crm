@@ -112,9 +112,21 @@ class ClientsRepository extends CoreRepository
             ->paginate($this->getPagination($data));
     }
 
-    final public function list(): Collection
+    final public function list(array $data = []): Collection
     {
-        return $this->model::select(['id', 'full_name', 'phones', 'emails'])->get();
+        $model = $this->model::select($this->getTableColumns());
+
+        if (isset($data['query'])) {
+            $query = htmlspecialchars($data['query'], ENT_QUOTES, 'UTF-8');
+            $model->where(function ($queryBuilder) use ($query) {
+                $queryBuilder->where('id', 'ilike', "%$query%")
+                    ->orWhere('full_name', 'ilike', "%$query%")
+                    ->orWhereJsonContains('emails', 'ilike', $query)
+                    ->orWhereJsonContains('phones', 'ilike', $query);
+            });
+        }
+
+        return $model->limit($data['limit'] ?? 15)->get();
     }
 
     final public function createClientAddress(int $id, array $data): ?\Illuminate\Database\Eloquent\Model

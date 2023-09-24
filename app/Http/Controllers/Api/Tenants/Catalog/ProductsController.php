@@ -107,11 +107,12 @@ class ProductsController extends BaseController
     /**
      * @comment The list function is used to retrieve a list of products from the database.
      *
+     * @param Request $request
      * @return JsonResponse
      */
-    final public function list(): JsonResponse
+    final public function list(Request $request): JsonResponse
     {
-        $result = $this->productsRepository->list();
+        $result = $this->productsRepository->list($request->all());
 
         return $this->returnResponse([
             'success' => true,

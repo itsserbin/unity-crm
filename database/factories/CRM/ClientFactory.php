@@ -14,7 +14,7 @@ class ClientFactory extends Factory
      *
      * @return array<string, mixed>
      */
-    public function definition(): array
+    final public function definition(): array
     {
         return [
             'id' => fake()->unique()->numberBetween(100, 999999),

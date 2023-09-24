@@ -41,9 +41,9 @@ export default {
             return error.response;
         }
     },
-    async list() {
+    async list(params) {
         try {
-            const response = await axios.get(route('api.products.list'));
+            const response = await axios.get(route('api.products.list', params));
             return response.data;
         } catch (error) {
             throw new Error(error);

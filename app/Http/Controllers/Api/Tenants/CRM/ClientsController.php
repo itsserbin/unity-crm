@@ -20,25 +20,31 @@ class ClientsController extends BaseController
 
     final public function index(Request $request): JsonResponse
     {
+        $result = $this->clientsRepository->getAllWithPaginate($request->all());
+
         return $this->returnResponse([
             'success' => true,
-            'result' => $this->clientsRepository->getAllWithPaginate($request->all()),
+            'result' => $result
         ]);
     }
 
     final public function create(ClientCreateRequest $request): JsonResponse
     {
+        $result = $this->clientsRepository->create($request->all());
+
         return $this->returnResponse([
             'success' => true,
-            'result' => $this->clientsRepository->create($request->all()),
+            'result' => $result
         ]);
     }
 
     final public function search(string $search, Request $request): JsonResponse
     {
+        $result = $this->clientsRepository->search($search, $request->all());
+
         return $this->returnResponse([
             'success' => true,
-            'result' => $this->clientsRepository->search($search, $request->all()),
+            'result' => $result
         ]);
     }
 
@@ -54,41 +60,41 @@ class ClientsController extends BaseController
 
     final public function edit(int $id): JsonResponse
     {
+        $result = $this->clientsRepository->getModelById($id);
+
         return $this->returnResponse([
             'success' => true,
-            'result' => $this->clientsRepository->getModelById($id),
+            'result' => $result
         ]);
     }
 
     final public function update(int $id, Request $request): JsonResponse
     {
+        $result = $this->clientsRepository->update($id, $request->all());
+
         return $this->returnResponse([
             'success' => true,
-            'result' => $this->clientsRepository->update($id, $request->all()),
+            'result' => $result
         ]);
     }
 
-    final public function list(): JsonResponse
+    final public function list(Request $request): JsonResponse
     {
+        $result = $this->clientsRepository->list($request->all());
+
         return $this->returnResponse([
             'success' => true,
-            'result' => $this->clientsRepository->list(),
+            'result' => $result
         ]);
     }
 
     final public function createClientAddress(int $id, Request $request): JsonResponse
     {
+        $result = $this->clientsRepository->createClientAddress($id, $request->all());
+
         return $this->returnResponse([
             'success' => true,
-            'result' => $this->clientsRepository->createClientAddress($id, $request->all()),
+            'result' => $result
         ]);
     }
-
-//    final public function statuses(): JsonResponse
-//    {
-//        return $this->returnResponse([
-//            'statuses' => ClientStatus::state,
-//            'subStatuses' => ClientSubStatus::state
-//        ]);
-//    }
 }

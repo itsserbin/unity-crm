@@ -5,6 +5,7 @@ namespace App\Repositories\Catalog;
 use App\Models\Catalog\Product as Model;
 use App\Repositories\CoreRepository;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 class ProductsRepository extends CoreRepository
@@ -106,16 +107,43 @@ class ProductsRepository extends CoreRepository
             ->paginate($data['perPage'] ?? 15);
     }
 
-    final public function list(): Collection
+    final public function list(array $data = []): Collection
     {
-        return $this->model::select([
+        $model = $this->model::select($this->getTableColumns());
+
+        if (isset($data['query'])) {
+            $this->searchBuilder($model, $data['query']);
+        }
+        return $model
+            ->with('preview:alt,data,id')
+            ->limit($data['limit'] ?? 15)
+            ->get();
+    }
+
+    private function searchBuilder(\Illuminate\Database\Eloquent\Builder $model, string $query): void
+    {
+        $query = htmlspecialchars($query, ENT_QUOTES, 'UTF-8');
+        $model->where(function ($queryBuilder) use ($query) {
+            $queryBuilder->where('id', 'ilike', "%$query%")
+                ->orWhere('title', 'ilike', "%$query%")
+                ->orWhere('sku', 'ilike', "%$query%")
+                ->orWhere('trade_price', 'ilike', "%$query%")
+                ->orWhere('price', 'ilike', "%$query%")
+                ->orWhere('discount_price', 'ilike', "%$query%");
+        });
+    }
+
+    private function getTableColumns(): array
+    {
+        return [
             'id',
+            'availability',
             'title',
             'trade_price',
             'price',
+            'discount_price',
             'preview_id',
             'sku',
-            'discount_price',
-        ])->with('preview:alt,data,id')->get();
+        ];
     }
 }

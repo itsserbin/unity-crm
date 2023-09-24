@@ -1,13 +1,56 @@
 <script setup>
+import {onMounted, reactive} from 'vue';
 import Button from "primevue/button";
 import Modal from "@/Components/Modal/Modal.vue";
 import InputLabel from "@/Components/InputLabel.vue";
 import InputText from "primevue/inputtext";
 import Dropdown from 'primevue/dropdown';
 import Textarea from 'primevue/textarea';
+import ProductsRepository from "@/Repositories/Tenants/Catalog/ProductsRepository.js";
 
-defineProps(['show', 'item', 'products']);
+const props = defineProps(['show', 'item', 'products']);
 const emits = defineEmits(['close', 'submit']);
+
+const state = reactive({
+    products: [],
+    isLoadingDropdown: false
+});
+
+onMounted(async () => {
+    if (props.products) {
+        state.products = props.products;
+    } else {
+        await getProducts();
+    }
+
+    if (props.item.id && !state.products.some(item => item.id === props.item.id)) {
+        state.products.push(props.item);
+    }
+});
+
+const getProducts = async (params) => {
+    try {
+        const data = await ProductsRepository.list(params);
+        state.products = data.result;
+    } catch (e) {
+        console.error(e);
+    }
+}
+
+let searchTimeout = null;
+
+const onSearch = async (query) => {
+    clearTimeout(searchTimeout);
+    if (typeof props.item.product_id !== 'object') {
+        state.isLoadingDropdown = true;
+        searchTimeout = setTimeout(async () => {
+            await getProducts({
+                query: query.value,
+            });
+            state.isLoadingDropdown = false;
+        }, 700);
+    }
+}
 </script>
 
 <template>
@@ -17,12 +60,27 @@ const emits = defineEmits(['close', 'submit']);
                 <div class="block">
                     <InputLabel :required="true">Товар</InputLabel>
                     <Dropdown v-model="item.product_id"
-                              :options="products"
+                              :options="state.products"
                               optionLabel="title"
                               dataKey="id"
                               placeholder="Оберіть товар"
                               class="w-full"
-                    />
+                              show-clear
+                              @change="onSearch"
+                              editable
+                              :loading="state.isLoadingDropdown"
+                    >
+                        <template #option="slotProps">
+                            <div class="flex gap-x-2 items-center" v-if="slotProps.option.title">
+                                <div class="text-base">{{ slotProps.option.title }}</div>
+                            </div>
+                            <div class="flex gap-x-2 items-center">
+                                <div class="text-sm text-zinc-800 dark:text-zinc-200">
+                                    {{ slotProps.option.sku }}
+                                </div>
+                            </div>
+                        </template>
+                    </Dropdown>
                 </div>
                 <div class="block">
                     <InputLabel>Кількість</InputLabel>

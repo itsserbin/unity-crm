@@ -49,9 +49,9 @@ export default {
             throw new Error(error);
         }
     },
-    async list() {
+    async list(params) {
         try {
-            const response = await axios.get(route('api.clients.list'));
+            const response = await axios.get(route('api.clients.list',params));
             return response.data;
         } catch (error) {
             throw new Error(error);

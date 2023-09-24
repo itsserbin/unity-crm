@@ -14,10 +14,10 @@ class ProductFactory extends Factory
      *
      * @return array<string, mixed>
      */
-    public function definition(): array
+    final public function definition(): array
     {
         return [
-            'id' => fake()->numberBetween(1000, 10000),
+            'id' => fake()->unique()->numberBetween(1, 10000),
             'sku' => fake()->unique()->text(10),
             'price' => fake()->randomFloat(2, 10, 100),
             'discount_price' => fake()->randomFloat(2, 5, 50),

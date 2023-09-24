@@ -60,10 +60,10 @@ onMounted(async () => {
 const switchClientModal = () => clientModal.isShow = !clientModal.isShow;
 const switchAddressModal = (val) => val ? addressModal.isShow = val : addressModal.isShow = !addressModal.isShow;
 
-const getClients = async () => {
+const getClients = async (params) => {
     state.isLoadingClientsDropdown = true;
     try {
-        const data = await ClientsRepository.list();
+        const data = await ClientsRepository.list(params);
         state.clients = mapData(data.result);
     } catch (e) {
         console.error(e);
@@ -84,9 +84,23 @@ const mapData = (data) => {
     });
 }
 
+let searchTimeout = null;
+
 const onChangeClient = async (e) => {
     try {
-        await getClient(e.value.value);
+        clearTimeout(searchTimeout);
+        if (typeof props.item.client_id !== 'object') {
+        console.log(props.item.client_id);
+            state.isLoadingManagersDropdown = true;
+            searchTimeout = setTimeout(async () => {
+                await getClients({
+                    query: e.value,
+                });
+                state.isLoadingManagersDropdown = false;
+            }, 700);
+        } else {
+            await getClient(e.value.value);
+        }
     } catch (e) {
         console.error(e);
     }
@@ -165,16 +179,11 @@ const onCreateAddress = async () => {
 </script>
 
 <template>
-    <div class="flex justify-center w-full" v-if="state.isLoadingClient">
-        <div class="w-16 h-16">
-            <Loader/>
-        </div>
-    </div>
-    <div class="grid grid-cols-1 md:grid-cols-6 gap-4" v-if="!state.isLoadingClient">
+    <div class="grid grid-cols-1 md:grid-cols-6 gap-4">
         <Card class="md:col-span-2">
             <template #content>
                 <InputLabel class="w-full">Клієнт</InputLabel>
-                <div class="p-inputgroup" v-if="!item.client_id">
+                <div class="p-inputgroup"  v-if="!state.client">
                     <Dropdown v-model="item.client_id"
                               :options="state.clients"
                               optionLabel="label"
@@ -182,8 +191,8 @@ const onCreateAddress = async () => {
                               placeholder="Оберіть клієнта"
                               class="w-full"
                               :loading="state.isLoadingClientsDropdown"
-                              filter
                               @change="onChangeClient"
+                              editable
                     >
                         <template #option="slotProps">
                             <div class="flex gap-x-2 items-center" v-if="slotProps.option.name">
@@ -240,33 +249,41 @@ const onCreateAddress = async () => {
                 </div>
             </template>
         </Card>
-        <Card v-if="state.client && item.client_id" class="md:col-span-4">
-            <template #content>
-                <InputLabel>Адрес доставки</InputLabel>
-                <div class="p-inputgroup" v-if="!item.delivery_address">
-                    <Dropdown v-model="item.delivery_address"
-                              :options="state.client.addresses"
-                              optionLabel="address"
-                              dataKey="id"
-                              placeholder="Оберіть адресу"
-                              class="w-full"
-                              @change="onChangeDeliveryAddress"
-                    />
-                    <Button @click="switchAddressModal" type="button" icon="pi pi-plus"></Button>
-                </div>
-                <div v-else
-                     class="flex text-zinc-800 dark:text-zinc-200 hover:bg-zinc-300 dark:hover:bg-zinc-700 p-2 rounded transition-all w-full">
-                    <div class="w-full flex items-center">
-                        {{ item.delivery_address }}
+        <template v-if="!state.isLoadingClient">
+            <Card v-if="state.client && item.client_id"  class="md:col-span-4">
+                <template #content>
+                    <InputLabel>Адрес доставки</InputLabel>
+                    <div class="p-inputgroup" v-if="!item.delivery_address">
+                        <Dropdown v-model="item.delivery_address"
+                                  :options="state.client.addresses"
+                                  optionLabel="address"
+                                  dataKey="id"
+                                  placeholder="Оберіть адресу"
+                                  class="w-full"
+                                  @change="onChangeDeliveryAddress"
+                        />
+                        <Button @click="switchAddressModal" type="button" icon="pi pi-plus"></Button>
                     </div>
-                    <Button type="button"
-                            text
-                            icon="pi pi-times"
-                            @click="removeDeliveryAddress"
-                    />
+                    <div v-else
+                         class="flex text-zinc-800 dark:text-zinc-200 hover:bg-zinc-300 dark:hover:bg-zinc-700 p-2 rounded transition-all w-full">
+                        <div class="w-full flex items-center">
+                            {{ item.delivery_address }}
+                        </div>
+                        <Button type="button"
+                                text
+                                icon="pi pi-times"
+                                @click="removeDeliveryAddress"
+                        />
+                    </div>
+                </template>
+                <div class="flex justify-center w-full" v-if="state.isLoadingClient">
+                    <div class="w-16 h-16">
+                        <Loader/>
+                    </div>
                 </div>
-            </template>
-        </Card>
+            </Card>
+        </template>
+
     </div>
     <ClientModal v-if="clientModal.isShow" :errors="clientModal.errors"
                  :show="clientModal.isShow" :item="clientModal.item"
