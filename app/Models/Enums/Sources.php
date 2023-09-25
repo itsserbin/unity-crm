@@ -6,16 +6,8 @@ class Sources
 {
     const state = [
         [
-            'title' => 'Сайт',
-            'value' => 'site'
-        ],
-        [
-            'title' => 'Сторінка Facebook',
-            'value' => 'facebook-page'
-        ],
-        [
-            'title' => 'Сторінка Instagram',
-            'value' => 'instagram-page'
+            'title' => 'Інше',
+            'value' => 'other'
         ],
         [
             'title' => 'Viber',
@@ -26,8 +18,24 @@ class Sources
             'value' => 'telegram'
         ],
         [
-            'title' => 'Інше',
-            'value' => 'other'
+            'title' => 'OLX',
+            'value' => 'olx'
+        ],
+        [
+            'title' => 'Prom.ua',
+            'value' => 'prom'
+        ],
+        [
+            'title' => 'Сторінка Instagram',
+            'value' => 'instagram-page'
+        ],
+        [
+            'title' => 'Сторінка Facebook',
+            'value' => 'facebook-page'
+        ],
+        [
+            'title' => 'Сайт',
+            'value' => 'site'
         ]
     ];
 }

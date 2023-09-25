@@ -13,11 +13,19 @@ return new class extends Migration {
         Schema::create('order_statistics', function (Blueprint $table) {
             $table->id();
             $table->date('date');
+            $table->integer('count')->default(0);
+
             $table->foreignId('status_id')
                 ->references('id')
                 ->on('statuses')
                 ->onDelete('cascade');
-            $table->integer('count')->default(0);
+
+            $table->string('group_slug');
+            $table->foreign('group_slug')
+                ->references('slug')
+                ->on('status_groups')
+                ->onDelete('cascade');
+
             $table->timestamps();
         });
     }

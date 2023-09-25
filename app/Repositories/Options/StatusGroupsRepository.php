@@ -20,9 +20,9 @@ class StatusGroupsRepository extends CoreRepository
         return $this->coreFind($this->model, $id);
     }
 
-    final public function getModelBySlug(string $slug): ?\Illuminate\Database\Eloquent\Model
+    final public function getModelByColumn(string $column, mixed $value)
     {
-        return $this->coreFindBySlug($this->model, $slug);
+        return $this->coreGetModelByColumn($this->model, $column, $value);
     }
 
     final public function getAllWithPaginate(array $data): LengthAwarePaginator

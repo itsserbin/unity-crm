@@ -85,8 +85,8 @@ const menu = [
         isActive: false,
         child: [
             {
-                href: route('finance.bank-account-movements'),
-                title: 'В розробці'
+                href: route('statistics.orders'),
+                title: 'Замовлення'
             },
         ]
     },

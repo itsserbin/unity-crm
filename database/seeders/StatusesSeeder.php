@@ -25,7 +25,7 @@ class StatusesSeeder extends Seeder
     final public function run(): void
     {
         foreach (StatusGroups::state as $statsGroup) {
-            if (!$this->statusGroupsRepository->getModelBySlug($statsGroup['slug'])) {
+            if (!$this->statusGroupsRepository->getModelByColumn('slug',$statsGroup['slug'])) {
                 $this->statusGroupsRepository->create($statsGroup);
             }
         }

@@ -18,6 +18,7 @@ use App\Http\Controllers\Api\Tenants\Finance\CashFlowController;
 use App\Http\Controllers\Api\Tenants\Finance\MovementCategoriesController;
 use App\Http\Controllers\Api\Tenants\Finance\ProfitAndLossController;
 use App\Http\Controllers\Api\Tenants\ProfileController;
+use App\Http\Controllers\Api\Tenants\Statistics\OrderStatisticsController;
 use App\Http\Controllers\Api\Tenants\UploadController;
 use App\Http\Controllers\Api\Tenants\UsersController;
 use Illuminate\Http\Request;
@@ -371,6 +372,11 @@ Route::middleware('auth:sanctum')->prefix('api')->group(function () {
 
         Route::delete('/destroy/{id}', [BankAccountMovementsController::class, 'destroy'])
             ->name('api.bank-account-movements.destroy');
+    });
+
+    Route::prefix('statistics')->group(function () {
+        Route::get('orders', [OrderStatisticsController::class, 'index'])
+            ->name('api.statistics.orders');
     });
 
     Route::get('profit-and-loss', [ProfitAndLossController::class, 'index'])

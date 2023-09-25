@@ -16,6 +16,7 @@ use App\Http\Controllers\Tenants\Finance\CashFlowController;
 use App\Http\Controllers\Tenants\Finance\MovementCategoriesController;
 use App\Http\Controllers\Tenants\Finance\ProfitAndLossController;
 use App\Http\Controllers\Tenants\ProfileController;
+use App\Http\Controllers\Tenants\Statistics\OrderStatisticsController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth'])->group(function () {
@@ -70,6 +71,11 @@ Route::middleware(['auth'])->group(function () {
 
         Route::get('delivery-services', [DeliveryServicesController::class, 'create'])
             ->name('options.delivery-services');
+    });
+
+    Route::prefix('statistics')->group(function () {
+        Route::get('orders', [OrderStatisticsController::class, 'create'])
+            ->name('statistics.orders');
     });
 
     Route::prefix('profile')->group(function () {
