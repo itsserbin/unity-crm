@@ -3,6 +3,7 @@
 @import 'vue3-toastify/dist/index.css';
 @import "./VSidebar.css";
 @import 'v-calendar/style.css';
+@import '@vuepic/vue-datepicker/dist/main.css';
 
 @tailwind base;
 @tailwind components;

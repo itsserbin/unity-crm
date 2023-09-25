@@ -375,6 +375,7 @@ Route::middleware('auth:sanctum')->prefix('api')->group(function () {
     });
 
     Route::prefix('statistics')->group(function () {
+
         Route::get('orders', [OrderStatisticsController::class, 'index'])
             ->name('api.statistics.orders');
     });

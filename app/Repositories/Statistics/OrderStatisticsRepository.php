@@ -41,8 +41,16 @@ class OrderStatisticsRepository extends CoreRepository
 
     final public function getAllWithPaginate(array $data = [])
     {
-        $model = $this->model::select(['date', 'group_slug', 'count'])
-            ->get()->groupBy('date');
+        $model = $this->model::select(['date', 'group_slug', 'count','status_id']);
+
+        if (isset($data['date_start'], $data['date_end'])) {
+            $startDate = date('Y-m-d', strtotime($data['date_start']));
+            $endDate = date('Y-m-d', strtotime($data['date_end']));
+
+            $model->whereBetween('date', [$startDate, $endDate]);
+        }
+
+        $model = $model->get()->groupBy('date');
 
         $perPage = $data['perPage'] ?? 15;
         $page = $data['page'] ?? 1;
@@ -53,11 +61,11 @@ class OrderStatisticsRepository extends CoreRepository
 
         return [
             'data' => $results,
-            'total' => $total,
-            'perPage' => $perPage,
+            'total' => (int)$total,
+            'perPage' => (int)$perPage,
             'currentPage' => $page,
-            'from' => $from,
-            'to' => $to,
+            'from' => (int)$from,
+            'to' => (int)$to,
         ];
     }
 
