@@ -197,13 +197,16 @@ class OrdersRepository extends CoreRepository
         $orderStatisticsRepository = new OrderStatisticsRepository();
 
         if ($old) {
-            $statusesRepository
-                ->getModelById($old)
-                ->decrement('orders_count');
+            $statusModelOld = $statusesRepository->getModelById($old);
+            if ($statusModelOld >= 1) {
+                $statusModelOld->decrement('orders_count');
+            }
 
-            $orderStatisticsRepository
-                ->getModelByStatusAndDate($created_at, $old)
-                ->decrement('count');
+            $statisticModelOld = $orderStatisticsRepository->getModelByStatusAndDate($created_at, $old);
+
+            if ($statisticModelOld >= 1) {
+                $statisticModelOld->decrement('count');
+            }
         }
 
         if ($new) {
