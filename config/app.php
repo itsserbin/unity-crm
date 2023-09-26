@@ -170,7 +170,9 @@ return [
         App\Providers\RouteServiceProvider::class,
 
         App\Providers\TenancyServiceProvider::class,
-        Intervention\Image\ImageServiceProvider::class
+        Intervention\Image\ImageServiceProvider::class,
+        Spatie\Permission\PermissionServiceProvider::class,
+
     ])->toArray(),
 
     /*

@@ -9,6 +9,7 @@ use App\Models\User;
 use Carbon\Carbon;
 use Database\Seeders\AccountsSeeder;
 use Database\Seeders\MovementCategoriesSeeder;
+use Database\Seeders\RolesSeeder;
 use Database\Seeders\SourcesSeeder;
 use Database\Seeders\StatusesSeeder;
 use Illuminate\Auth\Events\Registered;
@@ -60,7 +61,7 @@ class RegisteredUserController extends Controller
         ]);
 
         $tenant->run(function () use ($request, $password, $phone) {
-            User::create([
+            $user = User::create([
                 'name' => $request->name,
                 'phone' => $phone,
                 'email' => $request->email,
@@ -70,6 +71,9 @@ class RegisteredUserController extends Controller
             (new MovementCategoriesSeeder())->run();
             (new AccountsSeeder())->run();
             (new SourcesSeeder())->run();
+            (new RolesSeeder())->run();
+
+            $user->assignRole('admin');
         });
 
         Auth::login($user);

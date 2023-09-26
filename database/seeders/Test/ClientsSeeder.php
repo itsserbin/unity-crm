@@ -1,6 +1,6 @@
 <?php
 
-namespace Database\Seeders\test;
+namespace Database\Seeders\Test;
 
 use App\Models\CRM\Client;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
