@@ -50,30 +50,42 @@ class RolesSeeder extends Seeder
 
         $data = [
             'admin' => [
-                $permissions['orders']['C'], $permissions['orders']['R'],
-                $permissions['orders']['U'], $permissions['orders']['D'],
+                $permissions['orders']['C'],
+                $permissions['orders']['R'],
+                $permissions['orders']['U'],
+                $permissions['orders']['D'],
 
-                $permissions['clients']['C'], $permissions['clients']['R'],
-                $permissions['clients']['U'], $permissions['clients']['D'],
+                $permissions['clients']['C'],
+                $permissions['clients']['R'],
+                $permissions['clients']['U'],
+                $permissions['clients']['D'],
 
-                $permissions['products']['C'], $permissions['products']['R'],
-                $permissions['products']['U'], $permissions['products']['D'],
+                $permissions['products']['C'],
+                $permissions['products']['R'],
+                $permissions['products']['U'],
+                $permissions['products']['D'],
 
-                $permissions['categories']['C'], $permissions['categories']['R'],
-                $permissions['categories']['U'], $permissions['categories']['D'],
+                $permissions['categories']['C'],
+                $permissions['categories']['R'],
+                $permissions['categories']['U'],
+                $permissions['categories']['D'],
             ],
             'manager' => [
-                $permissions['orders']['C'], $permissions['orders']['R'],
+                $permissions['orders']['C'],
+                $permissions['orders']['R'],
                 $permissions['orders']['U'],
 
-                $permissions['clients']['C'], $permissions['clients']['R'],
+                $permissions['clients']['C'],
+                $permissions['clients']['R'],
                 $permissions['clients']['U'],
             ],
             'content-manager' => [
-                $permissions['products']['C'], $permissions['products']['R'],
+                $permissions['products']['C'],
+                $permissions['products']['R'],
                 $permissions['products']['U'],
 
-                $permissions['categories']['C'], $permissions['categories']['R'],
+                $permissions['categories']['C'],
+                $permissions['categories']['R'],
                 $permissions['categories']['U'],
             ],
         ];
