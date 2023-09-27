@@ -244,8 +244,8 @@ const setPublishedStatus = async (id, val) => {
             <template #body="{data}">
                 <Button type="button" text>
                     <InputSwitch v-model="data.published"
-                                 :true-value="1"
-                                 :false-value="0"
+                                 :true-value="true"
+                                 :false-value="false"
                                  @change="setPublishedStatus(data.id,data.published)"
                                  :disabled="data.orders_count > 0"
                     />

@@ -71,7 +71,7 @@ class StatusesRepository extends CoreRepository
     final public function list(): Collection
     {
         return $this->model::select(['id', 'group_slug', 'title'])
-            ->where('published', 1)
+            ->where('published', true)
             ->orderBy('id', 'desc')
             ->get();
     }

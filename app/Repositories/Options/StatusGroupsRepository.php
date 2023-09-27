@@ -69,7 +69,9 @@ class StatusGroupsRepository extends CoreRepository
     {
         return $this->model::select(['id', 'title', 'slug', 'hex'])
             ->orderBy('id', 'asc')
-            ->with('statuses')
+            ->with(['statuses' => function ($q) {
+                $q->where('published', true);
+            }])
             ->get();
     }
 }
