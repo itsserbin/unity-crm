@@ -19,7 +19,6 @@ const props = defineProps([
     'categories',
     'errors'
 ]);
-console.log(props.errors)
 
 const state = reactive({
     categories: [],

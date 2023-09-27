@@ -11,11 +11,18 @@ import Heading from "@/Components/Heading.vue";
 import TrackingCodesRepository from "@/Repositories/Tenants/CRM/TrackingCodesRepository.js";
 import OrdersRepository from "@/Repositories/Tenants/CRM/OrdersRepository.js";
 import {toast} from 'vue3-toastify';
-import {ref, onMounted, reactive, defineAsyncComponent} from 'vue';
+import {ref, onMounted, reactive, defineAsyncComponent, inject} from 'vue';
 import {useConfirm} from "@/Components/ConfirmationModal/useConfirm.js";
 
-const Modal = defineAsyncComponent(() => import('./Modal.vue'))
-const TrackingCodeModal = defineAsyncComponent(() => import('./TrackingCode/TrackingCodeModal.vue'))
+const Modal = defineAsyncComponent(
+    () => import('./Modal.vue')
+);
+
+const TrackingCodeModal = defineAsyncComponent(
+    () => import('./TrackingCode/TrackingCodeModal.vue')
+);
+
+const can = inject('$can');
 
 const props = defineProps([
     'orders',
@@ -78,15 +85,17 @@ const queryParams = () => {
     return data;
 }
 const fetch = async () => {
-    switchLoader();
-    try {
-        const data = await OrdersRepository.fetch(queryParams());
-        state.data = data.success ? data.result : [];
-    } catch (e) {
-        console.error(e);
-        toast.error("Failed to fetch data");
+    if (can('read-orders')) {
+        switchLoader();
+        try {
+            const data = await OrdersRepository.fetch(queryParams());
+            state.data = data.success ? data.result : [];
+        } catch (e) {
+            console.error(e);
+            toast.error("Failed to fetch data");
+        }
+        switchLoader();
     }
-    switchLoader();
 }
 
 const toggleModal = (val) => val ? state.isShowModal = val : state.isShowModal = !state.isShowModal;
@@ -108,139 +117,150 @@ const onRowSelect = (event) => {
 };
 
 const onCreate = () => {
-    item.value = {
-        id: null,
-        source_id: null,
-        status_id: null,
-        client_id: null,
-        manager_id: null,
-        manager_comment: null,
-        client_comment: null,
-        discount: null,
-        tracking_codes: [
-            {
-                code: null,
-                delivery_service_id: null,
-            }
-        ],
-        items: [],
-        costs: [],
-        invoices: [],
-    };
-    toggleModal();
-}
-const onSubmit = async () => {
-    state.errors = [];
-    state.isLoadingModal = true;
-    try {
-        const {
-            tracking_codes,
-            source_id,
-            status_id,
-            client_id,
-            manager_id,
-            delivery_service_id,
-            id,
-            ...rest
-        } = item.value;
-        const updatedItem = {
-            ...(source_id && {source_id: source_id.value}),
-            ...(status_id && {status_id: status_id.code}),
-            ...(client_id && {client_id: client_id.value}),
-            ...(manager_id && {manager_id: manager_id.id}),
-            ...(tracking_codes.length && tracking_codes[0].code && {
-                tracking_codes: tracking_codes.map((item) => {
-                    if (item.delivery_service_id) {
-                        return {
-                            delivery_service_id: item.delivery_service_id.value,
-                            code: item.code
-                        }
-                    }
-                })
-            }),
-            ...rest
+    if (can('create-orders')) {
+        item.value = {
+            id: null,
+            source_id: null,
+            status_id: null,
+            client_id: null,
+            manager_id: null,
+            manager_comment: null,
+            client_comment: null,
+            discount: null,
+            tracking_codes: [
+                {
+                    code: null,
+                    delivery_service_id: null,
+                }
+            ],
+            items: [],
+            costs: [],
+            invoices: [],
         };
+        toggleModal();
+    }
+}
 
-        const data = id
-            ? await OrdersRepository.update(id, updatedItem)
-            : await OrdersRepository.create(updatedItem);
+const onSubmit = async () => {
+    if (can('update-orders')) {
+        state.errors = [];
+        state.isLoadingModal = true;
+        try {
+            const {
+                tracking_codes,
+                source_id,
+                status_id,
+                client_id,
+                manager_id,
+                delivery_service_id,
+                id,
+                ...rest
+            } = item.value;
+            const updatedItem = {
+                ...(source_id && {source_id: source_id.value}),
+                ...(status_id && {status_id: status_id.code}),
+                ...(client_id && {client_id: client_id.value}),
+                ...(manager_id && {manager_id: manager_id.id}),
+                ...(tracking_codes.length && tracking_codes[0].code && {
+                    tracking_codes: tracking_codes.map((item) => {
+                        if (item.delivery_service_id) {
+                            return {
+                                delivery_service_id: item.delivery_service_id.value,
+                                code: item.code
+                            }
+                        }
+                    })
+                }),
+                ...rest
+            };
 
-        if (data.success) {
-            await fetch();
-            toggleModal();
-            toast.success("Success");
-        } else {
-            state.errors = data.data;
+            const data = id
+                ? await OrdersRepository.update(id, updatedItem)
+                : await OrdersRepository.create(updatedItem);
+
+            if (data.success) {
+                await fetch();
+                toggleModal();
+                toast.success("Success");
+            } else {
+                state.errors = data.data;
+                toast.error("Error");
+            }
+        } catch (e) {
+            console.error(e);
             toast.error("Error");
         }
-    } catch (e) {
-        console.error(e);
-        toast.error("Error");
+        state.isLoadingModal = false;
     }
-    state.isLoadingModal = false;
-};
+}
 
 const onEdit = async (id) => {
-    switchLoader();
-    try {
-        const data = await OrdersRepository.edit(id);
-        item.value = data.result;
-        if (item.value.source) {
-            item.value.source = {code: data.result.source};
+    if (can('update-orders')) {
+        switchLoader();
+        try {
+            const data = await OrdersRepository.edit(id);
+            item.value = data.result;
+            if (item.value.source) {
+                item.value.source = {code: data.result.source};
+            }
+            if (item.value.manager_id) {
+                item.value.manager_id = {id: data.result.manager_id};
+            }
+            if (!item.value.tracking_codes.length) {
+                item.value.tracking_codes.push({
+                    code: null,
+                    delivery_service_id: null,
+                })
+            } else {
+                item.value.tracking_codes = item.value.tracking_codes.map((i) => {
+                    return {
+                        delivery_service_id: {value: i.delivery_service_id},
+                        code: i.code
+                    }
+                })
+            }
+            toggleModal();
+        } catch (e) {
+            console.error(e);
+            toast.error("Failed to get data");
         }
-        if (item.value.manager_id) {
-            item.value.manager_id = {id: data.result.manager_id};
-        }
-        if (!item.value.tracking_codes.length) {
-            item.value.tracking_codes.push({
-                code: null,
-                delivery_service_id: null,
-            })
-        } else {
-            item.value.tracking_codes = item.value.tracking_codes.map((i) => {
-                return {
-                    delivery_service_id: {value: i.delivery_service_id},
-                    code: i.code
-                }
-            })
-        }
-        toggleModal();
-    } catch (e) {
-        console.error(e);
-        toast.error("Failed to get data");
+        switchLoader();
     }
-    switchLoader();
 }
 
 const onDestroy = async (id) => {
-    await useConfirm({
-        message: 'Ви точно бажаєте видалити цей запис?',
-        header: 'Підтвердження дії',
-        icon: 'pi pi-exclamation-triangle',
-        accept: async () => {
-            try {
-                await OrdersRepository.destroy(id);
-                await fetch();
-                toast.success('Запис успішно видалено');
-            } catch (error) {
-                console.error(error);
-                toast.error('Виникла помилка');
+    if (can('delete-orders')) {
+        await useConfirm({
+            message: 'Ви точно бажаєте видалити цей запис?',
+            header: 'Підтвердження дії',
+            icon: 'pi pi-exclamation-triangle',
+            accept: async () => {
+                try {
+                    await OrdersRepository.destroy(id);
+                    await fetch();
+                    toast.success('Запис успішно видалено');
+                } catch (error) {
+                    console.error(error);
+                    toast.error('Виникла помилка');
+                }
             }
-        }
-    });
+        });
+    }
 }
 
 const onSearch = async () => {
-    if (state.search) {
-        switchLoader();
-        try {
-            const data = await OrdersRepository.search(state.search);
-            state.data = data.success ? data.result : [];
-        } catch (e) {
-            console.error(e);
-            toast.error("Failed to fetch data");
+    if (can('read-orders')) {
+        if (state.search) {
+            switchLoader();
+            try {
+                const data = await OrdersRepository.search(state.search);
+                state.data = data.success ? data.result : [];
+            } catch (e) {
+                console.error(e);
+                toast.error("Failed to fetch data");
+            }
+            switchLoader();
         }
-        switchLoader();
     }
 }
 
@@ -289,7 +309,7 @@ const showTrackingCodeLog = async (id) => {
 </script>
 
 <template>
-    <AppLayout>
+    <AppLayout :can="can('read-orders')">
         <div class="card">
             <Toolbar class="mb-4">
                 <template #start>
@@ -303,7 +323,7 @@ const showTrackingCodeLog = async (id) => {
                         <Heading>Замовлення</Heading>
                     </div>
                 </template>
-                <template #end>
+                <template #end v-if="can('create-orders')">
                     <Button label="Додати" size="small" icon="pi pi-plus" class="mr-2" @click="onCreate"/>
                 </template>
             </Toolbar>
@@ -495,7 +515,7 @@ const showTrackingCodeLog = async (id) => {
                 </Column>
 
                 <Column>
-                    <template #body="{data}">
+                    <template #body="{data}" v-if="can('delete-orders')">
                         <Button icon="pi pi-trash"
                                 outlined
                                 rounded

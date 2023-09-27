@@ -69,16 +69,18 @@
                     :style="isMobileItem && mobileItemDropdownStyle"
                 >
                     <ul class="vsm--dropdown">
-                        <sidebar-menu-item
-                            v-for="subItem in item.child"
-                            :key="subItem.id"
-                            :item="subItem"
-                            :level="level + 1"
-                        >
-                            <template #dropdown-icon="{ isOpen }">
-                                <slot name="dropdown-icon" v-bind="{ isOpen }"/>
-                            </template>
-                        </sidebar-menu-item>
+                        <template v-for="subItem in item.child"
+                                  :key="subItem.id" >
+                            <sidebar-menu-item
+                                :item="subItem"
+                                :level="level + 1"
+                                v-if="subItem.can"
+                            >
+                                <template #dropdown-icon="{ isOpen }">
+                                    <slot name="dropdown-icon" v-bind="{ isOpen }"/>
+                                </template>
+                            </sidebar-menu-item>
+                        </template>
                     </ul>
                 </div>
             </transition>
@@ -118,7 +120,6 @@ export default {
     setup(props) {
         const {getSidebarProps, getIsCollapsed: isCollapsed} = useSidebar()
         const {linkComponentName} = toRefs(getSidebarProps)
-
         const {
             active,
             exactActive,

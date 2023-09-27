@@ -9,12 +9,13 @@ import InputText from 'primevue/inputtext';
 
 import ClientsRepository from "@/Repositories/Tenants/CRM/ClientsRepository.js";
 import {toast} from 'vue3-toastify';
-import {ref, onMounted, reactive, defineAsyncComponent} from 'vue';
+import {ref, onMounted, reactive, defineAsyncComponent, inject} from 'vue';
 import {useConfirm} from "@/Components/ConfirmationModal/useConfirm.js";
 
 const Modal = defineAsyncComponent(() => import('./Modal.vue'))
 
 const props = defineProps(['clients']);
+const can = inject('$can');
 
 const state = reactive({
     isLoading: false,
@@ -57,15 +58,17 @@ const queryParams = () => {
     return data;
 }
 const fetch = async () => {
-    switchLoader();
-    try {
-        const data = await ClientsRepository.fetch(queryParams());
-        state.data = data.success ? data.result : [];
-    } catch (e) {
-        console.error(e);
-        toast.error("Failed to fetch data");
+    if (can('read-clients')) {
+        switchLoader();
+        try {
+            const data = await ClientsRepository.fetch(queryParams());
+            state.data = data.success ? data.result : [];
+        } catch (e) {
+            console.error(e);
+            toast.error("Failed to fetch data");
+        }
+        switchLoader();
     }
-    switchLoader();
 }
 
 const toggleModal = (val) => val ? state.isShowModal = val : state.isShowModal = !state.isShowModal;
@@ -86,75 +89,83 @@ const onRowSelect = (event) => {
 };
 
 const onCreate = () => {
-    item.value = {
-        id: null,
-        phones: [''],
-        emails: [''],
-        full_name: null,
-        comment: null,
-        addresses: [],
-        orders: []
-    };
-    toggleModal();
+    if (can('create-clients')) {
+        item.value = {
+            id: null,
+            phones: [''],
+            emails: [''],
+            full_name: null,
+            comment: null,
+            addresses: [],
+            orders: []
+        };
+        toggleModal();
+    }
 }
 
 const onSubmit = async () => {
-    state.isLoadingModal = true;
-    state.errors = [];
-    try {
-        const data = item.value.id
-            ? await ClientsRepository.update(item.value)
-            : await ClientsRepository.create(item.value);
+    if (can('update-clients')) {
+        state.isLoadingModal = true;
+        state.errors = [];
+        try {
+            const data = item.value.id
+                ? await ClientsRepository.update(item.value)
+                : await ClientsRepository.create(item.value);
 
-        if (data.success) {
-            await fetch();
-            toggleModal();
-            toast.success("Success");
-        } else {
-            state.errors = data.data;
+            if (data.success) {
+                await fetch();
+                toggleModal();
+                toast.success("Success");
+            } else {
+                state.errors = data.data;
+                toast.error("Error");
+            }
+        } catch (e) {
+            console.error(e);
             toast.error("Error");
         }
-    } catch (e) {
-        console.error(e);
-        toast.error("Error");
+        state.isLoadingModal = false;
     }
-    state.isLoadingModal = false;
 }
 
 const onEdit = async (id) => {
-    switchLoader();
-    try {
-        const data = await ClientsRepository.edit(id);
-        item.value = data.result;
-        item.value.availability = {value: data.result.availability};
-        toggleModal();
-    } catch (e) {
-        console.error(e);
-        toast.error("Failed to get data");
+    if (can('update-clients')) {
+        switchLoader();
+        try {
+            const data = await ClientsRepository.edit(id);
+            item.value = data.result;
+            item.value.availability = {value: data.result.availability};
+            toggleModal();
+        } catch (e) {
+            console.error(e);
+            toast.error("Failed to get data");
+        }
+        switchLoader();
     }
-    switchLoader();
 }
 
 const onDestroy = async (id) => {
-    await useConfirm({
-        message: 'Ви точно бажаєте видалити цей запис?',
-        header: 'Підтвердження дії',
-        icon: 'pi pi-exclamation-triangle',
-        accept: async () => {
-            try {
-                await ClientsRepository.destroy(id);
-                await fetch();
-                toast.success('Запис успішно видалено');
-            } catch (error) {
-                console.error(error);
-                toast.error('Виникла помилка');
+    if (can('delete-clients')) {
+        await useConfirm({
+            message: 'Ви точно бажаєте видалити цей запис?',
+            header: 'Підтвердження дії',
+            icon: 'pi pi-exclamation-triangle',
+            accept: async () => {
+                try {
+                    await ClientsRepository.destroy(id);
+                    await fetch();
+                    toast.success('Запис успішно видалено');
+                } catch (error) {
+                    console.error(error);
+                    toast.error('Виникла помилка');
+                }
             }
-        }
-    });
+        });
+    }
 }
 
 const onSearch = async () => {
-    if (state.search) {
+    if (state.search && can('read-clients')) {
         switchLoader();
         try {
             const data = await ClientsRepository.search(state.search);
@@ -183,7 +194,7 @@ const refreshData = async () => {
 </script>
 
 <template>
-    <AppLayout>
+    <AppLayout :can="can('read-clients')">
         <div class="card">
             <Toolbar class="mb-4">
                 <template #start>
@@ -197,7 +208,7 @@ const refreshData = async () => {
                         <Heading>Клієнти</Heading>
                     </div>
                 </template>
-                <template #end>
+                <template #end v-if="can('create-clients')">
                     <Button label="Додати" size="small" icon="pi pi-plus" class="mr-2" @click="onCreate"/>
                 </template>
             </Toolbar>
@@ -345,7 +356,7 @@ const refreshData = async () => {
                     </template>
                 </Column>
                 <Column>
-                    <template #body="{data}">
+                    <template #body="{data}" v-if="can('delete-clients')">
                         <Button icon="pi pi-trash"
                                 outlined
                                 rounded

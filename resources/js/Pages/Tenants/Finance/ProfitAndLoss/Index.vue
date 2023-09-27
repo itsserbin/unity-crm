@@ -2,7 +2,7 @@
 import AppLayout from '@/Layouts/AppLayout.vue';
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
-import {computed, onMounted, reactive, ref} from "vue";
+import {computed, inject, onMounted, reactive, ref} from "vue";
 import Button from 'primevue/button';
 import MultiSelect from 'primevue/multiselect';
 import Chart from './Chart.vue';
@@ -11,6 +11,7 @@ import Toolbar from "primevue/toolbar";
 import ProfitAndLossRepository from "@/Repositories/Tenants/Finance/ProfitAndLossRepository.js";
 
 const props = defineProps(['profitAndLoss']);
+const can = inject('$can');
 
 const state = reactive({
     data: [],
@@ -84,14 +85,16 @@ const isSelectedColumn = (val) => {
 }
 
 const fetch = async () => {
-    toggleIsLoading(true);
-    try {
-        const data = await ProfitAndLossRepository.fetch(getParams.value);
-        state.data = data.result;
-    } catch (e) {
-        console.error(e);
+    if (can('read-profit-and-loss-statistics')) {
+        toggleIsLoading(true);
+        try {
+            const data = await ProfitAndLossRepository.fetch(getParams.value);
+            state.data = data.result;
+        } catch (e) {
+            console.error(e);
+        }
+        toggleIsLoading(false);
     }
-    toggleIsLoading(false);
 }
 
 const onPage = async (e) => {
@@ -118,7 +121,7 @@ const refreshData = async () => {
 </script>
 
 <template>
-    <AppLayout>
+    <AppLayout :can="can('read-profit-and-loss-statistics')">
         <Toolbar class="mb-4">
             <template #start>
                 <div class="flex gap-2 items-center">

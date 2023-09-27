@@ -9,13 +9,14 @@ import InputText from 'primevue/inputtext';
 
 import ProductsRepository from "@/Repositories/Tenants/Catalog/ProductsRepository.js";
 import {toast} from 'vue3-toastify';
-import {ref, onMounted, reactive, defineAsyncComponent} from 'vue';
+import {ref, inject, onMounted, reactive, defineAsyncComponent} from 'vue';
 import {useConfirm} from "@/Components/ConfirmationModal/useConfirm.js";
 import Heading from "@/Components/Heading.vue";
 
 const Modal = defineAsyncComponent(() => import('./Modal.vue'))
 
 const props = defineProps(['products', 'categories']);
+const can = inject('$can');
 
 const state = reactive({
     isLoading: false,
@@ -59,15 +60,17 @@ const queryParams = () => {
 }
 
 const fetch = async () => {
-    switchLoader();
-    try {
-        const data = await ProductsRepository.fetch(queryParams());
-        state.data = data.success ? data.result : [];
-    } catch (e) {
-        console.error(e);
-        toast.error("Failed to fetch data");
+    if (can('read-products')) {
+        switchLoader();
+        try {
+            const data = await ProductsRepository.fetch(queryParams());
+            state.data = data.success ? data.result : [];
+        } catch (e) {
+            console.error(e);
+            toast.error("Failed to fetch data");
+        }
+        switchLoader();
     }
-    switchLoader();
 }
 
 const toggleModal = (val) => val ? state.isShowModal = val : state.isShowModal = !state.isShowModal;
@@ -126,7 +129,9 @@ const onSort = async (e) => {
 }
 
 const onRowSelect = (event) => {
-    onEdit(event.data.id);
+    if (can('update-products')) {
+        onEdit(event.data.id);
+    }
 };
 
 const onFilter = async (val) => {
@@ -139,93 +144,101 @@ const onFilter = async (val) => {
 }
 
 const onCreate = () => {
-    item.value = {
-        id: null,
-        availability: {value: -1},
-        title: null,
-        description: null,
-        trade_price: null,
-        price: null,
-        discount_price: null,
-        image: null,
-        sku: null,
-        categories: []
-    };
-    toggleModal();
+    if (can('create-products')) {
+        item.value = {
+            id: null,
+            availability: {value: -1},
+            title: null,
+            description: null,
+            trade_price: null,
+            price: null,
+            discount_price: null,
+            image: null,
+            sku: null,
+            categories: []
+        };
+        toggleModal();
+    }
 }
 
 const onSubmit = async () => {
-    state.isLoadingModal = true;
-    state.errors = [];
-    try {
-        if (item.value.availability) {
-            item.value.availability = item.value.availability.value;
-        }
-        if (item.value.categories.length) {
-            item.value.categories = item.value.categories.map((item) => {
-                return item.code;
-            });
-        }
+    if (can('update-products')) {
+        state.isLoadingModal = true;
+        state.errors = [];
+        try {
+            if (item.value.availability) {
+                item.value.availability = item.value.availability.value;
+            }
+            if (item.value.categories.length) {
+                item.value.categories = item.value.categories.map((item) => {
+                    return item.code;
+                });
+            }
 
-        const data = item.value.id
-            ? await ProductsRepository.update(item.value)
-            : await ProductsRepository.create(item.value);
+            const data = item.value.id
+                ? await ProductsRepository.update(item.value)
+                : await ProductsRepository.create(item.value);
 
-        if (data.success) {
-            await fetch();
-            toggleModal();
-            toast.success("Success");
-        } else {
-            state.errors = data.data;
+            if (data.success) {
+                await fetch();
+                toggleModal();
+                toast.success("Success");
+            } else {
+                state.errors = data.data;
+                toast.error("Error");
+            }
+        } catch (e) {
+            console.error(e);
             toast.error("Error");
         }
-    } catch (e) {
-        console.error(e);
-        toast.error("Error");
+        state.isLoadingModal = false;
     }
-    state.isLoadingModal = false;
 }
 
 const onEdit = async (id) => {
-    switchLoader();
-    try {
-        const data = await ProductsRepository.edit(id);
-        item.value = data.result;
-        item.value.categories = data.result.categories.map((item) => {
-            return {
-                label: item.title,
-                code: item.id
-            }
-        });
-        item.value.availability = {value: data.result.availability};
-        toggleModal();
-    } catch (e) {
-        console.error(e);
-        toast.error("Failed to get data");
+    if (can('update-products')) {
+        switchLoader();
+        try {
+            const data = await ProductsRepository.edit(id);
+            item.value = data.result;
+            item.value.categories = data.result.categories.map((item) => {
+                return {
+                    label: item.title,
+                    code: item.id
+                }
+            });
+            item.value.availability = {value: data.result.availability};
+            toggleModal();
+        } catch (e) {
+            console.error(e);
+            toast.error("Failed to get data");
+        }
+        switchLoader();
     }
-    switchLoader();
 }
 
 const onDestroy = async (id) => {
-    await useConfirm({
-        message: 'Ви точно бажаєте видалити цей запис?',
-        header: 'Підтвердження дії',
-        icon: 'pi pi-exclamation-triangle',
-        accept: async () => {
-            try {
-                await ProductsRepository.destroy(id);
-                await fetch();
-                toast.success('Запис успішно видалено');
-            } catch (error) {
-                console.error(error);
-                toast.error('Виникла помилка');
+    if (can('destroy-products')) {
+        await useConfirm({
+            message: 'Ви точно бажаєте видалити цей запис?',
+            header: 'Підтвердження дії',
+            icon: 'pi pi-exclamation-triangle',
+            accept: async () => {
+                try {
+                    await ProductsRepository.destroy(id);
+                    await fetch();
+                    toast.success('Запис успішно видалено');
+                } catch (error) {
+                    console.error(error);
+                    toast.error('Виникла помилка');
+                }
             }
-        }
-    });
+        });
+    }
 }
 
 const onSearch = async () => {
-    if (state.search) {
+    if (state.search && can('read-categories')) {
         switchLoader();
         try {
             const data = await ProductsRepository.search(state.search);
@@ -254,7 +267,7 @@ const refreshData = async () => {
 </script>
 
 <template>
-    <AppLayout>
+    <AppLayout :can="can('read-products')">
         <div class="card">
             <Toolbar class="mb-4">
                 <template #start>
@@ -268,7 +281,7 @@ const refreshData = async () => {
                         <Heading>Товари</Heading>
                     </div>
                 </template>
-                <template #end>
+                <template #end v-if="can('create-products')">
                     <Button label="Додати" size="small" icon="pi pi-plus" class="mr-2" @click="onCreate"/>
                 </template>
             </Toolbar>
@@ -367,7 +380,7 @@ const refreshData = async () => {
                 </Column>
                 <Column field="sku" header="Артикул"></Column>
                 <Column>
-                    <template #body="{data}">
+                    <template #body="{data}" v-if="can('delete-products')">
                         <Button icon="pi pi-trash"
                                 outlined
                                 rounded

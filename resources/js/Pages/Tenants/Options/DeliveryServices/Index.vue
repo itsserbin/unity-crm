@@ -7,7 +7,7 @@ import AppLayout from '@/Layouts/AppLayout.vue';
 
 import DeliveryServicesRepository from "@/Repositories/Tenants/Options/DeliveryServicesRepository.js";
 import {toast} from 'vue3-toastify';
-import {ref, onMounted, reactive, defineAsyncComponent} from 'vue';
+import {ref, onMounted, reactive, defineAsyncComponent, inject} from 'vue';
 import {useConfirm} from "@/Components/ConfirmationModal/useConfirm.js";
 import Heading from "@/Components/Heading.vue";
 import InputSwitch from "primevue/inputswitch";
@@ -15,6 +15,7 @@ import InputSwitch from "primevue/inputswitch";
 const Modal = defineAsyncComponent(() => import('./Modal.vue'))
 
 const props = defineProps(['deliveryServices']);
+const can = inject('$can');
 
 const state = reactive({
     isLoading: false,
@@ -56,15 +57,17 @@ const queryParams = () => {
     return data;
 }
 const fetch = async () => {
-    switchLoader();
-    try {
-        const data = await DeliveryServicesRepository.fetch(queryParams());
-        state.data = data.success ? data.result : [];
-    } catch (e) {
-        console.error(e);
-        toast.error("Failed to fetch data");
+    if (can('read-delivery-services')) {
+        switchLoader();
+        try {
+            const data = await DeliveryServicesRepository.fetch(queryParams());
+            state.data = data.success ? data.result : [];
+        } catch (e) {
+            console.error(e);
+            toast.error("Failed to fetch data");
+        }
+        switchLoader();
     }
-    switchLoader();
 }
 
 const toggleModal = (val) => val ? state.isShowModal = val : state.isShowModal = !state.isShowModal;
@@ -85,66 +88,74 @@ const onRowSelect = (event) => {
 };
 
 const onCreate = () => {
-    item.value = {
-        title: null,
-        type: null,
-        api_key: null,
-        configuration: [],
-    };
-    toggleModal();
+    if (can('create-delivery-services')) {
+        item.value = {
+            title: null,
+            type: null,
+            api_key: null,
+            configuration: [],
+        };
+        toggleModal();
+    }
 }
 
 const onSubmit = async () => {
-    state.isLoadingModal = true;
-    try {
-        if (item.value.type) {
-            item.value.type = item.value.type.code;
+    if (can('update-delivery-services')) {
+        state.isLoadingModal = true;
+        try {
+            if (item.value.type) {
+                item.value.type = item.value.type.code;
+            }
+
+            item.value.id
+                ? await DeliveryServicesRepository.update(item.value)
+                : await DeliveryServicesRepository.create(item.value);
+
+            await fetch();
+            toggleModal();
+            toast.success("Success");
+        } catch (e) {
+            console.error(e);
+            toast.error("Error");
         }
-
-        item.value.id
-            ? await DeliveryServicesRepository.update(item.value)
-            : await DeliveryServicesRepository.create(item.value);
-
-        await fetch();
-        toggleModal();
-        toast.success("Success");
-    } catch (e) {
-        console.error(e);
-        toast.error("Error");
+        state.isLoadingModal = false;
     }
-    state.isLoadingModal = false;
 }
 
 const onEdit = async (id) => {
-    switchLoader();
-    try {
-        const data = await DeliveryServicesRepository.edit(id);
-        item.value = data.result;
-        item.value.type = {code: data.result.type};
-        toggleModal();
-    } catch (e) {
-        console.error(e);
-        toast.error("Failed to get data");
+    if (can('update-delivery-services')) {
+        switchLoader();
+        try {
+            const data = await DeliveryServicesRepository.edit(id);
+            item.value = data.result;
+            item.value.type = {code: data.result.type};
+            toggleModal();
+        } catch (e) {
+            console.error(e);
+            toast.error("Failed to get data");
+        }
+        switchLoader();
     }
-    switchLoader();
 }
 
 const onDestroy = async (id) => {
-    await useConfirm({
-        message: 'Ви точно бажаєте видалити цей запис?',
-        header: 'Підтвердження дії',
-        icon: 'pi pi-exclamation-triangle',
-        accept: async () => {
-            try {
-                await DeliveryServicesRepository.destroy(id);
-                await fetch();
-                toast.success('Запис успішно видалено');
-            } catch (error) {
-                console.error(error);
-                toast.error('Виникла помилка');
+    if (can('delete-delivery-services')) {
+        await useConfirm({
+            message: 'Ви точно бажаєте видалити цей запис?',
+            header: 'Підтвердження дії',
+            icon: 'pi pi-exclamation-triangle',
+            accept: async () => {
+                try {
+                    await DeliveryServicesRepository.destroy(id);
+                    await fetch();
+                    toast.success('Запис успішно видалено');
+                } catch (error) {
+                    console.error(error);
+                    toast.error('Виникла помилка');
+                }
             }
-        }
-    });
+        });
+    }
 }
 
 const refreshData = async () => {
@@ -162,20 +173,22 @@ const refreshData = async () => {
 }
 
 const setPublishedStatus = async (id, val) => {
-    switchLoader();
-    try {
-        await DeliveryServicesRepository.setPublished({id: id, value: val});
-        toast.success("Оновлено!");
-    } catch (e) {
-        console.error(e);
-        toast.error("Failed set status");
+    if (can('update-delivery-services')) {
+        switchLoader();
+        try {
+            await DeliveryServicesRepository.setPublished({id: id, value: val});
+            toast.success("Оновлено!");
+        } catch (e) {
+            console.error(e);
+            toast.error("Failed set status");
+        }
+        switchLoader();
     }
-    switchLoader();
 }
 </script>
 
 <template>
-    <AppLayout>
+    <AppLayout :can="can('read-delivery-services')">
         <div class="card">
             <Toolbar class="mb-4">
                 <template #start>
@@ -189,7 +202,7 @@ const setPublishedStatus = async (id, val) => {
                         <Heading>Служби доставки</Heading>
                     </div>
                 </template>
-                <template #end>
+                <template #end v-if="can('create-delivery-services')">
                     <Button label="Додати" size="small" icon="pi pi-plus" class="mr-2" @click="onCreate"/>
                 </template>
             </Toolbar>
@@ -226,7 +239,7 @@ const setPublishedStatus = async (id, val) => {
                     </template>
                 </Column>
                 <Column>
-                    <template #body="{data}">
+                    <template #body="{data}" v-if="can('delete-delivery-services')">
                         <Button icon="pi pi-trash"
                                 outlined
                                 rounded

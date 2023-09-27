@@ -9,12 +9,13 @@ import Heading from "@/Components/Heading.vue";
 
 import MovementCategoriesRepository from "@/Repositories/Tenants/Finance/MovementCategoriesRepository.js";
 import {toast} from 'vue3-toastify';
-import {ref, onMounted, reactive, defineAsyncComponent} from 'vue';
+import {ref, onMounted, reactive, defineAsyncComponent, inject} from 'vue';
 import {useConfirm} from "@/Components/ConfirmationModal/useConfirm.js";
 
 const Modal = defineAsyncComponent(() => import('./Modal.vue'))
 
 const props = defineProps(['movementCategories']);
+const can = inject('$can');
 
 const state = reactive({
     isLoading: false,
@@ -63,15 +64,17 @@ const queryParams = () => {
     return data;
 }
 const fetch = async () => {
-    switchLoader();
-    try {
-        const data = await MovementCategoriesRepository.fetch(queryParams());
-        state.data = data.success ? data.result : [];
-    } catch (e) {
-        console.error(e);
-        toast.error("Failed to fetch data");
+    if (can('read-bank-account-movement-categories')) {
+        switchLoader();
+        try {
+            const data = await MovementCategoriesRepository.fetch(queryParams());
+            state.data = data.success ? data.result : [];
+        } catch (e) {
+            console.error(e);
+            toast.error("Failed to fetch data");
+        }
+        switchLoader();
     }
-    switchLoader();
 }
 
 const toggleModal = (val) => val ? state.isShowModal = val : state.isShowModal = !state.isShowModal;
@@ -92,71 +95,79 @@ const onRowSelect = (event) => {
 };
 
 const onCreate = () => {
-    item.value = {
-        title: null,
-        type: null,
-        api_key: null,
-        configuration: [],
-    };
-    toggleModal();
+    if (can('create-bank-account-movement-categories')) {
+        item.value = {
+            title: null,
+            type: null,
+            api_key: null,
+            configuration: [],
+        };
+        toggleModal();
+    }
 }
 
 const onSubmit = async () => {
-    state.isLoadingModal = true;
-    errors.value = [];
-    try {
-        const modifiedItem = {...item.value};
-        if (item.value.type) {
-            modifiedItem.type = item.value.type.value;
-        }
-        const data = item.value.id
-            ? await MovementCategoriesRepository.update(modifiedItem)
-            : await MovementCategoriesRepository.create(modifiedItem);
+    if (can('update-bank-account-movement-categories')) {
+        state.isLoadingModal = true;
+        errors.value = [];
+        try {
+            const modifiedItem = {...item.value};
+            if (item.value.type) {
+                modifiedItem.type = item.value.type.value;
+            }
+            const data = item.value.id
+                ? await MovementCategoriesRepository.update(modifiedItem)
+                : await MovementCategoriesRepository.create(modifiedItem);
 
-        if (data.success) {
-            await fetch();
-            toggleModal();
-            toast.success('Дані успішно оновлені!');
-        } else {
-            errors.value = data.data;
+            if (data.success) {
+                await fetch();
+                toggleModal();
+                toast.success('Дані успішно оновлені!');
+            } else {
+                errors.value = data.data;
+            }
+        } catch (e) {
+            console.error(e);
+            toast.error("Error");
         }
-    } catch (e) {
-        console.error(e);
-        toast.error("Error");
+        state.isLoadingModal = false;
     }
-    state.isLoadingModal = false;
 }
 
 const onEdit = async (id) => {
-    switchLoader();
-    try {
-        const data = await MovementCategoriesRepository.edit(id);
-        item.value = data.result;
-        item.value.type = {value: data.result.type};
-        toggleModal();
-    } catch (e) {
-        console.error(e);
-        toast.error("Failed to get data");
+    if (can('update-bank-account-movement-categories')) {
+        switchLoader();
+        try {
+            const data = await MovementCategoriesRepository.edit(id);
+            item.value = data.result;
+            item.value.type = {value: data.result.type};
+            toggleModal();
+        } catch (e) {
+            console.error(e);
+            toast.error("Failed to get data");
+        }
+        switchLoader();
     }
-    switchLoader();
 }
 
 const onDestroy = async (id) => {
-    await useConfirm({
-        message: 'Ви точно бажаєте видалити цей запис?',
-        header: 'Підтвердження дії',
-        icon: 'pi pi-exclamation-triangle',
-        accept: async () => {
-            try {
-                await MovementCategoriesRepository.destroy(id);
-                await fetch();
-                toast.success('Запис успішно видалено');
-            } catch (error) {
-                console.error(error);
-                toast.error('Виникла помилка');
+    if (can('delete-bank-account-movement-categories')) {
+        await useConfirm({
+            message: 'Ви точно бажаєте видалити цей запис?',
+            header: 'Підтвердження дії',
+            icon: 'pi pi-exclamation-triangle',
+            accept: async () => {
+                try {
+                    await MovementCategoriesRepository.destroy(id);
+                    await fetch();
+                    toast.success('Запис успішно видалено');
+                } catch (error) {
+                    console.error(error);
+                    toast.error('Виникла помилка');
+                }
             }
-        }
-    });
+        });
+    }
 }
 
 const refreshData = async () => {
@@ -175,7 +186,7 @@ const refreshData = async () => {
 </script>
 
 <template>
-    <AppLayout>
+    <AppLayout :can="can('read-bank-account-movement-categories')">
         <div class="card">
             <Toolbar class="mb-4">
                 <template #start>
@@ -189,7 +200,7 @@ const refreshData = async () => {
                         <Heading>Категорї грошових рухів</Heading>
                     </div>
                 </template>
-                <template #end>
+                <template #end v-if="can('create-bank-account-movement-categories')">
                     <Button label="Додати" size="small" icon="pi pi-plus" class="mr-2" @click="onCreate"/>
                 </template>
             </Toolbar>
@@ -221,7 +232,7 @@ const refreshData = async () => {
                 </Column>
                 <Column field="title" header="Назва"></Column>
                 <Column>
-                    <template #body="{data}">
+                    <template #body="{data}" v-if="can('delete-bank-account-movement-categories')">
                         <Button icon="pi pi-trash"
                                 outlined
                                 rounded

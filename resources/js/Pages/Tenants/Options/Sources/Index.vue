@@ -9,7 +9,7 @@ import Heading from "@/Components/Heading.vue";
 
 import SourcesRepository from "@/Repositories/Tenants/Options/SourcesRepository.js";
 import {toast} from 'vue3-toastify';
-import {ref, onMounted, reactive, defineAsyncComponent} from 'vue';
+import {ref, onMounted, reactive, defineAsyncComponent, inject} from 'vue';
 import {useConfirm} from "@/Components/ConfirmationModal/useConfirm.js";
 
 const Modal = defineAsyncComponent(
@@ -20,6 +20,7 @@ const props = defineProps([
     'sources',
     'sourceTypes'
 ]);
+const can = inject('$can');
 
 const state = reactive({
     isLoading: false,
@@ -61,16 +62,19 @@ const queryParams = () => {
     data.page = (lazyParams.value.page || 0) + 1;
     return data;
 }
+
 const fetch = async () => {
-    switchLoader();
-    try {
-        const data = await SourcesRepository.fetch(queryParams());
-        state.data = data.success ? data.result : [];
-    } catch (e) {
-        console.error(e);
-        toast.error("Failed to fetch data");
+    if (can('read-sources')) {
+        switchLoader();
+        try {
+            const data = await SourcesRepository.fetch(queryParams());
+            state.data = data.success ? data.result : [];
+        } catch (e) {
+            console.error(e);
+            toast.error("Failed to fetch data");
+        }
+        switchLoader();
     }
-    switchLoader();
 }
 
 const toggleModal = (val) => val ? state.isShowModal = val : state.isShowModal = !state.isShowModal;
@@ -91,84 +95,94 @@ const onRowSelect = (event) => {
 };
 
 const onCreate = () => {
-    item.value = {
-        id: null,
-        title: null,
-        source: null,
-    };
-    toggleModal();
+    if (can('create-sources')) {
+        item.value = {
+            id: null,
+            title: null,
+            source: null,
+        };
+        toggleModal();
+    }
 }
 
 const onSubmit = async () => {
-    state.isLoadingModal = true;
-    state.errors = [];
-    try {
-        if (item.value.source) {
-            item.value.source = item.value.source.code;
-        }
+    if (can('update-sources')) {
+        state.isLoadingModal = true;
+        state.errors = [];
+        try {
+            if (item.value.source) {
+                item.value.source = item.value.source.code;
+            }
 
-        const data = item.value.id
-            ? await SourcesRepository.update(item.value)
-            : await SourcesRepository.create(item.value);
+            const data = item.value.id
+                ? await SourcesRepository.update(item.value)
+                : await SourcesRepository.create(item.value);
 
-        if (data.success) {
-            await fetch();
-            toggleModal();
-            toast.success("Success");
-        } else {
-            state.errors = data.data;
+            if (data.success) {
+                await fetch();
+                toggleModal();
+                toast.success("Success");
+            } else {
+                state.errors = data.data;
+                toast.error("Error");
+            }
+        } catch (e) {
+            console.error(e);
             toast.error("Error");
         }
-    } catch (e) {
-        console.error(e);
-        toast.error("Error");
+        state.isLoadingModal = false;
     }
-    state.isLoadingModal = false;
 }
 
 const onEdit = async (id) => {
-    switchLoader();
-    try {
-        const data = await SourcesRepository.edit(id);
-        item.value = data.result;
-        item.value.source = {code: data.result.source};
-        toggleModal();
-    } catch (e) {
-        console.error(e);
-        toast.error("Failed to get data");
+    if (can('update-sources')) {
+        switchLoader();
+        try {
+            const data = await SourcesRepository.edit(id);
+            item.value = data.result;
+            item.value.source = {code: data.result.source};
+            toggleModal();
+        } catch (e) {
+            console.error(e);
+            toast.error("Failed to get data");
+        }
+        switchLoader();
     }
-    switchLoader();
 }
 
 const onDestroy = async (id) => {
-    await useConfirm({
-        message: 'Ви точно бажаєте видалити цей запис?',
-        header: 'Підтвердження дії',
-        icon: 'pi pi-exclamation-triangle',
-        accept: async () => {
-            try {
-                await SourcesRepository.destroy(id);
-                await fetch();
-                toast.success('Запис успішно видалено');
-            } catch (error) {
-                console.error(error);
-                toast.error('Виникла помилка');
+    if (can('delete-sources')) {
+        await useConfirm({
+            message: 'Ви точно бажаєте видалити цей запис?',
+            header: 'Підтвердження дії',
+            icon: 'pi pi-exclamation-triangle',
+            accept: async () => {
+                try {
+                    await SourcesRepository.destroy(id);
+                    await fetch();
+                    toast.success('Запис успішно видалено');
+                } catch (error) {
+                    console.error(error);
+                    toast.error('Виникла помилка');
+                }
             }
-        }
-    });
+        });
+    }
 }
 
 const onSearch = async () => {
-    if (state.search) {
-        switchLoader();
-        try {
-            const data = await SourcesRepository.search(state.search);
-            state.data = data.success ? data.result : [];
-        } catch (e) {
-            console.error(e);
-            toast.error("Failed to fetch data");
+    if (can('read-sources')) {
+        if (state.search) {
+            switchLoader();
+            try {
+                const data = await SourcesRepository.search(state.search);
+                state.data = data.success ? data.result : [];
+            } catch (e) {
+                console.error(e);
+                toast.error("Failed to fetch data");
+            }
+            switchLoader();
         }
-        switchLoader();
     }
 }
 
@@ -188,7 +202,7 @@ const refreshData = async () => {
 </script>
 
 <template>
-    <AppLayout>
+    <AppLayout :can="can('read-sources')">
         <div class="card">
             <Toolbar class="mb-4">
                 <template #start>
@@ -202,7 +216,7 @@ const refreshData = async () => {
                         <Heading>Джерела</Heading>
                     </div>
                 </template>
-                <template #end>
+                <template #end v-if="can('create-sources')">
                     <Button label="Додати" size="small" icon="pi pi-plus" class="mr-2" @click="onCreate"/>
                 </template>
             </Toolbar>
@@ -240,7 +254,7 @@ const refreshData = async () => {
                 <Column field="title" header="Назва"></Column>
                 <Column field="source" header="Тип джерела"></Column>
                 <Column>
-                    <template #body="{data}">
+                    <template #body="{data}" v-if="can('delete-sources')">
                         <Button icon="pi pi-trash"
                                 outlined
                                 rounded

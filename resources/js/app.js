@@ -29,6 +29,10 @@ createInertiaApp({
 
         app.config.globalProperties.$filters = filters;
 
+        app.provide('$can', function (val) {
+            return props.initialPage.props.user.permissions.includes(val);
+        });
+
         return app.mount(el);
     },
     progress: {

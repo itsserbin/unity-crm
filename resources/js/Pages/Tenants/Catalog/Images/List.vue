@@ -7,11 +7,13 @@ import Loader from "@/Components/Loader.vue";
 
 import ImagesRepository from "@/Repositories/Tenants/Catalog/ImagesRepository.js";
 import {toast} from 'vue3-toastify';
-import {ref, onMounted, reactive, defineAsyncComponent} from 'vue';
+import {ref, onMounted, reactive, defineAsyncComponent, inject} from 'vue';
 import {useConfirm} from "@/Components/ConfirmationModal/useConfirm.js";
 import UploadRepository from "@/Repositories/Tenants/UploadRepository.js";
 
 const Modal = defineAsyncComponent(() => import('./Modal.vue'))
+
+const can = inject('$can');
 
 const props = defineProps({
     images: {
@@ -29,7 +31,7 @@ const props = defineProps({
         default: 'single'
     },
     selected: {
-        type: Array || Object,
+        type: [Array,Object],
         required: false,
         default: {}
     }
@@ -60,52 +62,58 @@ onMounted(async () => {
 });
 
 const fetch = async () => {
-    switchLoader();
-    try {
-        const data = await ImagesRepository.fetch();
-        state.data = data.success ? data.result : [];
-    } catch (e) {
-        console.error(e);
-        toast.error("Failed to fetch data");
+    if (can('read-images')) {
+        switchLoader();
+        try {
+            const data = await ImagesRepository.fetch();
+            state.data = data.success ? data.result : [];
+        } catch (e) {
+            console.error(e);
+            toast.error("Failed to fetch data");
+        }
+        switchLoader();
     }
-    switchLoader();
 }
 
 const switchLoader = (val) => val ? state.isLoading = val : state.isLoading = !state.isLoading;
 const switchLoaderRefreshButton = (val) => val ? state.isLoadingRefreshButton = val : state.isLoadingRefreshButton = !state.isLoadingRefreshButton;
 
 const onSubmit = async () => {
-    state.isLoadingModal = true;
-    try {
+    if (can('update-images')) {
+        state.isLoadingModal = true;
+        try {
 
-        item.value.id
-            ? await ImagesRepository.update(item.value)
-            : await ImagesRepository.create(item.value);
+            item.value.id
+                ? await ImagesRepository.update(item.value)
+                : await ImagesRepository.create(item.value);
 
-        await fetch();
-        toast.success("Success");
-    } catch (e) {
-        console.error(e);
-        toast.error("Error");
+            await fetch();
+            toast.success("Success");
+        } catch (e) {
+            console.error(e);
+            toast.error("Error");
+        }
+        state.isLoadingModal = false;
     }
-    state.isLoadingModal = false;
 }
 const onDestroy = async (id) => {
-    await useConfirm({
-        message: 'Ви точно бажаєте видалити цей запис?',
-        header: 'Підтвердження дії',
-        icon: 'pi pi-exclamation-triangle',
-        accept: async () => {
-            try {
-                await ImagesRepository.destroy(id);
-                await fetch();
-                toast.success('Запис успішно видалено');
-            } catch (error) {
-                console.error(error);
-                toast.error('Виникла помилка');
+    if (can('delete-images')) {
+        await useConfirm({
+            message: 'Ви точно бажаєте видалити цей запис?',
+            header: 'Підтвердження дії',
+            icon: 'pi pi-exclamation-triangle',
+            accept: async () => {
+                try {
+                    await ImagesRepository.destroy(id);
+                    await fetch();
+                    toast.success('Запис успішно видалено');
+                } catch (error) {
+                    console.error(error);
+                    toast.error('Виникла помилка');
+                }
             }
-        }
-    });
+        });
+    }
 }
 
 const refreshData = async () => {
@@ -115,23 +123,26 @@ const refreshData = async () => {
 }
 
 const uploadImages = async (e) => {
-    state.isLoadingFiles = true;
-    for (const image of e.files) {
-        if (image) {
-            try {
-                let formData = new FormData();
-                formData.append('image', image);
-                const data = await UploadRepository.uploadImage(formData);
-                if (data.success) {
-                    await fetch();
-                    emits('upload');
+    if (can('update-images')) {
+        state.isLoadingFiles = true;
+        for (const image of e.files) {
+            if (image) {
+                try {
+                    let formData = new FormData();
+                    formData.append('image', image);
+                    const data = await UploadRepository.uploadImage(formData);
+                    if (data.success) {
+                        await fetch();
+                        emits('upload');
+                    }
+                } catch (error) {
+                    console.error(error);
                 }
-            } catch (error) {
-                console.error(error);
             }
         }
+        state.isLoadingFiles = false;
     }
-    state.isLoadingFiles = false;
+    ;
 };
 
 const selected = ref({});
@@ -160,7 +171,7 @@ const updateSelected = () => {
                     <Loader class="w-10 h-10"/>
                     <div class="text-base">Завантаження...</div>
                 </div>
-                <FileUpload v-if="!state.isLoadingFiles"
+                <FileUpload v-if="!state.isLoadingFiles && can('create-images')"
                             mode="basic"
                             @select="uploadImages"
                             chooseLabel="Додати"
@@ -173,7 +184,12 @@ const updateSelected = () => {
 
         <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
             <a href="javascript:" v-for="item in state.data.data" class="relative">
-                <Button icon="pi pi-times" link class="absolute right-0" @click="onDestroy(item.id)"/>
+                <Button icon="pi pi-times"
+                        link
+                        class="absolute right-0"
+                        @click="onDestroy(item.id)"
+                        v-if="can('delete-images')"
+                />
                 <div v-if="selectable">
                     <input :type="selectableMode !== 'single' ? 'checkbox' : 'radio'"
                            name="images"

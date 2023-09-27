@@ -7,17 +7,15 @@
         <slot name="header"/>
         <sidebar-menu-scroll>
             <ul class="vsm--menu" :style="{ width: sidebarWidth }">
-                <sidebar-menu-item
-                    v-for="item in computedMenu"
-                    :key="item.id"
-                    :item="item"
-                >
-                    <template #dropdown-icon="{ isOpen }">
-                        <slot name="dropdown-icon" v-bind="{ isOpen }">
-                            <span class="vsm--arrow_default"/>
-                        </slot>
-                    </template>
-                </sidebar-menu-item>
+                <template v-for="item in computedMenu" :key="item.id">
+                    <sidebar-menu-item :item="item" v-if="item.can">
+                        <template #dropdown-icon="{ isOpen }">
+                            <slot name="dropdown-icon" v-bind="{ isOpen }">
+                                <span class="vsm--arrow_default"/>
+                            </slot>
+                        </template>
+                    </sidebar-menu-item>
+                </template>
             </ul>
         </sidebar-menu-scroll>
         <slot name="footer"/>

@@ -5,7 +5,7 @@ import Button from "primevue/button";
 import DataTable from "primevue/datatable";
 import Toolbar from "primevue/toolbar";
 
-import {defineAsyncComponent, onMounted, reactive, ref} from "vue";
+import {defineAsyncComponent, inject, onMounted, reactive, ref} from "vue";
 import StatusesRepository from "@/Repositories/Tenants/Options/StatusesRepository.js";
 import {toast} from "vue3-toastify";
 import {useConfirm} from "@/Components/ConfirmationModal/useConfirm.js";
@@ -13,6 +13,7 @@ import {useConfirm} from "@/Components/ConfirmationModal/useConfirm.js";
 const Modal = defineAsyncComponent(() => import('./Modal.vue'))
 
 const props = defineProps(['statuses']);
+const can = inject('$can');
 
 const state = reactive({
     isLoading: false,
@@ -54,15 +55,17 @@ const queryParams = () => {
     return data;
 }
 const fetch = async () => {
-    switchLoader();
-    try {
-        const data = await StatusesRepository.fetch(queryParams());
-        state.data = data.success ? data.result : [];
-    } catch (e) {
-        console.error(e);
-        toast.error("Failed to fetch data");
+    if (can('read-statuses')) {
+        switchLoader();
+        try {
+            const data = await StatusesRepository.fetch(queryParams());
+            state.data = data.success ? data.result : [];
+        } catch (e) {
+            console.error(e);
+            toast.error("Failed to fetch data");
+        }
+        switchLoader();
     }
-    switchLoader();
 }
 
 const toggleModal = (val) => val ? state.isShowModal = val : state.isShowModal = !state.isShowModal;
@@ -83,65 +86,73 @@ const onRowSelect = (event) => {
 };
 
 const onCreate = () => {
-    item.value = {
-        id: null,
-        title: null,
-        group_slug: null,
-    };
-    toggleModal();
+    if (can('create-statuses')) {
+        item.value = {
+            id: null,
+            title: null,
+            group_slug: null,
+        };
+        toggleModal();
+    }
 }
 
 const onSubmit = async () => {
-    state.isLoadingModal = true;
-    try {
-        if (item.value.group_slug) {
-            item.value.group_slug = item.value.group_slug.value;
+    if (can('update-statuses')) {
+        state.isLoadingModal = true;
+        try {
+            if (item.value.group_slug) {
+                item.value.group_slug = item.value.group_slug.value;
+            }
+
+            item.value.id
+                ? await StatusesRepository.update(item.value)
+                : await StatusesRepository.create(item.value);
+
+            await fetch();
+            toggleModal();
+            toast.success("Success",);
+        } catch (e) {
+            console.error(e);
+            toast.error("Error",);
         }
-
-        item.value.id
-            ? await StatusesRepository.update(item.value)
-            : await StatusesRepository.create(item.value);
-
-        await fetch();
-        toggleModal();
-        toast.success("Success",);
-    } catch (e) {
-        console.error(e);
-        toast.error("Error",);
+        state.isLoadingModal = false;
     }
-    state.isLoadingModal = false;
 }
 
 const onEdit = async (id) => {
-    switchLoader();
-    try {
-        const data = await StatusesRepository.edit(id);
-        item.value = data.result;
-        item.value.group_slug = {value: data.result.group_slug};
-        toggleModal();
-    } catch (e) {
-        console.error(e);
-        toast.error("Failed to get data");
+    if (can('update-statuses')) {
+        switchLoader();
+        try {
+            const data = await StatusesRepository.edit(id);
+            item.value = data.result;
+            item.value.group_slug = {value: data.result.group_slug};
+            toggleModal();
+        } catch (e) {
+            console.error(e);
+            toast.error("Failed to get data");
+        }
+        switchLoader();
     }
-    switchLoader();
 }
 
 const onDestroy = async (id) => {
-    await useConfirm({
-        message: 'Ви точно бажаєте видалити цей запис?',
-        header: 'Підтвердження дії',
-        icon: 'pi pi-exclamation-triangle',
-        accept: async () => {
-            try {
-                await StatusesRepository.destroy(id);
-                await fetch();
-                toast.success('Запис успішно видалено');
-            } catch (error) {
-                console.error(error);
-                toast.error('Виникла помилка');
+    if (can('delete-statuses')) {
+        await useConfirm({
+            message: 'Ви точно бажаєте видалити цей запис?',
+            header: 'Підтвердження дії',
+            icon: 'pi pi-exclamation-triangle',
+            accept: async () => {
+                try {
+                    await StatusesRepository.destroy(id);
+                    await fetch();
+                    toast.success('Запис успішно видалено');
+                } catch (error) {
+                    console.error(error);
+                    toast.error('Виникла помилка');
+                }
             }
-        }
-    });
+        });
+    }
 }
 
 const refreshData = async () => {
@@ -159,15 +170,17 @@ const refreshData = async () => {
 }
 
 const setPublishedStatus = async (id, val) => {
-    switchLoader();
-    try {
-        await StatusesRepository.setPublished({id: id, value: val});
-        toast.success("Оновлено!");
-    } catch (e) {
-        console.error(e);
-        toast.error("Failed set status");
+    if (can('update-statuses')) {
+        switchLoader();
+        try {
+            await StatusesRepository.setPublished({id: id, value: val});
+            toast.success("Оновлено!");
+        } catch (e) {
+            console.error(e);
+            toast.error("Failed set status");
+        }
+        switchLoader();
     }
-    switchLoader();
 }
 </script>
 
@@ -181,7 +194,13 @@ const setPublishedStatus = async (id, val) => {
                         @click="refreshData"
                         :loading="state.isLoadingRefreshButton"
                 />
-                <Button label="Додати" size="small" icon="pi pi-plus" class="mr-2" @click="onCreate"/>
+                <Button label="Додати"
+                        size="small"
+                        icon="pi pi-plus"
+                        class="mr-2"
+                        @click="onCreate"
+                        v-if="can('create-statuses')"
+                />
             </div>
         </template>
     </Toolbar>
@@ -234,7 +253,7 @@ const setPublishedStatus = async (id, val) => {
             </template>
         </Column>
         <Column>
-            <template #body="{data}">
+            <template #body="{data}" v-if="can('delete-statuses')">
                 <div class="text-end">
                     <Button icon="pi pi-trash"
                             outlined

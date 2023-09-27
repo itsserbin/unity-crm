@@ -2,13 +2,15 @@
 import AppLayout from '@/Layouts/AppLayout.vue';
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
-import {computed, onMounted, reactive, ref} from "vue";
+import {computed, inject, onMounted, reactive, ref} from "vue";
 import Button from 'primevue/button';
 import MultiSelect from 'primevue/multiselect';
 import Chart from './Chart.vue';
 import CashFlowRepository from "@/Repositories/Tenants/Finance/CashFlowRepository.js";
 
 const props = defineProps(['cashFlow']);
+const can = inject('$can');
+
 const state = reactive({
     data: [],
     isLoading: false,
@@ -68,14 +70,16 @@ onMounted(async () => {
 const toggleIsLoading = (val) => val ? state.isLoading = val : state.isLoading = !state.isLoading;
 
 const fetch = async () => {
-    toggleIsLoading();
-    try {
-        const data = await CashFlowRepository.fetch(getParams.value);
-        state.data = data.result;
-    } catch (e) {
-        console.error(e);
+    if (can('read-cash-flow-statistics')) {
+        toggleIsLoading();
+        try {
+            const data = await CashFlowRepository.fetch(getParams.value);
+            state.data = data.result;
+        } catch (e) {
+            console.error(e);
+        }
+        toggleIsLoading();
     }
-    toggleIsLoading();
 }
 
 const isSelectedColumn = (val) => {
@@ -99,11 +103,11 @@ const onRowExpand = async (event) => {
             expandRowData[event.data.id] = data.result;
             state.isLoading = false;
         });
-};
+}
 </script>
 
 <template>
-    <AppLayout>
+    <AppLayout :can="can('read-cash-flow-statistics')">
         <div class="grid grid-cols-1 gap-4">
             <Chart v-if="state.data.data" :data="state.data.data"/>
 

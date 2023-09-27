@@ -11,13 +11,14 @@ import CreateDataButtons from '@/Pages/Tenants/Finance/BankAccountMovements/Data
 
 import AccountsRepository from "@/Repositories/Tenants/Finance/AccountsRepository.js";
 import {toast} from 'vue3-toastify';
-import {ref, onMounted, reactive, defineAsyncComponent} from 'vue';
+import {ref, onMounted, reactive, defineAsyncComponent, inject} from 'vue';
 import {useConfirm} from "@/Components/ConfirmationModal/useConfirm.js";
 import BankAccountMovementsRepository from "@/Repositories/Tenants/Finance/BankAccountMovementsRepository.js";
 
 const UpdateItem = defineAsyncComponent(() => import('./DataEditor/UpdateItem.vue'))
 
 const props = defineProps(['data', 'accounts']);
+const can = inject('$can');
 
 const isShowUpdateItemModal = ref(false);
 const item = ref(null);
@@ -76,15 +77,17 @@ const queryParams = () => {
 }
 
 const fetch = async () => {
-    switchLoader();
-    try {
-        const data = await BankAccountMovementsRepository.fetch(queryParams());
-        state.data = data.success ? data.result : [];
-    } catch (e) {
-        console.error(e);
-        toast.error("Failed to fetch data");
+    if (can('read-bank-account-movements')) {
+        switchLoader();
+        try {
+            const data = await BankAccountMovementsRepository.fetch(queryParams());
+            state.data = data.success ? data.result : [];
+        } catch (e) {
+            console.error(e);
+            toast.error("Failed to fetch data");
+        }
+        switchLoader();
     }
-    switchLoader();
 }
 
 const toggleUpdateItemModal = () => isShowUpdateItemModal.value = !isShowUpdateItemModal.value;
@@ -102,23 +105,26 @@ const onSort = async (e) => {
 }
 
 const onDestroy = async (id) => {
-    await useConfirm({
-        message: 'Ви точно бажаєте видалити цей запис?',
-        header: 'Підтвердження дії',
-        icon: 'pi pi-exclamation-triangle',
-        accept: async () => {
-            try {
-                await BankAccountMovementsRepository.destroy(id);
-                await fetch();
-                await getBanks();
-                toast.success('Запис успішно видалено');
-            } catch (error) {
-                console.error(error);
-                toast.error('Виникла помилка');
+    if (can('delete-bank-account-movements')) {
+        await useConfirm({
+            message: 'Ви точно бажаєте видалити цей запис?',
+            header: 'Підтвердження дії',
+            icon: 'pi pi-exclamation-triangle',
+            accept: async () => {
+                try {
+                    await BankAccountMovementsRepository.destroy(id);
+                    await fetch();
+                    await getBanks();
+                    toast.success('Запис успішно видалено');
+                } catch (error) {
+                    console.error(error);
+                    toast.error('Виникла помилка');
+                }
             }
-        }
-    });
+        });
+    }
 }
+
 const refreshData = async () => {
     switchLoaderRefreshButton();
     lazyParams.value = ({
@@ -143,28 +149,33 @@ const onSubmitUpdateItem = async () => {
     await getBanks()
     toggleUpdateItemModal();
 }
+
 const onRowSelect = async (e) => {
-    try {
-        const data = await BankAccountMovementsRepository.edit(e.data.id);
-        item.value = data.result;
-        if (item.value.category_id) {
-            item.value.category_id = {value: item.value.category_id};
+    if (can('update-bank-account-movements')) {
+        try {
+            const data = await BankAccountMovementsRepository.edit(e.data.id);
+            item.value = data.result;
+            if (item.value.category_id) {
+                item.value.category_id = {value: item.value.category_id};
+            }
+            if (item.value.account_id) {
+                item.value.account_id = {value: item.value.account_id};
+            }
+            toggleUpdateItemModal();
+        } catch (e) {
+            console.error(e);
         }
-        if (item.value.account_id) {
-            item.value.account_id = {value: item.value.account_id};
-        }
-        toggleUpdateItemModal();
-    } catch (e) {
-        console.error(e);
     }
 }
 
 const getBanks = async () => {
-    try {
-        const data = await AccountsRepository.list();
-        state.banks = data.result;
-    } catch (e) {
-        console.error(e);
+    if (can('read-bank-account-movements')) {
+        try {
+            const data = await AccountsRepository.list();
+            state.banks = data.result;
+        } catch (e) {
+            console.error(e);
+        }
     }
 }
 
@@ -185,7 +196,7 @@ const onSelectAccount = async (val) => {
 </script>
 
 <template>
-    <AppLayout>
+    <AppLayout :can="can('read-bank-account-movements')">
         <div class="card">
             <Toolbar class="mb-4">
                 <template #start>
@@ -197,7 +208,7 @@ const onSelectAccount = async (val) => {
                         <Heading>Грошові рухи</Heading>
                     </div>
                 </template>
-                <template #center>
+                <template #center v-if="can('create-bank-account-movements')">
                     <CreateDataButtons @submit="refreshData"/>
                 </template>
                 <template #end>
@@ -292,7 +303,7 @@ const onSelectAccount = async (val) => {
                     </template>
                 </Column>
                 <Column>
-                    <template #body="{data}">
+                    <template #body="{data}" v-if="can('delete-bank-account-movements')">
                         <div class="text-end">
                             <Button icon="pi pi-trash"
                                     outlined
