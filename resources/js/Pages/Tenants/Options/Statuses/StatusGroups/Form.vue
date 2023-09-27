@@ -13,7 +13,7 @@ const props = defineProps(['item']);
             <div class="grid grid-cols-12 gap-x-2">
                 <InputText type="text" v-model="item.title" class="col-span-11"
                            placeholder="Вкажіть назву"/>
-                <ColorPicker v-model="item.hex" format="hex" class="col-span-1 w-full h-full"/>
+                <ColorPicker v-model="item.hex" format="hex" class="options-status-groups-colorpicker col-span-1 w-full h-full"/>
             </div>
         </div>
     </div>
@@ -23,5 +23,9 @@ const props = defineProps(['item']);
 .p-colorpicker-preview{
     width: 100%;
     height: 100%;
+}
+
+.p-colorpicker-panel{
+    z-index: 50 !important;
 }
 </style>

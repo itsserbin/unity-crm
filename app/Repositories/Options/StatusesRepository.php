@@ -48,7 +48,7 @@ class StatusesRepository extends CoreRepository
         $groups = $statusGroupRepository->list()->pluck('slug')->toArray();
 
         return $this->model::select($columns)
-            ->orderByRaw("FIELD(group_slug, '" . implode("','", $groups) . "')")
+            ->orderByRaw("CASE WHEN group_slug IN ('" . implode("','", $groups) . "') THEN 0 ELSE 1 END, group_slug")
             ->with('group')
             ->paginate($data['perPage'] ?? 30);
     }

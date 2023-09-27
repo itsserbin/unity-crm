@@ -86,7 +86,7 @@ const onRowSelect = (event) => {
 };
 
 const onCreate = () => {
-    if (can('crate-statuses')) {
+    if (can('create-statuses')) {
         item.value = {
             id: null,
             title: null,
