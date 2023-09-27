@@ -18,8 +18,6 @@ use Illuminate\Http\Request;
 
 class OrdersController extends BaseController
 {
-
-    private mixed $sourcesRepository;
     private mixed $ordersRepository;
     private mixed $clientsRepository;
     private mixed $productsRepository;
@@ -28,7 +26,6 @@ class OrdersController extends BaseController
     final public function __construct()
     {
         parent::__construct();
-        $this->sourcesRepository = app(SourcesRepository::class);
         $this->ordersRepository = app(OrdersRepository::class);
         $this->clientsRepository = app(ClientsRepository::class);
         $this->productsRepository = app(ProductsRepository::class);
@@ -47,15 +44,18 @@ class OrdersController extends BaseController
 
         $items = $this->processProducts($params);
 
-        $status = $this->statusesRepository->getByColumn('title', 'Новий');
+        if (isset($params['status_id'])) {
+            $status = $this->statusesRepository->getByColumn('title', 'Новий');
+            $params['status_id'] = $status['id'];
+        }
 
         $orderData = [
-            'status_id' => $status['id'],
             'source_id' => $params['source_id'],
+            'status_id' => $params['status_id'],
+            'manager_id' => $params['manager_id'] ?? null,
             'delivery_service_id' => $params['delivery_service_id'] ?? null,
             'delivery_address' => $params['delivery_address'] ?? null,
             'comment' => $params['comment'] ?? null,
-            'manager_id' => $params['manager_id'] ?? null,
             'client_id' => $client['id'] ?? null,
             'items' => $items
         ];
@@ -130,8 +130,6 @@ class OrdersController extends BaseController
                 ];
             }
         }
-
         return $items;
     }
-
 }

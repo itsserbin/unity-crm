@@ -305,9 +305,5 @@ class RolesSeeder extends Seeder
 
             $role->syncPermissions($rolePermissions);
         }
-
-        foreach (User::all() as $user) {
-            $user->syncRoles('admin');
-        }
     }
 }
