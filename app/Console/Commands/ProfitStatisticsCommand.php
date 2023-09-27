@@ -49,7 +49,6 @@ class ProfitStatisticsCommand extends Command
             $tenant->run(function () use ($dateNow) {
                 $sources = $this->sourcesRepository->getAll();
                 $statuses = $this->statusesRepository->getAll();
-
                 foreach ($sources as $source) {
                     foreach ($statuses as $status) {
                         $this->profitStatisticsRepository->findOrCreateAndUpdate(
