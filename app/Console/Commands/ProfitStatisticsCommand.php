@@ -2,10 +2,8 @@
 
 namespace App\Console\Commands;
 
+use App\Jobs\ProfitStatistics;
 use App\Models\Tenant;
-use App\Repositories\Options\SourcesRepository;
-use App\Repositories\Options\StatusesRepository;
-use App\Repositories\Statistics\ProfitStatisticsRepository;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 
@@ -25,16 +23,9 @@ class ProfitStatisticsCommand extends Command
      */
     protected $description = 'Command description';
 
-    private mixed $profitStatisticsRepository;
-    private mixed $statusesRepository;
-    private mixed $sourcesRepository;
-
     public function __construct()
     {
         parent::__construct();
-        $this->profitStatisticsRepository = app(ProfitStatisticsRepository::class);
-        $this->statusesRepository = app(StatusesRepository::class);
-        $this->sourcesRepository = app(SourcesRepository::class);
     }
 
     /**
@@ -47,15 +38,7 @@ class ProfitStatisticsCommand extends Command
 
         foreach ($tenants as $tenant) {
             $tenant->run(function () use ($dateNow) {
-                $sources = $this->sourcesRepository->getAll();
-                $statuses = $this->statusesRepository->getAll();
-                foreach ($sources as $source) {
-                    foreach ($statuses as $status) {
-                        $this->profitStatisticsRepository->findOrCreateAndUpdate(
-                            $dateNow, $status['id'], $source['id']
-                        );
-                    }
-                }
+                ProfitStatistics::dispatch($dateNow);
             });
         }
     }

@@ -160,7 +160,6 @@ class OrdersRepository extends CoreRepository
         }
     }
 
-
     private function calculateSum(\Illuminate\Database\Eloquent\Model $model, array $items): \Illuminate\Database\Eloquent\Model
     {
         $costs = array_reduce($model->costs->toArray(), function ($carry, $item) {

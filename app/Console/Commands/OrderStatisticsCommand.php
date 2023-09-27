@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Jobs\OrderStatistics;
 use App\Models\Tenant;
 use App\Repositories\CRM\OrdersRepository;
 use App\Repositories\Options\StatusesRepository;
@@ -25,16 +26,9 @@ class OrderStatisticsCommand extends Command
      */
     protected $description = 'Command description';
 
-    private mixed $orderStatisticsRepository;
-    private mixed $statusesRepository;
-    private mixed $ordersRepository;
-
     public function __construct()
     {
         parent::__construct();
-        $this->orderStatisticsRepository = app(OrderStatisticsRepository::class);
-        $this->statusesRepository = app(StatusesRepository::class);
-        $this->ordersRepository = app(OrdersRepository::class);
     }
 
     /**
@@ -47,11 +41,9 @@ class OrderStatisticsCommand extends Command
 
         foreach ($tenants as $tenant) {
             $tenant->run(function () use ($dateNow) {
-                $statuses = $this->statusesRepository->getAll();
-                foreach ($statuses as $status) {
-                    $this->orderStatisticsRepository->getModelByStatusAndDate($dateNow, $status['id']);
-                }
+                OrderStatistics::dispatch($dateNow);
             });
         }
+
     }
 }
