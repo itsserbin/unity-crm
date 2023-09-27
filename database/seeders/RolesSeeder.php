@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Role;
@@ -16,6 +17,12 @@ class RolesSeeder extends Seeder
     final public function run(): void
     {
         $permissions = [
+            'api-tokens' => [
+                'C' => 'create-api-tokens',
+                'R' => 'read-api-tokens',
+                'U' => 'update-api-tokens',
+                'D' => 'delete-api-tokens',
+            ],
             'orders' => [
                 'C' => 'create-orders',
                 'R' => 'read-orders',
@@ -64,6 +71,18 @@ class RolesSeeder extends Seeder
                 'U' => 'update-delivery-services',
                 'D' => 'delete-delivery-services',
             ],
+            'users' => [
+                'C' => 'create-users',
+                'R' => 'read-users',
+                'U' => 'update-users',
+                'D' => 'delete-users',
+            ],
+            'roles' => [
+                'C' => 'create-roles',
+                'R' => 'read-roles',
+                'U' => 'update-roles',
+                'D' => 'delete-roles',
+            ],
             'order-statistics' => [
                 'C' => 'create-order-statistics',
                 'R' => 'read-order-statistics',
@@ -110,6 +129,11 @@ class RolesSeeder extends Seeder
 
         $data = [
             'admin' => [
+                $permissions['api-tokens']['C'],
+                $permissions['api-tokens']['R'],
+                $permissions['api-tokens']['U'],
+                $permissions['api-tokens']['D'],
+
                 $permissions['orders']['C'],
                 $permissions['orders']['R'],
                 $permissions['orders']['U'],
@@ -134,6 +158,16 @@ class RolesSeeder extends Seeder
                 $permissions['categories']['R'],
                 $permissions['categories']['U'],
                 $permissions['categories']['D'],
+
+                $permissions['users']['C'],
+                $permissions['users']['R'],
+                $permissions['users']['U'],
+                $permissions['users']['D'],
+
+                $permissions['roles']['C'],
+                $permissions['roles']['R'],
+                $permissions['roles']['U'],
+                $permissions['roles']['D'],
 
                 $permissions['sources']['C'],
                 $permissions['sources']['R'],
@@ -270,6 +304,10 @@ class RolesSeeder extends Seeder
             }
 
             $role->syncPermissions($rolePermissions);
+        }
+
+        foreach (User::all() as $user) {
+            $user->syncRoles('admin');
         }
     }
 }

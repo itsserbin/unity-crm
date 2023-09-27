@@ -1,10 +1,12 @@
 <?php
 
-namespace App\Repositories;
+namespace App\Repositories\Options;
 
 use App\Models\User as Model;
+use App\Repositories\CoreRepository;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Hash;
 
 class UsersRepository extends CoreRepository
 {
@@ -15,38 +17,47 @@ class UsersRepository extends CoreRepository
 
     final public function getModelById(int $id): ?\Illuminate\Database\Eloquent\Model
     {
-        return $this->coreFind($this->model, $id);
+        return $this->model::where('id', $id)->with('roles:id,name')->first();
     }
 
     final public function getAllWithPaginate(array $data): LengthAwarePaginator
     {
-        $columns = [
-            'id',
-            'name',
-            'email',
-            'phone',
-        ];
-
-        $model = $this->model::select($columns);
+        $model = $this->model::select($this->getTableColumns());
 
         return $model
             ->orderBy(
                 $data['sort']['column'] ?? 'id',
                 $data['sort']['type'] ?? 'desc'
             )
+            ->with('roles:id,name')
             ->paginate($data['perPage'] ?? 15);
     }
 
     final public function create(array $data): \Illuminate\Database\Eloquent\Model
     {
         $data['phone'] = preg_replace('/[^0-9]/', '', $data['phone']);
-        return $this->coreCreate($this->model, $data);
+        $data['password'] = Hash::make($data['password']);
+        $model = $this->coreCreate($this->model, $data);
+        $model->syncRoles($data['roles'] ?? []);
+        return $model;
     }
 
     final public function update(int $id, array $data): \Illuminate\Database\Eloquent\Model
     {
         $data['phone'] = preg_replace('/[^0-9]/', '', $data['phone']);
-        return $this->coreUpdate($this->model, $id, $data);
+        if (isset($data['password'])) {
+            $data['password'] = Hash::make($data['password']);
+        }
+        $model = $this->coreUpdate($this->model, $id, $data);
+        $model->syncRoles($data['roles'] ?? []);
+        return $model;
+    }
+
+    private function syncRoles(\Illuminate\Database\Eloquent\Model $model, array $roles = [])
+    {
+        if (count($roles)) {
+            return $model->syncRoles($roles);
+        }
     }
 
     final public function destroy(int $id): int
@@ -68,7 +79,7 @@ class UsersRepository extends CoreRepository
             });
         }
 
-        return $model->limit($data['limit'] ?? 15)->get();
+        return $model->with('roles:id,name')->limit($data['limit'] ?? 15)->get();
     }
 
     private function getTableColumns(): array
@@ -78,6 +89,7 @@ class UsersRepository extends CoreRepository
             'name',
             'email',
             'phone',
+            'created_at',
         ];
     }
 }

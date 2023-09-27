@@ -1,19 +1,21 @@
 <?php
 
-namespace App\Http\Controllers\Api\Tenants;
+namespace App\Http\Controllers\Api\Tenants\Options;
 
-use App\Repositories\UsersRepository;
+use App\Http\Controllers\Api\Tenants\BaseController;
+use App\Http\Requests\Tenants\Options\RolesRequest;
+use App\Repositories\Options\RolesRepository;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
-class UsersController extends BaseController
+class RolesController extends BaseController
 {
-    private mixed $usersRepository;
+    private mixed $rolesRepository;
 
     public function __construct()
     {
         parent::__construct();
-        $this->usersRepository = app(UsersRepository::class);
+        $this->rolesRepository = app(RolesRepository::class);
     }
 
     /**
@@ -22,7 +24,7 @@ class UsersController extends BaseController
      */
     final public function index(Request $request): JsonResponse
     {
-        $result = $this->usersRepository->getAllWithPaginate($request->all());
+        $result = $this->rolesRepository->getAllWithPaginate($request->all());
 
         return $this->returnResponse([
             'success' => true,
@@ -33,9 +35,9 @@ class UsersController extends BaseController
     /**
      * @return JsonResponse
      */
-    final public function list(Request $request): JsonResponse
+    final public function list(): JsonResponse
     {
-        $result = $this->usersRepository->list($request->all());
+        $result = $this->rolesRepository->list();
 
         return $this->returnResponse([
             'success' => true,
@@ -44,12 +46,12 @@ class UsersController extends BaseController
     }
 
     /**
-     * @param Request $request
+     * @param RolesRequest $request
      * @return JsonResponse
      */
-    final public function create(Request $request): JsonResponse
+    final public function create(RolesRequest $request): JsonResponse
     {
-        $result = $this->usersRepository->create($request->all());
+        $result = $this->rolesRepository->create($request->all());
 
         return $this->returnResponse([
             'success' => true,
@@ -63,7 +65,7 @@ class UsersController extends BaseController
      */
     final public function edit(int $id): JsonResponse
     {
-        $result = $this->usersRepository->getModelById($id);
+        $result = $this->rolesRepository->getModelById($id);
 
         return $this->returnResponse([
             'success' => true,
@@ -73,12 +75,12 @@ class UsersController extends BaseController
 
     /**
      * @param int $id
-     * @param Request $request
+     * @param RolesRequest $request
      * @return JsonResponse
      */
-    final public function update(int $id, Request $request): JsonResponse
+    final public function update(int $id, RolesRequest $request): JsonResponse
     {
-        $result = $this->usersRepository->update($id, $request->all());
+        $result = $this->rolesRepository->update($id, $request->all());
 
         return $this->returnResponse([
             'success' => true,
@@ -92,7 +94,7 @@ class UsersController extends BaseController
      */
     final public function destroy(int $id): JsonResponse
     {
-        $result = $this->usersRepository->destroy($id);
+        $result = $this->rolesRepository->destroy($id);
 
         return $this->returnResponse([
             'success' => true,
@@ -102,11 +104,12 @@ class UsersController extends BaseController
 
     /**
      * @param string $search
+     * @param Request $request
      * @return JsonResponse
      */
-    final public function search(string $search): JsonResponse
+    final public function search(string $search, Request $request): JsonResponse
     {
-        $result = $this->usersRepository->search($search);
+        $result = $this->rolesRepository->search($search, $request->all());
 
         return $this->returnResponse([
             'success' => true,

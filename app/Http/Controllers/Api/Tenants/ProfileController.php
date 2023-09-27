@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Api\Tenants;
 
-use App\Repositories\UsersRepository;
+use App\Repositories\Options\UsersRepository;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;

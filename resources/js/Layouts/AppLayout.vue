@@ -153,7 +153,17 @@ const menu = [
                 href: route('options.delivery-services'),
                 title: 'Служби доставки',
                 can: can('read-delivery-services')
-            }
+            },
+            {
+                href: route('options.users'),
+                title: 'Користувачі',
+                can: can('read-users')
+            },
+            {
+                href: route('options.roles'),
+                title: 'Ролі',
+                can: can('read-roles')
+            },
         ]
     },
     {

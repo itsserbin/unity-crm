@@ -4,7 +4,7 @@ import Column from "primevue/column";
 import DataTable from "primevue/datatable";
 import AccessTokenModal from "@/Pages/Tenants/Profile/Partials/AccessTokenModal.vue";
 
-import UsersRepository from "@/Repositories/Tenants/UsersRepository.js";
+import UserApiTokensRepository from "@/Repositories/Tenants/Options/UserApiTokensRepository.js";
 import {usePage} from '@inertiajs/vue3';
 import {toast} from "vue3-toastify";
 import {onMounted, reactive} from "vue";
@@ -41,7 +41,7 @@ const toggleModal = (val) => val
 const fetch = async () => {
     toggleLoader();
     try {
-        const data = await UsersRepository.tokens.list();
+        const data = await UserApiTokensRepository.tokens.list();
 
         state.data = data.success ? data.result : [];
     } catch (e) {
@@ -54,7 +54,7 @@ const onEdit = async (event) => {
     state.modalAction = 0;
     toggleLoader();
     try {
-        const data = await UsersRepository.tokens.edit(event.data.id);
+        const data = await UserApiTokensRepository.tokens.edit(event.data.id);
         state.item = data.result;
         toggleModal();
     } catch (e) {
@@ -67,7 +67,7 @@ const onEdit = async (event) => {
 const onDestroy = async (id) => {
     toggleLoader();
     try {
-        await UsersRepository.tokens.destroy(id);
+        await UserApiTokensRepository.tokens.destroy(id);
         await fetch();
     } catch (e) {
         console.error(e);
@@ -88,10 +88,10 @@ const onCreate = () => {
 const onSubmit = async () => {
     try {
         if (state.modalAction === 0) {
-            await UsersRepository.tokens.update(state.item);
+            await UserApiTokensRepository.update(state.item);
         }
         if (state.modalAction === 1) {
-            const data = await UsersRepository.tokens.create(state.item);
+            const data = await UserApiTokensRepository.create(state.item);
             await useConfirm({
                 maxWidth: 'xl',
                 textConfirmButton: 'Ok',

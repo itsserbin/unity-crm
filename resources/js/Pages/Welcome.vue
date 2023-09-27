@@ -22,10 +22,10 @@ defineProps({
 
 
         <div class="max-w-7xl mx-auto p-6 lg:p-8">
-            <div class="flex justify-center flex-col gap-8">
+            <div class="flex justify-center items-center flex-col gap-8 h-[70vh]">
                 <div>
                     <ApplicationLogo class="mx-auto fill-current text-zinc-500 w-20 h-20"/>
-                    <Heading size="5xl">UnityCRM</Heading>
+                    <Heading size="5xl" class="text-center">UnityCRM</Heading>
                 </div>
                 <div class="flex justify-center">
                     <Link

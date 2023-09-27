@@ -9,7 +9,7 @@ use App\Repositories\CRM\OrdersRepository;
 use App\Repositories\Options\DeliveryServicesRepository;
 use App\Repositories\Options\SourcesRepository;
 use App\Repositories\Options\StatusGroupsRepository;
-use App\Repositories\UsersRepository;
+use App\Repositories\Options\UsersRepository;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;

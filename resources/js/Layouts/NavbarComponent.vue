@@ -1,13 +1,19 @@
 <script>
-import {reactive} from "vue";
+import {inject, reactive} from "vue";
 import {Link} from "@inertiajs/vue3";
 
 const getRoute = (v) => route(v);
 
 export default {
     components: {Link},
-    setup(){
+    setup() {
         let previousActive = null;
+
+        const can = inject('$can');
+
+        const hasAccess = (val) => {
+            return val.some(item => item === true);
+        }
 
         const items = reactive([
             {
@@ -19,23 +25,32 @@ export default {
                 title: 'Dashboard',
                 icon: 'pi pi-bars',
                 isActive: false,
+                can: true
             },
             {
                 title: 'Каталог',
                 icon: 'pi pi-th-large',
                 isActive: false,
+                can: hasAccess([
+                    can('read-products'),
+                    can('read-categories'),
+                    can('read-images')
+                ]),
                 child: [
                     {
                         href: getRoute('catalog.products'),
-                        title: 'Товари'
+                        title: 'Товари',
+                        can: can('read-products')
                     },
                     {
                         href: getRoute('catalog.categories'),
-                        title: 'Категорії'
+                        title: 'Категорії',
+                        can: can('read-categories')
                     },
                     {
                         href: getRoute('catalog.images'),
-                        title: 'Зображення'
+                        title: 'Зображення',
+                        can: can('read-images')
                     }
                 ]
             },
@@ -43,14 +58,80 @@ export default {
                 title: 'CRM',
                 icon: 'pi pi-database',
                 isActive: false,
+                can: hasAccess([
+                    can('read-orders'),
+                    can('read-clients'),
+                ]),
                 child: [
                     {
                         href: getRoute('crm.orders'),
-                        title: 'Замовлення'
+                        title: 'Замовлення',
+                        can: can('read-orders')
                     },
                     {
                         href: getRoute('crm.clients'),
-                        title: 'Клієнти'
+                        title: 'Клієнти',
+                        can: can('read-clients')
+                    },
+                ]
+            },
+            {
+                title: 'Фінанси',
+                icon: 'pi pi-dollar',
+                isActive: false,
+                can: hasAccess([
+                    can('read-bank-account-movement-categories'),
+                    can('read-bank-accounts'),
+                    can('read-finance-account'),
+                    can('read-bank-account-movements'),
+                    can('read-profit-and-loss-statistics'),
+                    can('read-cash-flow-statistics')
+                ]),
+                child: [
+                    {
+                        href: getRoute('finance.movement-categories'),
+                        title: 'Категорії рухів',
+                        can: can('read-bank-account-movement-categories')
+                    },
+                    {
+                        href: getRoute('finance.bank-accounts'),
+                        title: 'Банківські акаунти',
+                        can: can('read-bank-accounts')
+                    },
+                    {
+                        href: getRoute('finance.accounts'),
+                        title: 'Рахунки',
+                        can: can('read-finance-account')
+                    },
+                    {
+                        href: getRoute('finance.bank-account-movements'),
+                        title: 'Грошові рухи',
+                        can: can('read-bank-account-movements')
+                    },
+                    {
+                        href: getRoute('finance.profit-and-loss'),
+                        title: 'P&L',
+                        can: can('read-profit-and-loss-statistics')
+                    },
+                    {
+                        href: getRoute('finance.cash-flow'),
+                        title: 'CashFlow',
+                        can: can('read-cash-flow-statistics')
+                    },
+                ]
+            },
+            {
+                title: 'Статистика',
+                icon: 'pi pi-chart-line',
+                isActive: false,
+                can: hasAccess([
+                    can('read-order-statistics'),
+                ]),
+                child: [
+                    {
+                        href: getRoute('statistics.orders'),
+                        title: 'Замовлення',
+                        can: can('read-order-statistics')
                     },
                 ]
             },
@@ -58,21 +139,52 @@ export default {
                 title: 'Налаштування',
                 icon: 'pi pi-cog',
                 isActive: false,
+                can: hasAccess([
+                    can('read-sources'),
+                    can('read-statuses'),
+                    can('read-delivery-services'),
+                ]),
                 child: [
                     {
                         href: getRoute('options.sources'),
-                        title: 'Джерела'
+                        title: 'Джерела',
+                        can: can('read-sources')
                     },
                     {
                         href: getRoute('options.statuses'),
-                        title: 'Статуси'
+                        title: 'Статуси',
+                        can: can('read-statuses')
                     },
                     {
                         href: getRoute('options.delivery-services'),
-                        title: 'Служби доставки'
-                    }
+                        title: 'Служби доставки',
+                        can: can('read-delivery-services')
+                    },
+                    {
+                        href: getRoute('options.users'),
+                        title: 'Користувачі',
+                        can: can('read-users')
+                    },
+                    {
+                        href: getRoute('options.roles'),
+                        title: 'Ролі',
+                        can: can('read-roles')
+                    },
                 ]
-            }
+            },
+            {
+                href: getRoute('profile.edit'),
+                title: 'Акаунт',
+                icon: 'pi pi-user',
+                can: true
+            },
+            {
+                href: getRoute('logout'),
+                method: 'POST',
+                title: 'Вихід',
+                icon: 'pi pi-sign-out',
+                can: true
+            },
         ]);
 
         const handleClick = (item) => {
@@ -90,34 +202,40 @@ export default {
 
         return {
             handleClick,
-            items
+            items,
+            can,
+            hasAccess
         };
     }
 }
 </script>
 
 <template>
-    <div class="md:hidden z-50 bg-white dark:bg-zinc-900 fixed bottom-0 w-full flex justify-around items-center p-3 shadow-lg">
+    <div
+        class="md:hidden z-50 bg-white dark:bg-zinc-900 fixed bottom-0 w-full flex justify-around items-center p-3 shadow-lg">
         <div
             v-for="(item, index) in items"
             :key="index"
             class="cursor-pointer flex flex-col items-center transition-all duration-500 ease-in-out transform hover:-translate-y-1 hover:scale-105"
             @click="handleClick(item)"
         >
-            <i :class="item.icon"></i>
-            <Link :href="item.href || ''" v-if="!item.child">
+            <Link as="button" :href="item.href || ''" v-if="!item.child" :method="item.method ? item.method : 'get'">
                 <p
                     class="text-sm text-center dark:text-white transition-all duration-500 ease-in-out"
                     :class="{ 'text-blue-500': item.isActive, 'font-bold': item.isActive }"
                 >
-                    {{ item.title }}
+                    <i :class="item.icon"></i>
+
+                    <!--                    {{ item.title }}-->
                 </p>
             </Link>
             <p v-else
-                class="text-sm text-center dark:text-white transition-all duration-500 ease-in-out"
-                :class="{ 'text-blue-500': item.isActive, 'font-bold': item.isActive }"
+               class="text-sm text-center dark:text-white transition-all duration-500 ease-in-out"
+               :class="{ 'text-blue-500': item.isActive, 'font-bold': item.isActive }"
             >
-                {{ item.title }}
+                <i :class="item.icon"></i>
+
+                <!--                {{ item.title }}-->
             </p>
             <transition name="bounce">
                 <div

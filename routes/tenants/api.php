@@ -7,21 +7,21 @@ use App\Http\Controllers\Api\Tenants\CRM\ClientsController;
 use App\Http\Controllers\Api\Tenants\CRM\OrdersController;
 use App\Http\Controllers\Api\Tenants\CRM\TrackingCodesController;
 use App\Http\Controllers\Api\Tenants\Finance\AccountsController;
-use App\Http\Controllers\Api\Tenants\MonobankController;
-use App\Http\Controllers\Api\Tenants\Options\DeliveryServicesController;
-use App\Http\Controllers\Api\Tenants\Options\SourcesController;
-use App\Http\Controllers\Api\Tenants\Options\StatusesController;
-use App\Http\Controllers\Api\Tenants\Options\StatusGroupsController;
 use App\Http\Controllers\Api\Tenants\Finance\BankAccountMovementsController;
 use App\Http\Controllers\Api\Tenants\Finance\BankAccountsController;
 use App\Http\Controllers\Api\Tenants\Finance\CashFlowController;
 use App\Http\Controllers\Api\Tenants\Finance\MovementCategoriesController;
 use App\Http\Controllers\Api\Tenants\Finance\ProfitAndLossController;
+use App\Http\Controllers\Api\Tenants\MonobankController;
+use App\Http\Controllers\Api\Tenants\Options\DeliveryServicesController;
+use App\Http\Controllers\Api\Tenants\Options\RolesController;
+use App\Http\Controllers\Api\Tenants\Options\SourcesController;
+use App\Http\Controllers\Api\Tenants\Options\StatusesController;
+use App\Http\Controllers\Api\Tenants\Options\StatusGroupsController;
+use App\Http\Controllers\Api\Tenants\Options\UsersController;
 use App\Http\Controllers\Api\Tenants\ProfileController;
 use App\Http\Controllers\Api\Tenants\Statistics\OrderStatisticsController;
 use App\Http\Controllers\Api\Tenants\UploadController;
-use App\Http\Controllers\Api\Tenants\UsersController;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -226,6 +226,26 @@ Route::middleware('auth:sanctum')->prefix('api')->group(function () {
             ->name('api.delivery-services.destroy');
     });
 
+    Route::prefix('roles')->group(function () {
+        Route::get('list', [RolesController::class, 'list'])
+            ->name('api.roles.list');
+
+        Route::post('create', [RolesController::class, 'create'])
+            ->name('api.roles.create');
+
+        Route::get('/', [RolesController::class, 'index'])
+            ->name('api.roles.index');
+
+        Route::get('edit/{id}', [RolesController::class, 'edit'])
+            ->name('api.roles.edit');
+
+        Route::put('update/{id}', [RolesController::class, 'update'])
+            ->name('api.roles.update');
+
+        Route::delete('/destroy/{id}', [RolesController::class, 'destroy'])
+            ->name('api.roles.destroy');
+    });
+
     Route::prefix('users')->group(function () {
         Route::get('list', [UsersController::class, 'list'])
             ->name('api.users.list');
@@ -244,23 +264,23 @@ Route::middleware('auth:sanctum')->prefix('api')->group(function () {
 
         Route::delete('/destroy/{id}', [UsersController::class, 'destroy'])
             ->name('api.users.destroy');
+    });
 
-        Route::prefix('tokens')->group(function () {
-            Route::get('list', [ProfileController::class, 'getAllUserTokens'])
-                ->name('api.user.tokens.list');
+    Route::prefix('user-api')->group(function () {
+        Route::get('list', [ProfileController::class, 'getAllUserTokens'])
+            ->name('api.user.tokens.list');
 
-            Route::get('edit/{id}', [ProfileController::class, 'getTokenById'])
-                ->name('api.user.tokens.edit');
+        Route::get('edit/{id}', [ProfileController::class, 'getTokenById'])
+            ->name('api.user.tokens.edit');
 
-            Route::put('update/{id}', [ProfileController::class, 'updateToken'])
-                ->name('api.user.tokens.update');
+        Route::put('update/{id}', [ProfileController::class, 'updateToken'])
+            ->name('api.user.tokens.update');
 
-            Route::post('create', [ProfileController::class, 'createToken'])
-                ->name('api.user.tokens.create');
+        Route::post('create', [ProfileController::class, 'createToken'])
+            ->name('api.user.tokens.create');
 
-            Route::delete('destroy/{id}', [ProfileController::class, 'destroyTokenById'])
-                ->name('api.user.tokens.destroy');
-        });
+        Route::delete('destroy/{id}', [ProfileController::class, 'destroyTokenById'])
+            ->name('api.user.tokens.destroy');
     });
 
     Route::prefix('tracking-codes')->group(function () {

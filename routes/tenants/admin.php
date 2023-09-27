@@ -8,6 +8,7 @@ use App\Http\Controllers\Tenants\CRM\OrdersController;
 use App\Http\Controllers\Tenants\DashboardController;
 use App\Http\Controllers\Tenants\Finance\AccountsController;
 use App\Http\Controllers\Tenants\Options\DeliveryServicesController;
+use App\Http\Controllers\Tenants\Options\RolesController;
 use App\Http\Controllers\Tenants\Options\SourcesController;
 use App\Http\Controllers\Tenants\Options\StatusesController;
 use App\Http\Controllers\Tenants\Finance\BankAccountMovementsController;
@@ -15,6 +16,7 @@ use App\Http\Controllers\Tenants\Finance\BankAccountsController;
 use App\Http\Controllers\Tenants\Finance\CashFlowController;
 use App\Http\Controllers\Tenants\Finance\MovementCategoriesController;
 use App\Http\Controllers\Tenants\Finance\ProfitAndLossController;
+use App\Http\Controllers\Tenants\Options\UsersController;
 use App\Http\Controllers\Tenants\ProfileController;
 use App\Http\Controllers\Tenants\Statistics\OrderStatisticsController;
 use Illuminate\Support\Facades\Route;
@@ -71,6 +73,12 @@ Route::middleware(['auth'])->group(function () {
 
         Route::get('delivery-services', [DeliveryServicesController::class, 'create'])
             ->name('options.delivery-services');
+
+        Route::get('users', [UsersController::class, 'create'])
+            ->name('options.users');
+
+        Route::get('roles', [RolesController::class, 'create'])
+            ->name('options.roles');
     });
 
     Route::prefix('statistics')->group(function () {

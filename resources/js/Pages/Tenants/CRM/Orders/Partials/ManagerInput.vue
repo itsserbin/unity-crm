@@ -2,7 +2,7 @@
 import InputLabel from "@/Components/InputLabel.vue";
 import Dropdown from "primevue/dropdown";
 import {onMounted, reactive} from "vue";
-import UsersRepository from "@/Repositories/Tenants/UsersRepository.js";
+import UsersRepository from "@/Repositories/Tenants/Options/UsersRepository.js";
 
 const props = defineProps(['item', 'users']);
 
