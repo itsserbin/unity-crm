@@ -281,6 +281,8 @@ class OrdersRepository extends CoreRepository
             'trade_price',
             'clear_total_price',
             'discount',
+            'created_at',
+            'updated_at',
         ];
     }
 
@@ -331,4 +333,100 @@ class OrdersRepository extends CoreRepository
 
         return $model->count();
     }
+
+    /**
+     * Aggregates values in a column based on specified conditions and operation.
+     *
+     * @param string $column The column in which data needs to be aggregated.
+     * @param array $conditions An array of conditions for filtering records.
+     * @param string $operation The operation to perform ('sum' or 'count').
+     *
+     * @return int The result of the aggregation (sum or count).
+     *
+     * @throws \InvalidArgumentException If an unknown operation is specified.
+     */
+    final public function aggregateColumnByConditions(
+        string $column,
+        array $conditions = [],
+        string $operation = 'sum'
+    ): int {
+        $query = $this->model::query();
+
+        if (!empty($conditions)) {
+            foreach ($conditions as $condition) {
+                list($field, $operator, $value) = $condition;
+                if ($field === 'created_at' || $field === 'updated_at') {
+                    $query->whereDate($field, $operator, $value);
+                } else {
+                    $query->where($field, $operator, $value);
+                }
+            }
+        }
+
+        if ($operation === 'sum') {
+            return $query->sum($column);
+        } elseif ($operation === 'count') {
+            return $query->count();
+        } else {
+            throw new \InvalidArgumentException('Невідома операція. Допустимі значення: "sum" або "count".');
+        }
+    }
+
+    /**
+     * Aggregates values in a related model's column based on specified conditions and operation.
+     *
+     * @param string $relation The name of the related model.
+     * @param string $column The column in the related model to aggregate.
+     * @param array $conditions An array of conditions for filtering records in the main model.
+     * @param array $relationConditions An array of conditions for filtering records in the related model.
+     * @param string $operation The operation to perform ('count' or 'sum').
+     *
+     * @return int The result of the aggregation (count or sum).
+     *
+     * @throws \InvalidArgumentException If an unknown operation is specified.
+     */
+    final public function aggregateRelatedColumnByConditions(
+        string $relation,
+        string $column,
+        array $conditions = [],
+        array $relationConditions = [],
+        string $operation = 'count'
+    ): int {
+        $query = $this->model::query();
+
+        if (!empty($conditions)) {
+            foreach ($conditions as $condition) {
+                list($field, $operator, $value) = $condition;
+                if ($field === 'created_at' || $field === 'updated_at') {
+                    $query->whereDate($field, $operator, $value);
+                } else {
+                    $query->where($field, $operator, $value);
+                }
+            }
+        }
+
+        if (!empty($relationConditions)) {
+            $query->whereHas($relation, function ($q) use ($relationConditions) {
+                foreach ($relationConditions as $condition) {
+                    list($field, $operator, $value) = $condition;
+                    if ($field === 'created_at' || $field === 'updated_at') {
+                        $q->whereDate($field, $operator, $value);
+                    } else {
+                        $q->where($field, $operator, $value);
+                    }
+                }
+            });
+        } else {
+            $query->whereHas($relation);
+        }
+
+        if ($operation === 'sum') {
+            return $query->withSum($relation, $column)->value("{$relation}_{$column}_sum") ?? 0;
+        } elseif ($operation === 'count') {
+            return $query->withCount($relation)->value("{$relation}_count") ?? 0;
+        } else {
+            throw new \InvalidArgumentException('Невідома операція. Допустимі значення: "count" або "sum".');
+        }
+    }
+
 }

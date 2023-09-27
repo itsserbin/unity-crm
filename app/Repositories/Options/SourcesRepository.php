@@ -26,13 +26,7 @@ class SourcesRepository extends CoreRepository
 
     final public function getAllWithPaginate(array $data): LengthAwarePaginator
     {
-        $columns = [
-            'id',
-            'title',
-            'source',
-        ];
-
-        $model = $this->model::select($columns);
+        $model = $this->model::select($this->getTableColumns());
 
         return $model
             ->orderBy(
@@ -59,21 +53,29 @@ class SourcesRepository extends CoreRepository
 
     final public function list(): Collection
     {
-        return $this->model::select(['id', 'title'])->orderBy('id', 'desc')->get();
+        return $this->model::select($this->getTableColumns())->orderBy('id', 'desc')->get();
     }
 
     final public function search(string $query, array $data): LengthAwarePaginator
     {
-        $columns = [
-            'id',
-            'title',
-            'source',
-        ];
-
-        return $this->model::select($columns)
+        return $this->model::select($this->getTableColumns())
             ->where('id', 'LIKE', "%$query%")
             ->orWhere('title', 'LIKE', "%$query%")
             ->orWhere('source', 'LIKE', "%$query%")
             ->paginate($data['perPage'] ?? 15);
+    }
+
+    final public function getAll(): Collection
+    {
+        return $this->model::all();
+    }
+
+    private function getTableColumns(): array
+    {
+        return [
+            'id',
+            'title',
+            'source',
+        ];
     }
 }

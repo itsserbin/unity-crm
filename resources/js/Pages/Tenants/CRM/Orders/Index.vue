@@ -514,6 +514,18 @@ const showTrackingCodeLog = async (id) => {
                     </template>
                 </Column>
 
+                <Column field="created_at" header="Дата створення" style="width:8%">
+                    <template #body="{data}">
+                        {{ $filters.formatDateTime(data.created_at) }}
+                    </template>
+                </Column>
+
+                <Column field="created_at" header="Останнє оновлення" style="width:8%">
+                    <template #body="{data}">
+                        {{ $filters.formatDateTime(data.updated_at) }}
+                    </template>
+                </Column>
+
                 <Column>
                     <template #body="{data}" v-if="can('delete-orders')">
                         <Button icon="pi pi-trash"

@@ -3,20 +3,20 @@
 namespace App\Console\Commands;
 
 use App\Models\Tenant;
-use App\Repositories\CRM\OrdersRepository;
+use App\Repositories\Options\SourcesRepository;
 use App\Repositories\Options\StatusesRepository;
-use App\Repositories\Statistics\OrderStatisticsRepository;
+use App\Repositories\Statistics\ProfitStatisticsRepository;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 
-class OrderStatisticsCommand extends Command
+class ProfitStatisticsCommand extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'app:order-statistics-command';
+    protected $signature = 'app:profit-statistics-command';
 
     /**
      * The console command description.
@@ -25,16 +25,16 @@ class OrderStatisticsCommand extends Command
      */
     protected $description = 'Command description';
 
-    private mixed $orderStatisticsRepository;
+    private mixed $profitStatisticsRepository;
     private mixed $statusesRepository;
-    private mixed $ordersRepository;
+    private mixed $sourcesRepository;
 
     public function __construct()
     {
         parent::__construct();
-        $this->orderStatisticsRepository = app(OrderStatisticsRepository::class);
+        $this->profitStatisticsRepository = app(ProfitStatisticsRepository::class);
         $this->statusesRepository = app(StatusesRepository::class);
-        $this->ordersRepository = app(OrdersRepository::class);
+        $this->sourcesRepository = app(SourcesRepository::class);
     }
 
     /**
@@ -47,9 +47,15 @@ class OrderStatisticsCommand extends Command
 
         foreach ($tenants as $tenant) {
             $tenant->run(function () use ($dateNow) {
+                $sources = $this->sourcesRepository->getAll();
                 $statuses = $this->statusesRepository->getAll();
-                foreach ($statuses as $status) {
-                    $this->orderStatisticsRepository->getModelByStatusAndDate($dateNow, $status['id']);
+
+                foreach ($sources as $source) {
+                    foreach ($statuses as $status) {
+                        $this->profitStatisticsRepository->findOrCreateAndUpdate(
+                            $dateNow, $status['id'], $source['id']
+                        );
+                    }
                 }
             });
         }

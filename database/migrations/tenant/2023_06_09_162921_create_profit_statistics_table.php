@@ -12,7 +12,23 @@ return new class extends Migration {
     {
         Schema::create('profit_statistics', function (Blueprint $table) {
             $table->id();
-            $table->date('date')->unique();
+            $table->date('date');
+
+            $table->foreignId('status_id')
+                ->references('id')
+                ->on('statuses')
+                ->onDelete('cascade');
+
+            $table->foreignId('source_id')
+                ->references('id')
+                ->on('sources')
+                ->onDelete('cascade');
+
+            $table->string('group_slug');
+            $table->foreign('group_slug')
+                ->references('slug')
+                ->on('status_groups')
+                ->onDelete('cascade');
 
             $table->decimal('orders_cost')->default(0);
             $table->decimal('orders_sale_price')->default(0);

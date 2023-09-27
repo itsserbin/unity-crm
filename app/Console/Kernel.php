@@ -15,6 +15,7 @@ class Kernel extends ConsoleKernel
         // $schedule->command('inspire')->hourly();
         $schedule->command('app:nova-poshta-command')->everyFifteenMinutes();
         $schedule->command('app:order-statistics-command')->daily();
+        $schedule->command('app:profit-statistics-command')->daily();
     }
 
     /**

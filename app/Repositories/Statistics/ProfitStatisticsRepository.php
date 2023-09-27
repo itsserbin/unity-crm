@@ -3,11 +3,11 @@
 namespace App\Repositories\Statistics;
 
 use App\Models\Options\Status;
-use App\Models\Statistics\OrderStatistics as Model;
+use App\Models\Statistics\ProfitStatistics as Model;
 use App\Repositories\CoreRepository;
-use App\Repositories\CRM\OrdersRepository;
+use App\Services\Statistics\ProfitStatisticsAggregateDataService;
 
-class OrderStatisticsRepository extends CoreRepository
+class ProfitStatisticsRepository extends CoreRepository
 {
     protected function getModelClass(): string
     {
@@ -19,9 +19,13 @@ class OrderStatisticsRepository extends CoreRepository
         return $this->coreGetModelByColumn($this->model, $column, $value);
     }
 
-    final public function getModelByStatusAndDate(string $date, int $status_id): \Illuminate\Database\Eloquent\Model
+    final public function findOrCreateAndUpdate(string $date, int $status_id, int $source_id): \Illuminate\Database\Eloquent\Model
     {
-        $model = $this->model::whereDate('date', $date)->where('status_id', $status_id)->first();
+        $model = $this->model::whereDate('date', $date)
+            ->where('status_id', $status_id)
+            ->where('source_id', $source_id)
+            ->first();
+
 
         if (!$model) {
             $status = Status::where('id', $status_id)->with('group')->first();
@@ -29,21 +33,18 @@ class OrderStatisticsRepository extends CoreRepository
             $model['date'] = $date;
             $model['status_id'] = $status_id;
             $model['group_slug'] = $status['group']['slug'];
-            $model['count'] = (new OrdersRepository())->countOrderByDate($date, $status_id);
+            $model['source_id'] = $source_id;
             $model->save();
         }
+
+        (new ProfitStatisticsAggregateDataService())->aggregateData($model);
 
         return $model;
     }
 
-    final public function createModelClass(): mixed
+    final public function getAllWithPaginate(array $data = []): array
     {
-        return new $this->model;
-    }
-
-    final public function getAllWithPaginate(array $data = [])
-    {
-        $model = $this->model::select(['date', 'group_slug', 'count', 'status_id']);
+        $model = $this->model::select($this->getTableColumns());
 
         if (isset($data['date_start'], $data['date_end'])) {
             $startDate = date('Y-m-d', strtotime($data['date_start']));
