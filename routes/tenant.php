@@ -24,33 +24,35 @@ InitializeTenancyByDomain::$onFail = function ($exception, $request, $next) {
     return redirect(route('index'));
 };
 
-Route::middleware(['web', InitializeTenancyByDomain::class, PreventAccessFromCentralDomains::class,])->group(function () {
+Route::middleware(['web', InitializeTenancyByDomain::class, PreventAccessFromCentralDomains::class,])
+    ->group(function () {
 
-    Route::get('/', [AuthenticatedSessionController::class, 'create'])
-        ->middleware('guest');
+        Route::get('/', [AuthenticatedSessionController::class, 'create'])
+            ->middleware('guest')->name('tenant-index');
 
-    Route::get('images/{slug}', function ($slug) {
-        try {
-            if (env('APP_ENV') !== 'local') {
-                $path = tenancy()->tenant->id . '/images/';
-            } else {
-                $path = 'local/' . tenancy()->tenant->id . '/images/';
+        Route::get('images/{slug}', function ($slug) {
+            try {
+                if (env('APP_ENV') !== 'local') {
+                    $path = tenancy()->tenant->id . '/images/';
+                } else {
+                    $path = 'local/' . tenancy()->tenant->id . '/images/';
+                }
+                return Storage::disk('s3')->response($path . $slug);
+            } catch (Exception $exception) {
+                abort(404);
             }
-            return Storage::disk('s3')->response($path . $slug);
-        } catch (Exception $exception) {
-            abort(404);
-        }
-    })->name('images');
+        })->name('images');
 
-    require __DIR__ . '/tenants/api.php';
-    require __DIR__ . '/auth.php';
-    require __DIR__ . '/tenants/admin.php';
+        require __DIR__ . '/tenants/api.php';
+        require __DIR__ . '/auth.php';
+        require __DIR__ . '/tenants/admin.php';
 
-    Route::get('register', function () {
-        abort(404);
+        Route::get('register', function () {
+            return redirect(route('tenant-index'));
+        });
+
+        Route::get('login', function () {
+            return redirect(route('tenant-index'));
+        });
+
     });
-
-    Route::post('register', function () {
-        abort(404);
-    });
-});
