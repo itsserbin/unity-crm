@@ -13,7 +13,7 @@ const TenantModal = defineAsyncComponent(() => import('./CreateTenantModal.vue')
 
 const props = defineProps(['tenants']);
 
-const protocol = import.meta.env.VITE_APP_PROTOCOL;
+// const protocol = import.meta.env.VITE_APP_PROTOCOL;
 
 const state = reactive({
     data: [],

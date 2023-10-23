@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
-class OrderStatisticsController extends BaseController
+class ProfitStatisticsController extends BaseController
 {
     private mixed $statusGroupsRepository;
     private mixed $statusesRepository;
@@ -26,7 +26,7 @@ class OrderStatisticsController extends BaseController
         $statusGroups = $this->statusGroupsRepository->list();
         $statuses = $this->statusesRepository->list();
 
-        return Inertia::render('Tenants/Statistics/Order/Index', [
+        return Inertia::render('Tenants/Statistics/Profit/Index', [
             'statusGroups' => $statusGroups,
             'statuses' => $statuses
         ]);

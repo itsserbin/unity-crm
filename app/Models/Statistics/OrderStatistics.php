@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * App\Models\Statistics\OrderStatistics
+ * App\Models\Statistics\Order
  *
  * @method static \Illuminate\Database\Eloquent\Builder|OrderStatistics newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|OrderStatistics newQuery()

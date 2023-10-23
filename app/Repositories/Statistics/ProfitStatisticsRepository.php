@@ -6,6 +6,8 @@ use App\Models\Options\Status;
 use App\Models\Statistics\ProfitStatistics as Model;
 use App\Repositories\CoreRepository;
 use App\Services\Statistics\ProfitStatisticsAggregateDataService;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\DB;
 
 class ProfitStatisticsRepository extends CoreRepository
 {
@@ -42,9 +44,23 @@ class ProfitStatisticsRepository extends CoreRepository
         return $model;
     }
 
-    final public function getAllWithPaginate(array $data = []): array
+    final public function getAllWithPaginate(array $data = []): LengthAwarePaginator
     {
-        $model = $this->model::select($this->getTableColumns());
+        $model = $this->model::select(
+            'date',
+            DB::raw('SUM(orders_cost) AS orders_cost'),
+            DB::raw('SUM(orders_sale_price) AS orders_sale_price'),
+            DB::raw('SUM(orders_clear_price) AS orders_clear_price'),
+            DB::raw('SUM(orders_trade_price) AS orders_trade_price'),
+            DB::raw('SUM(total_additional_sales) AS total_additional_sales'),
+            DB::raw('SUM(total_additional_sales_items_sale_price) AS total_additional_sales_items_sale_price'),
+            DB::raw('SUM(total_additional_sales_items_trade_price_price) AS total_additional_sales_items_trade_price_price'),
+            DB::raw('SUM(total_additional_sales_items_trade_clear_price) AS total_additional_sales_items_trade_clear_price'),
+            DB::raw('SUM(total_prepayment) AS total_prepayment'),
+            DB::raw('SUM(total_prepayment_sum) AS total_prepayment_sum'),
+            DB::raw('SUM(total_sales_of_air) AS total_sales_of_air'),
+            DB::raw('SUM(total_sales_of_air_sum) AS total_sales_of_air_sum'),
+        )->groupBy('date');
 
         if (isset($data['date_start'], $data['date_end'])) {
             $startDate = date('Y-m-d', strtotime($data['date_start']));
@@ -53,25 +69,8 @@ class ProfitStatisticsRepository extends CoreRepository
             $model->whereBetween('date', [$startDate, $endDate]);
         }
 
-        $model = $model->get()->groupBy('date');
-
-        $perPage = $data['perPage'] ?? 15;
-        $page = $data['page'] ?? 1;
-        $total = $model->count();
-        $results = $model->forPage($page, $perPage);
-        $from = ($page - 1) * $perPage + 1;
-        $to = min($page * $perPage, $total);
-
-        return [
-            'data' => $results,
-            'total' => (int)$total,
-            'perPage' => (int)$perPage,
-            'currentPage' => $page,
-            'from' => (int)$from,
-            'to' => (int)$to,
-        ];
+        return $model->paginate($data['perPage'] ?? 15);
     }
-
 
     private function getTableColumns(): array
     {
@@ -80,7 +79,18 @@ class ProfitStatisticsRepository extends CoreRepository
             'group_slug',
             'status_id',
             'date',
-            'count',
+            'orders_cost',
+            'orders_sale_price',
+            'orders_clear_price',
+            'orders_trade_price',
+            'total_additional_sales',
+            'total_additional_sales_items_sale_price',
+            'total_additional_sales_items_trade_price_price',
+            'total_additional_sales_items_trade_clear_price',
+            'total_prepayment',
+            'total_prepayment_sum',
+            'total_sales_of_air',
+            'total_sales_of_air_sum',
         ];
     }
 }

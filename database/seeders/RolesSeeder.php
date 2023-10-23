@@ -89,6 +89,12 @@ class RolesSeeder extends Seeder
                 'U' => 'update-order-statistics',
                 'D' => 'delete-order-statistics',
             ],
+            'profit-statistics' => [
+                'C' => 'create-profit-statistics',
+                'R' => 'read-profit-statistics',
+                'U' => 'update-profit-statistics',
+                'D' => 'delete-profit-statistics',
+            ],
             'profit-and-loss-statistics' => [
                 'C' => 'create-profit-and-loss-statistics',
                 'R' => 'read-profit-and-loss-statistics',
@@ -189,6 +195,11 @@ class RolesSeeder extends Seeder
                 $permissions['order-statistics']['U'],
                 $permissions['order-statistics']['D'],
 
+                $permissions['profit-statistics']['C'],
+                $permissions['profit-statistics']['R'],
+                $permissions['profit-statistics']['U'],
+                $permissions['profit-statistics']['D'],
+
                 $permissions['profit-and-loss-statistics']['C'],
                 $permissions['profit-and-loss-statistics']['R'],
                 $permissions['profit-and-loss-statistics']['U'],
@@ -251,6 +262,11 @@ class RolesSeeder extends Seeder
                 $permissions['order-statistics']['R'],
                 $permissions['order-statistics']['U'],
                 $permissions['order-statistics']['D'],
+
+                $permissions['profit-statistics']['C'],
+                $permissions['profit-statistics']['R'],
+                $permissions['profit-statistics']['U'],
+                $permissions['profit-statistics']['D'],
 
                 $permissions['profit-and-loss-statistics']['C'],
                 $permissions['profit-and-loss-statistics']['R'],

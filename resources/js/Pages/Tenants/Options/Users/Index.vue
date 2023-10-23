@@ -118,6 +118,7 @@ const onSubmit = async () => {
         try {
             const responseData = JSON.parse(JSON.stringify(item.value));
             responseData.roles = responseData.roles.map(item => item.name);
+            responseData.phone = responseData.phone.replace(/\D/g, '');
 
             const data = item.value.id
                 ? await UsersRepository.update(responseData)

@@ -73,7 +73,7 @@ class RegisteredUserController extends Controller
             (new SourcesSeeder())->run();
             (new RolesSeeder())->run();
 
-            $user->assignRole('admin');
+            $user->syncRoles(['admin']);
         });
 
         Auth::login($user);

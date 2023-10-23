@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * App\Models\Statistics\ProfitStatistics
+ * App\Models\Statistics\Profit
  *
  * @method static \Illuminate\Database\Eloquent\Builder|ProfitStatistics newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|ProfitStatistics newQuery()

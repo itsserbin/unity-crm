@@ -21,6 +21,7 @@ use App\Http\Controllers\Api\Tenants\Options\StatusGroupsController;
 use App\Http\Controllers\Api\Tenants\Options\UsersController;
 use App\Http\Controllers\Api\Tenants\ProfileController;
 use App\Http\Controllers\Api\Tenants\Statistics\OrderStatisticsController;
+use App\Http\Controllers\Api\Tenants\Statistics\ProfitStatisticsController;
 use App\Http\Controllers\Api\Tenants\UploadController;
 use Illuminate\Support\Facades\Route;
 
@@ -398,6 +399,9 @@ Route::middleware('auth:sanctum')->prefix('api')->group(function () {
 
         Route::get('orders', [OrderStatisticsController::class, 'index'])
             ->name('api.statistics.orders');
+
+        Route::get('profits', [ProfitStatisticsController::class, 'index'])
+            ->name('api.statistics.profits');
     });
 
     Route::get('profit-and-loss', [ProfitAndLossController::class, 'index'])

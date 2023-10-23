@@ -26,7 +26,7 @@
         "moment": "^2.29.4",
         "numeral": "^2.0.6",
         "primeicons": "^6.0.1",
-        "primevue": "^3.29.1",
+        "primevue": "^3.35.0",
         "v-calendar": "^3.0.3",
         "vue3-toastify": "^0.1.9"
     }

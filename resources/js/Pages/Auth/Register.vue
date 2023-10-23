@@ -21,6 +21,7 @@ const form = useForm({
 
 const appDomain = import.meta.env.VITE_APP_DOMAIN;
 const submit = () => {
+    form.phone = form.phone.replace(/\D/g, '');
     form.post(route('register'), {
         onFinish: () => form.reset('password', 'password_confirmation'),
     });

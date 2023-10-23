@@ -127,6 +127,11 @@ const menu = [
                 title: 'Замовлення',
                 can: can('read-order-statistics')
             },
+            {
+                href: route('statistics.profits'),
+                title: 'Прибуток',
+                can: can('read-profit-statistics')
+            },
         ]
     },
     {
