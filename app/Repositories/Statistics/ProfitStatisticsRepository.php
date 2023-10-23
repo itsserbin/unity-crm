@@ -69,7 +69,7 @@ class ProfitStatisticsRepository extends CoreRepository
             $model->whereBetween('date', [$startDate, $endDate]);
         }
 
-        return $model->paginate($data['perPage'] ?? 15);
+        return $model->orderBy('date','desc')->paginate($data['perPage'] ?? 15);
     }
 
     private function getTableColumns(): array
