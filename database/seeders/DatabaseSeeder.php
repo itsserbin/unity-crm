@@ -17,10 +17,7 @@ class DatabaseSeeder extends Seeder
             MovementCategoriesSeeder::class,
             AccountsSeeder::class,
             SourcesSeeder::class,
+            TariffPlansSeeder::class,
         ]);
-//        $this->call(MovementCategoriesSeeder::class);
-//        $this->call(AccountsSeeder::class);
-//        $this->call(SourcesSeeder::class);
-//        $this->call(SourcesSeeder::class);
     }
 }

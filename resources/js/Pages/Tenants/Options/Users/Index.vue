@@ -16,7 +16,13 @@ const Modal = defineAsyncComponent(
     () => import('./Modal.vue')
 );
 
-const props = defineProps(['users','roles']);
+const props = defineProps([
+    'subscription',
+    'features',
+    'users',
+    'roles'
+]);
+
 const can = inject('$can');
 
 const state = reactive({
@@ -222,7 +228,13 @@ const refreshData = async () => {
                     </div>
                 </template>
                 <template #end v-if="can('create-users')">
-                    <Button label="Додати" size="small" icon="pi pi-plus" class="mr-2" @click="onCreate"/>
+                    <Button label="Додати"
+                            size="small"
+                            icon="pi pi-plus"
+                            class="mr-2"
+                            @click="onCreate"
+                            :disabled="state.data.total < features.users"
+                    />
                 </template>
             </Toolbar>
 
@@ -243,15 +255,20 @@ const refreshData = async () => {
                        paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown"
             >
                 <template #header>
-                    <form @submit.prevent="onSearch" class="flex gap-2 items-center">
-                        <InputText v-model="state.search" placeholder="Пошук..."/>
-                        <Button severity="secondary"
-                                text
-                                rounded
-                                icon="pi pi-search"
-                                type="submit"
-                        />
-                    </form>
+                    <div class="flex justify-between">
+                        <form @submit.prevent="onSearch" class="flex gap-2 items-center">
+                            <InputText v-model="state.search" placeholder="Пошук..."/>
+                            <Button severity="secondary"
+                                    text
+                                    rounded
+                                    icon="pi pi-search"
+                                    type="submit"
+                            />
+                        </form>
+                        <div class="flex items-center">
+                            Додано користувачів: {{ state.data.total }} з {{ features.users }}
+                        </div>
+                    </div>
                 </template>
 
                 <Column field="id" header="ID" sortable=""></Column>
@@ -260,7 +277,7 @@ const refreshData = async () => {
                 <Column field="role" header="Роль">
                     <template #body="{data}">
                         <div v-for="item in data.roles">
-                            {{item.name}}
+                            {{ item.name }}
                         </div>
                     </template>
                 </Column>

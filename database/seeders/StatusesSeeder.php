@@ -24,15 +24,15 @@ class StatusesSeeder extends Seeder
      */
     final public function run(): void
     {
-        foreach (StatusGroups::state as $statsGroup) {
-            if (!$this->statusGroupsRepository->getModelByColumn('slug',$statsGroup['slug'])) {
-                $this->statusGroupsRepository->create($statsGroup);
+        foreach (StatusGroups::state as $item) {
+            if (!$this->statusGroupsRepository->getModelByColumn('slug', $item['slug'])) {
+                $this->statusGroupsRepository->create($item);
             }
         }
 
-        foreach (Statuses::state as $status) {
-            if (!$this->statusesRepository->getModelByTitleAndGroupSlug($status['title'], $status['group_slug'])) {
-                $this->statusesRepository->create($status);
+        foreach (Statuses::state as $item) {
+            if (!$this->statusesRepository->getModelByTitleAndGroupSlug($item['title'], $item['group_slug'])) {
+                $this->statusesRepository->create($item);
             }
         }
     }
