@@ -11,7 +11,11 @@ import {toast} from "vue3-toastify";
 
 const TenantModal = defineAsyncComponent(() => import('./CreateTenantModal.vue'));
 
-const props = defineProps(['tenants']);
+const props = defineProps([
+    'tenants',
+    'subscription',
+    'features',
+]);
 
 // const protocol = import.meta.env.VITE_APP_PROTOCOL;
 
@@ -106,7 +110,11 @@ const fetch = async () => {
         </Link>
 
         <div class="flex justify-center">
-            <Button icon="pi pi-plus" label="Створити CRM" @click="onCreate"/>
+            <Button icon="pi pi-plus"
+                    label="Створити CRM"
+                    @click="onCreate"
+                    :disable="state.data.total < features.domains"
+            />
         </div>
     </div>
     <TenantModal v-if="state.isShowModal" :show="state.isShowModal"

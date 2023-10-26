@@ -47,8 +47,12 @@ class HandleInertiaRequests extends Middleware
                     ? $request->user()->getPermissionsViaRoles()->pluck('name')
                     : []
             ],
-            'subscription' => tenant()->user->subscription->select(['start_date', 'end_date'])->first(),
-            'features' => tenant()->user->subscription->plan->features
+            'subscription' => tenant()
+                ? tenant()->user->subscription->select(['start_date', 'end_date'])->first()
+                : null,
+            'features' => tenant()
+                ? tenant()->user->subscription->plan->features
+                : null
         ]);
     }
 }

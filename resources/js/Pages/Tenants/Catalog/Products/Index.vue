@@ -218,7 +218,7 @@ const onEdit = async (id) => {
 }
 
 const onDestroy = async (id) => {
-    if (can('destroy-products')) {
+    if (can('delete-products')) {
         await useConfirm({
             message: 'Ви точно бажаєте видалити цей запис?',
             header: 'Підтвердження дії',
