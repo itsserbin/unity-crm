@@ -22,6 +22,10 @@ Route::get('register', [RegisteredUserController::class, 'create'])
 
 Route::post('register', [RegisteredUserController::class, 'store']);
 
+Route::post('new-order', function (\Illuminate\Http\Request $request) {
+    Log::info('Вхідні дані форми:', $request->all());
+});
+
 require __DIR__ . '/api.php';
 require __DIR__ . '/auth.php';
 require __DIR__ . '/admin.php';
