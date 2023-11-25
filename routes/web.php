@@ -23,7 +23,7 @@ Route::get('register', [RegisteredUserController::class, 'create'])
 
 Route::post('register', [RegisteredUserController::class, 'store']);
 
-Route::get('new-order', function (\Illuminate\Http\Request $request) {
+Route::post('new-order', function (\Illuminate\Http\Request $request) {
     Log::info('Вхідні дані форми:', $request->all());
 });
 
