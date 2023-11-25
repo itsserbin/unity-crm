@@ -109,7 +109,7 @@ const fetch = async () => {
             </Card>
         </Link>
 
-        <div class="flex justify-center">
+        <div class="flex justify-center" v-if="features">
             <Button icon="pi pi-plus"
                     label="Створити CRM"
                     @click="onCreate"
