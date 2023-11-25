@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\RegisterRequest;
+use App\Models\TariffPlan;
 use App\Models\Tenant;
 use App\Models\User;
 use Carbon\Carbon;
@@ -47,6 +48,15 @@ class RegisteredUserController extends Controller
         $user->subscription_expiration = Carbon::now()->addDays(30)->toDateTimeString();
         $user->password = $password;
         $user->save();
+
+        $plan = TariffPlan::where('name', 'Початковий')->first();
+        if ($plan) {
+            $user->subscription()->create([
+                'plan_id' => $plan->id,
+                'start_date' => Carbon::now()->toDateTimeString(),
+                'end_date' => Carbon::now()->addDays($plan->duration_days)->toDateTimeString(),
+            ]);
+        }
 
         $tenant = new Tenant();
         $tenant->id = $request->domain;
