@@ -55,9 +55,9 @@ class HandleInertiaRequests extends Middleware
     private function getSubscription(Request $request): ?string
     {
         if (tenant()) {
-            return tenant()->user->subscription->select(['start_date', 'end_date'])->first();
+            return tenant()->user->subscription?->select(['start_date', 'end_date'])->first();
         } else if ($request->user()) {
-            return $request->user()->subscription->select(['start_date', 'end_date'])->first();
+            return $request->user()->subscription?->select(['start_date', 'end_date'])->first();
         } else {
             return null;
         }
@@ -66,9 +66,9 @@ class HandleInertiaRequests extends Middleware
     private function getFeatures(Request $request): ?array
     {
         if (tenant()) {
-            return tenant()->user->subscription->plan->features;
+            return tenant()->user->subscription?->plan->features;
         } else if ($request->user()) {
-            return $request->user()->subscription->plan->features;
+            return $request->user()->subscription?->plan->features;
         } else {
             return null;
         }
