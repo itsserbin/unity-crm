@@ -1,5 +1,5 @@
 import './Includes/bootstrap.js';
-// import './Includes/theme.js';
+import './Includes/theme.js';
 import filters from './Includes/filters.js';
 
 import {createApp, h} from 'vue';
@@ -25,7 +25,7 @@ createInertiaApp({
                 pauseOnFocusLoss: false,
                 theme: isDark ? 'dark' : 'light'
             })
-            .use(PrimeVue);
+            .use(PrimeVue,{ unstyled: false, pt: {} });
 
         app.config.globalProperties.$filters = filters;
 
