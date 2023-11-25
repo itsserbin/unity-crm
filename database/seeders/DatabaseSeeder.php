@@ -11,13 +11,18 @@ class DatabaseSeeder extends Seeder
      */
     final public function run(): void
     {
-        $this->call([
-            StatusesSeeder::class,
-            RolesSeeder::class,
-            MovementCategoriesSeeder::class,
-            AccountsSeeder::class,
-            SourcesSeeder::class,
-            TariffPlansSeeder::class,
-        ]);
+        if (tenant()) {
+            $this->call([
+                StatusesSeeder::class,
+                RolesSeeder::class,
+                MovementCategoriesSeeder::class,
+                AccountsSeeder::class,
+                SourcesSeeder::class,
+            ]);
+        } else {
+            $this->call([
+                TariffPlansSeeder::class,
+            ]);
+        }
     }
 }
